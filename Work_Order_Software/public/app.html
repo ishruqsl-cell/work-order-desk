@@ -197,94 +197,75 @@ label{
 .saved-item .meta span{color:var(--ink-soft);font-size:11.5px;}
 .saved-actions{display:flex;gap:4px;flex-shrink:0;}
 
+/* --- Automatic date/time --- */
+.live-clock{font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--ink-soft);margin-top:3px;letter-spacing:.1px;}
+#btnViewSaved{display:none;}
+
 /* --- Paper preview --- */
 .paper-wrap{
   background:var(--paper);
   border:1px solid var(--paper-edge);
   box-shadow:0 2px 0 var(--paper-edge), 0 12px 26px rgba(35,36,31,0.12);
-  padding:12mm 12mm 10mm;
+  padding:10mm 11mm 8mm;
   font-family:'Source Serif 4',serif;
   color:var(--ink);
   width:210mm;
+  height:297mm;
   min-height:297mm;
   margin:0 auto;
   overflow:hidden;
 }
 .paper-preview-note{font-family:'IBM Plex Sans',sans-serif;font-size:8px;color:var(--ink-soft);margin:0 0 8px;text-align:center;}
-.doc-page{width:100%;}
-.doc-signature-area{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;break-inside:avoid;page-break-inside:avoid;}
-.paper-wrap .company-name{
-  font-size:21px;font-weight:700;text-align:center;margin:0 0 2px 0;
-}
-.paper-wrap .company-meta{
-  text-align:center;font-size:10.5px;color:var(--ink-soft);font-family:'IBM Plex Sans',sans-serif;
-  line-height:1.5;margin-bottom:14px;
-}
-.paper-wrap hr{border:none;border-top:1.2px solid var(--ink);margin:8px 0 12px 0;}
-.paper-topline{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:10px;}
-.paper-wrap .to-block{font-size:12px;line-height:1.45;margin-bottom:8px;}
-.paper-wrap .subject{font-size:12.5px;font-weight:600;margin-bottom:10px;}
-table.doc-items{width:100%;border-collapse:collapse;margin-bottom:7px;font-size:10.5px;table-layout:fixed;}
-table.doc-items th,table.doc-items td{border:1px solid var(--ink);padding:4px 4px;vertical-align:middle;}
-table.doc-items th{background:var(--paper-edge);font-family:'IBM Plex Sans',sans-serif;font-size:8.5px;text-transform:uppercase;letter-spacing:.2px;}
-table.doc-items .pic-cell{width:56px;text-align:center;vertical-align:middle;}
-table.doc-items .pic-cell img{width:44px;height:44px;object-fit:contain;display:block;margin:0 auto;}
+.doc-page{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.paper-wrap .company-name{font-size:21px;font-weight:700;text-align:center;margin:0 0 2px;}
+.paper-wrap .company-meta{text-align:center;font-size:9.5px;color:var(--ink-soft);font-family:'IBM Plex Sans',sans-serif;line-height:1.35;margin-bottom:9px;}
+.paper-wrap hr{border:none;border-top:1.2px solid var(--ink);margin:5px 0 8px;}
+.paper-topline{display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:7px;}
+.paper-wrap .to-block{font-size:11px;line-height:1.35;margin-bottom:6px;min-height:46px;}
+.paper-wrap .subject{font-size:11.5px;font-weight:600;margin-bottom:7px;min-height:16px;}
+table.doc-items{width:100%;border-collapse:collapse;margin-bottom:5px;font-size:9.5px;table-layout:fixed;}
+table.doc-items th,table.doc-items td{border:1px solid var(--ink);padding:3px 4px;vertical-align:middle;}
+table.doc-items th{background:var(--paper-edge);font-family:'IBM Plex Sans',sans-serif;font-size:7.5px;text-transform:uppercase;letter-spacing:.15px;line-height:1.15;}
+table.doc-items th:nth-child(1){width:6%;} table.doc-items th:nth-child(2){width:18%;} table.doc-items th:nth-child(3){width:18%;} table.doc-items th:nth-child(4){width:14%;} table.doc-items th:nth-child(5){width:15%;} table.doc-items th:nth-child(6){width:20%;} table.doc-items th:nth-child(7){width:9%;}
+table.doc-items .pic-cell{text-align:center;vertical-align:middle;}
+table.doc-items .pic-cell img{width:40px;height:40px;object-fit:contain;display:block;margin:0 auto;}
 table.doc-items td.num{text-align:right;}
-.doc-total-row{display:flex;justify-content:flex-end;gap:12px;font-size:11.5px;margin-bottom:9px;}
-.doc-total-row b{font-size:13px;}
-.doc-shipment{font-size:11.5px;margin-bottom:10px;}
-.doc-terms-title{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:9.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
-.doc-terms{font-family:'IBM Plex Sans',sans-serif;font-size:9.5px;line-height:1.42;color:var(--ink);white-space:pre-wrap;margin-bottom:8px;}
-.doc-signatures{margin-top:0;break-inside:avoid;page-break-inside:avoid;}
-.sig-row{display:grid;gap:18px;margin-top:0;break-inside:avoid;page-break-inside:avoid;}
-.sig-row-primary{grid-template-columns:1fr 1fr;min-height:43mm;}
-.sig-row-management{grid-template-columns:repeat(4,1fr);gap:8px;min-height:31mm;border-top:1px solid var(--line);padding-top:4mm;}
+.doc-total-row{display:flex;justify-content:flex-end;gap:10px;font-size:10.5px;margin-bottom:6px;}
+.doc-total-row b{font-size:12px;}
+.doc-shipment{font-size:10.5px;margin-bottom:6px;}
+.doc-terms-title{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:8.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.35px;margin-bottom:4px;}
+.doc-terms{font-family:'IBM Plex Sans',sans-serif;font-size:8.3px;line-height:1.28;color:var(--ink);white-space:pre-wrap;margin-bottom:4px;}
+.doc-signature-area{margin-top:auto;border-top:1px solid var(--line);padding-top:5px;break-inside:avoid;page-break-inside:avoid;}
+.doc-signatures{break-inside:avoid;page-break-inside:avoid;}
+.sig-row{display:grid;gap:18px;break-inside:avoid;page-break-inside:avoid;}
+.sig-row-primary{grid-template-columns:1fr 1fr;min-height:48mm;}
+.sig-row-management{grid-template-columns:repeat(4,1fr);gap:8px;min-height:25mm;border-top:1px solid var(--line);padding-top:3mm;}
 .doc-sig{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 4px 2px;}
-.doc-sig .line{border-top:1px solid var(--ink);width:90%;margin-bottom:5px;}
-.doc-sig .nm{font-size:10.5px;font-weight:600;min-height:13px;}
-.doc-sig .ds{font-family:'IBM Plex Sans',sans-serif;font-size:8.5px;color:var(--ink-soft);line-height:1.25;}
-.sig-row-primary .doc-sig{padding-bottom:5mm;}
+.doc-sig .line{border-top:1px solid var(--ink);width:92%;margin-bottom:4px;}
+.doc-sig .nm{font-size:9.5px;font-weight:600;min-height:12px;}
+.doc-sig .ds{font-family:'IBM Plex Sans',sans-serif;font-size:7.5px;color:var(--ink-soft);line-height:1.2;}
+.sig-row-primary .doc-sig{padding-bottom:4mm;}
 .sig-row-management .doc-sig{padding-bottom:1mm;}
-.doc-footer{margin-top:5px;font-family:'IBM Plex Sans',sans-serif;font-size:8px;color:var(--ink-soft);font-style:italic;}
-
+.doc-footer{margin-top:4px;font-family:'IBM Plex Sans',sans-serif;font-size:7px;color:var(--ink-soft);font-style:italic;}
 .empty-note{color:var(--ink-soft);font-size:12.5px;padding:16px 4px;}
 .search-row{display:flex;gap:8px;margin-bottom:10px;}
-.pill{
-  display:inline-block;font-size:10.5px;background:var(--paper-edge);color:var(--ink-soft);
-  padding:2px 7px;border-radius:20px;font-family:'IBM Plex Sans',sans-serif;
-}
-
-.modal-overlay{
-  display:none;
-  position:fixed;inset:0;
-  background:rgba(35,36,31,0.55);
-  align-items:flex-start;
-  justify-content:center;
-  padding:36px 16px;
-  overflow-y:auto;
-  z-index:1000;
-}
+.pill{display:inline-block;font-size:10.5px;background:var(--paper-edge);color:var(--ink-soft);padding:2px 7px;border-radius:20px;font-family:'IBM Plex Sans',sans-serif;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(35,36,31,.72);align-items:center;justify-content:center;padding:10px;overflow:auto;z-index:1000;}
 .modal-overlay.open{display:flex;}
-.modal-box{
-  background:var(--chrome-bg);
-  border-radius:6px;
-  padding:12px;
-  width:min(1250px,98vw);
-}
-#previewModal .paper-wrap{box-shadow:0 3px 18px rgba(0,0,0,.18);}
-#previewModal .modal-paper-scroll{max-height:calc(100vh - 95px);overflow:auto;padding:8px;}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:14px;}
-
+.modal-box{background:var(--chrome-bg);border-radius:6px;padding:10px;width:min(1500px,99vw);height:calc(100vh - 20px);display:flex;flex-direction:column;}
+#previewModal .paper-wrap{box-shadow:0 3px 18px rgba(0,0,0,.28);}
+#previewModal .modal-paper-scroll{flex:1;overflow:auto;padding:8px;display:flex;justify-content:center;align-items:flex-start;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px;flex-shrink:0;}
+@media(max-width:900px){.topbar{align-items:flex-start}.topbar-actions{flex-wrap:wrap}.paper-wrap{transform-origin:top center;}.modal-box{width:100vw;height:100vh;padding:6px}.modal-overlay{padding:0}}
 @media print{
   @page{size:A4 portrait;margin:0;}
   body *{visibility:hidden;}
   .paper-wrap#paper, .paper-wrap#paper *{visibility:visible;}
-  .paper-wrap#paper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:10mm 12mm 8mm;overflow:hidden;}
+  .paper-wrap#paper{position:absolute;top:0;left:0;width:210mm;height:297mm;min-height:297mm;box-shadow:none;border:none;padding:10mm 11mm 8mm;overflow:hidden;}
   body.printing-modal .paper-wrap#paper{visibility:hidden !important;}
   body.printing-modal .paper-wrap#modalPaper, body.printing-modal .paper-wrap#modalPaper *{visibility:visible;}
-  body.printing-modal .paper-wrap#modalPaper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:10mm 12mm 8mm;overflow:hidden;}
-  .doc-items{break-inside:avoid;page-break-inside:avoid;}
-  .doc-signatures{break-inside:avoid;page-break-inside:avoid;}
+  body.printing-modal .paper-wrap#modalPaper{position:absolute;top:0;left:0;width:210mm;height:297mm;min-height:297mm;box-shadow:none;border:none;padding:10mm 11mm 8mm;overflow:hidden;}
+  .doc-items,.doc-signatures{break-inside:avoid;page-break-inside:avoid;}
 }
 </style>
 </head>
@@ -296,11 +277,13 @@ table.doc-items td.num{text-align:right;}
     <div>
       <h1>Work Order Desk</h1>
       <div class="sub">Draft, save, view, and export work orders</div>
+      <div class="live-clock" id="liveClock">Loading date &amp; time…</div>
     </div>
   </div>
   <div class="topbar-actions">
     <button class="ghost" id="btnNew">+ New order</button>
     <button class="primary" id="btnSave">Save</button>
+    <button class="ghost" id="btnViewSaved">View Work Order</button>
     <button id="btnDownload">Download Excel</button>
     <button id="btnDownloadPdf">Download PDF</button>
     <button id="btnPrint">Print / PDF</button>
@@ -493,15 +476,28 @@ let settings = {
 };
 let index = []; // [{key, company, woNumber, date, supplierCompany, total, savedAt}]
 let state = null;
+let currentSavedKey = null;
 
 function blankItem(sl){ return {sl, style:"", qty:"", unitPrice:"", remarks:"", image:""}; }
+
+function localDateISO(d=new Date()){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function formatLiveDateTime(d=new Date()){
+  const date=d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  return `${date}  ${time}`;
+}
+function updateLiveClock(){ const el=document.getElementById('liveClock'); if(el) el.textContent=`${formatLiveDateTime()}  ·  Bangladesh Time`; }
+setInterval(updateLiveClock,1000);
 
 function blankOrder(){
   const company = state && state.company ? state.company : (settings.companies[0] || "");
   return {
     company,
     woNumber: "",
-    date: new Date().toISOString().slice(0,10),
+    date: localDateISO(),
     shipmentDate: "",
     subject: "",
     supplierContact: "",
@@ -924,6 +920,8 @@ async function loadOrder(key){
   state = Object.assign(base, rec);
   state.items = Array.isArray(rec.items) && rec.items.length ? rec.items.map((it,i)=>Object.assign(blankItem(i+1),it,{sl:i+1})) : [blankItem(1),blankItem(2)];
   state.signatures = Array.isArray(rec.signatures) && rec.signatures.length ? rec.signatures : base.signatures;
+  currentSavedKey = key;
+  document.getElementById('btnViewSaved').style.display='inline-block';
   renderAll();
 }
 
@@ -947,11 +945,13 @@ async function saveOrder(){
     await saveSettings();
     const total = recalcTotal();
     state.savedAt = new Date().toISOString();
-    await storeSet(keyFor(state.company,state.woNumber),state);
+    currentSavedKey = keyFor(state.company,state.woNumber);
+    await storeSet(currentSavedKey,state);
     await refreshIndex();
     renderCompanyList();
     renderSavedList();
     flashButton('btnSave', 'Saved ✓');
+    document.getElementById('btnViewSaved').style.display='inline-block';
   }catch(e){ alert(e.message||'Save failed.'); }
 }
 
@@ -1043,6 +1043,7 @@ async function downloadPdf(){
   try{
     readFormIntoState();
     if(!window.html2canvas || !window.jspdf){ alert('PDF export library could not be loaded. Please check your internet connection and try again.'); return; }
+
     const source=document.getElementById('paper');
     const clone=source.cloneNode(true);
     clone.id='pdfClone';
@@ -1050,32 +1051,37 @@ async function downloadPdf(){
     clone.style.left='-100000px';
     clone.style.top='0';
     clone.style.width='210mm';
-    clone.style.minHeight='0';
-    clone.style.height='auto';
+    clone.style.height='297mm';
+    clone.style.minHeight='297mm';
     clone.style.margin='0';
-    clone.style.padding='10mm 12mm 8mm';
+    clone.style.padding='10mm 11mm 8mm';
     clone.style.background='#FBF8F1';
     clone.style.boxShadow='none';
-    clone.style.overflow='visible';
+    clone.style.overflow='hidden';
     clone.style.border='none';
     document.body.appendChild(clone);
 
-    // Wait for all style pictures to finish loading before capture.
     const imgs=[...clone.querySelectorAll('img')];
     await Promise.all(imgs.map(img=>img.complete ? Promise.resolve() : new Promise(res=>{img.onload=img.onerror=res;})));
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-    const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#FBF8F1',useCORS:true,logging:false,windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight});
+    // Capture an exact A4-sized canvas so the PDF is always exactly one page.
+    const canvas=await html2canvas(clone,{
+      scale:2,
+      backgroundColor:'#FBF8F1',
+      useCORS:true,
+      allowTaint:false,
+      logging:false,
+      width:794,
+      height:1123,
+      windowWidth:794,
+      windowHeight:1123
+    });
     document.body.removeChild(clone);
 
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-    const pageW=210,pageH=297,margin=5;
-    const usableW=pageW-margin*2, usableH=pageH-margin*2;
-    const ratio=Math.min(usableW/canvas.width,usableH/canvas.height);
-    const w=canvas.width*ratio, h=canvas.height*ratio;
-    const x=(pageW-w)/2, y=(pageH-h)/2;
-    pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',x,y,w,h,undefined,'FAST');
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.96),'JPEG',0,0,210,297,undefined,'FAST');
 
     const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');
     const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
@@ -1119,9 +1125,12 @@ document.getElementById('btnNew').addEventListener('click', ()=>{
   const keepCompany = state.company;
   state = blankOrder();
   state.company = keepCompany;
+  currentSavedKey = null;
+  document.getElementById('btnViewSaved').style.display='none';
   renderAll();
 });
 document.getElementById('btnSave').addEventListener('click', saveOrder);
+document.getElementById('btnViewSaved').addEventListener('click', ()=>{ if(currentSavedKey) previewOrder(currentSavedKey); else alert('Please save the work order first.'); });
 document.getElementById('btnDownload').addEventListener('click', downloadExcel);
 document.getElementById('btnDownloadPdf').addEventListener('click', downloadPdf);
 document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
@@ -1156,6 +1165,7 @@ document.getElementById('fCompany').addEventListener('input', ()=>{
   document.getElementById(id).addEventListener('input', ()=>{ readFormIntoState(); renderPreview(); });
 });
 
+updateLiveClock();
 loadAll();
 </script>
 </body>
