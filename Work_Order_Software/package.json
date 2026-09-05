@@ -1,0 +1,14 @@
+{
+  "name": "work-order-desk-online",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Online Work Order Desk with persistent PostgreSQL storage and no login",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "dotenv": "^17.2.1"
+  }
+}

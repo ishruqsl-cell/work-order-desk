@@ -1,0 +1,45 @@
+ONLINE DEPLOYMENT - WORK ORDER DESK
+
+IMPORTANT
+This online build uses PostgreSQL instead of local SQLite. Do not upload the old data/workorders.db as the live database.
+
+FILES TO UPLOAD TO GITHUB
+- package.json
+- server.js
+- render.yaml
+- public/app.html
+- public/login.html
+- .gitignore
+- .env.example (optional)
+
+You do NOT need to upload:
+- data/
+- backups/
+- START_WORK_ORDER.bat
+- BACKUP_DATA.bat
+- INSTALL.txt
+- README.md
+
+DEPLOYMENT
+1. Create a private GitHub repository called work-order-desk.
+2. Upload the files/folder structure listed above.
+3. Create a free PostgreSQL database on your database provider (Neon is suitable for a free starting database).
+4. Copy its PostgreSQL connection string (DATABASE_URL).
+5. Create a Render Web Service connected to the GitHub repository.
+6. Build Command: npm install
+7. Start Command: npm start
+8. Runtime: Node
+9. Plan: Free
+10. Add environment variable NODE_ENV=production.
+11. Add environment variable DATABASE_URL=<your PostgreSQL connection string>.
+12. Deploy.
+13. Open the generated onrender.com URL.
+
+NO LOGIN
+This version intentionally has no username/password. Anyone who has the URL can access it. Do not share the URL publicly if the Work Orders contain confidential company information.
+
+DATA
+All saved Work Orders, settings, versions, and audit records are stored in PostgreSQL. Editing a Work Order creates a new version instead of deleting the previous version.
+
+NOTE ABOUT FREE SERVICES
+Free hosting/database tiers can have inactivity limits or other restrictions. For company production use, upgrade to paid persistent services and configure backups before treating it as the only copy of your business records.
