@@ -5,6 +5,8 @@
 <title>Work Order Desk</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
@@ -159,7 +161,13 @@ label{
 .items-table input{padding:5px 6px;font-size:12.5px;}
 .items-table .num{text-align:right;}
 .items-table .rm{width:26px;text-align:center;}
-.items-table .rm button{padding:2px 6px;font-size:11px;}
+ .items-table .rm button{padding:2px 6px;font-size:11px;}
+.items-table .pic-col{width:74px;text-align:center;}
+.item-picture{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.item-picture img{width:58px;height:58px;object-fit:contain;border:1px solid var(--line);background:#fff;border-radius:3px;display:block;}
+.item-picture .pic-placeholder{width:58px;height:58px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink-soft);text-align:center;background:#fafafa;}
+.item-picture input[type=file]{font-size:10px;padding:2px;border:0;width:70px;background:transparent;}
+.item-picture .remove-pic{padding:2px 6px;font-size:10px;}
 .items-total{
   display:flex;justify-content:flex-end;gap:10px;align-items:baseline;
   padding-top:6px;border-top:1.3px solid var(--line);
@@ -211,20 +219,25 @@ label{
 .paper-wrap .to-block{font-size:14px;line-height:1.6;margin-bottom:10px;}
 .paper-wrap .subject{font-size:14.5px;font-weight:600;margin-bottom:16px;}
 table.doc-items{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;}
-table.doc-items th,table.doc-items td{border:1px solid var(--ink);padding:6px 8px;}
-table.doc-items th{background:var(--paper-edge);font-family:'IBM Plex Sans',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+table.doc-items th,table.doc-items td{border:1px solid var(--ink);padding:5px 6px;}
+table.doc-items th{background:var(--paper-edge);font-family:'IBM Plex Sans',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.2px;}
+table.doc-items .pic-cell{width:62px;text-align:center;vertical-align:middle;}
+table.doc-items .pic-cell img{width:52px;height:52px;object-fit:contain;display:block;margin:0 auto;}
 table.doc-items td.num{text-align:right;}
 .doc-total-row{display:flex;justify-content:flex-end;gap:14px;font-size:14px;margin-bottom:18px;}
 .doc-total-row b{font-size:16px;}
 .doc-shipment{font-size:13.5px;margin-bottom:16px;}
 .doc-terms-title{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
 .doc-terms{font-family:'IBM Plex Sans',sans-serif;font-size:11.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap;margin-bottom:22px;}
-.doc-signatures{display:grid;grid-template-columns:1fr 1fr;column-gap:42px;row-gap:22px;margin-top:26px;}
+.doc-signatures{margin-top:12px;break-inside:avoid;page-break-inside:avoid;}
+.sig-row{display:grid;gap:18px;margin-top:8px;}
+.sig-row-primary{grid-template-columns:1fr 1fr;}
+.sig-row-management{grid-template-columns:repeat(4,1fr);gap:10px;}
 .doc-sig{min-width:0;}
-.doc-sig .line{border-top:1px solid var(--ink);width:150px;margin-bottom:6px;margin-top:26px;}
+.doc-sig .line{border-top:1px solid var(--ink);width:150px;margin-bottom:4px;margin-top:12px;}
 .doc-sig .nm{font-size:13.5px;font-weight:600;}
 .doc-sig .ds{font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--ink-soft);}
-.doc-footer{margin-top:26px;font-family:'IBM Plex Sans',sans-serif;font-size:10px;color:var(--ink-soft);font-style:italic;}
+.doc-footer{margin-top:12px;font-family:'IBM Plex Sans',sans-serif;font-size:10px;color:var(--ink-soft);font-style:italic;}
 
 .empty-note{color:var(--ink-soft);font-size:12.5px;padding:16px 4px;}
 .search-row{display:flex;gap:8px;margin-bottom:10px;}
@@ -253,12 +266,15 @@ table.doc-items td.num{text-align:right;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:14px;}
 
 @media print{
+  @page{size:A4 portrait;margin:0;}
   body *{visibility:hidden;}
   .paper-wrap#paper, .paper-wrap#paper *{visibility:visible;}
-  .paper-wrap#paper{position:absolute;top:0;left:0;width:100%;box-shadow:none;border:none;}
+  .paper-wrap#paper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:9mm 11mm;overflow:hidden;}
   body.printing-modal .paper-wrap#paper{visibility:hidden !important;}
   body.printing-modal .paper-wrap#modalPaper, body.printing-modal .paper-wrap#modalPaper *{visibility:visible;}
-  body.printing-modal .paper-wrap#modalPaper{position:absolute;top:0;left:0;width:100%;box-shadow:none;border:none;}
+  body.printing-modal .paper-wrap#modalPaper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:9mm 11mm;overflow:hidden;}
+  .doc-items{break-inside:avoid;page-break-inside:avoid;}
+  .doc-signatures{break-inside:avoid;page-break-inside:avoid;}
 }
 </style>
 </head>
@@ -276,7 +292,8 @@ table.doc-items td.num{text-align:right;}
     <button class="ghost" id="btnNew">+ New order</button>
     <button class="primary" id="btnSave">Save</button>
     <button id="btnDownload">Download Excel</button>
-    <button id="btnPrint">Print</button>
+    <button id="btnDownloadPdf">Download PDF</button>
+    <button id="btnPrint">Print / PDF</button>
     <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
     <button class="ghost" id="btnLogout">Logout</button>
   </div>
@@ -351,6 +368,7 @@ table.doc-items td.num{text-align:right;}
             <th style="width:80px;">Unit price</th>
             <th style="width:90px;">Total price</th>
             <th>Remarks</th>
+            <th class="pic-col">Picture</th>
             <th class="rm"></th>
           </tr>
         </thead>
@@ -466,7 +484,7 @@ let settings = {
 let index = []; // [{key, company, woNumber, date, supplierCompany, total, savedAt}]
 let state = null;
 
-function blankItem(sl){ return {sl, style:"", qty:"", unitPrice:"", remarks:""}; }
+function blankItem(sl){ return {sl, style:"", qty:"", unitPrice:"", remarks:"", image:""}; }
 
 function blankOrder(){
   const company = state && state.company ? state.company : (settings.companies[0] || "");
@@ -610,11 +628,18 @@ function renderItems(){
       <td><input data-i="${i}" data-f="unitPrice" class="num" value="${escapeAttr(it.unitPrice)}"></td>
       <td class="num">${fmt(total)}</td>
       <td><input data-i="${i}" data-f="remarks" value="${escapeAttr(it.remarks)}"></td>
+      <td class="pic-col">
+        <div class="item-picture">
+          ${it.image ? `<img src="${it.image}" alt="Style picture">` : `<div class="pic-placeholder">No picture</div>`}
+          <input type="file" accept="image/*" data-img-i="${i}" title="Upload style picture">
+          ${it.image ? `<button type="button" class="ghost remove-pic" data-rmpic="${i}">Remove</button>` : ''}
+        </div>
+      </td>
       <td class="rm"><button data-rm="${i}">✕</button></td>
     `;
     body.appendChild(tr);
   });
-  body.querySelectorAll('input').forEach(inp=>{
+  body.querySelectorAll('input[data-i]').forEach(inp=>{
     inp.addEventListener('input', e=>{
       const i = +e.target.dataset.i, f = e.target.dataset.f;
       state.items[i][f] = e.target.value;
@@ -625,10 +650,31 @@ function renderItems(){
       renderPreview();
     });
   });
+  body.querySelectorAll('input[type=file][data-img-i]').forEach(inp=>{
+    inp.addEventListener('change', async e=>{
+      const i = +e.target.dataset.imgI;
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      try{
+        state.items[i].image = await compressImage(file,1000,1000,0.84);
+        renderItems();
+        renderPreview();
+      }catch(err){ alert(err.message||'Picture upload failed.'); }
+    });
+  });
+  body.querySelectorAll('[data-rmpic]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.rmpic;
+      state.items[i].image = '';
+      renderItems();
+      renderPreview();
+    });
+  });
   body.querySelectorAll('[data-rm]').forEach(btn=>{
     btn.addEventListener('click', e=>{
       const i = +e.target.dataset.rm;
       state.items.splice(i,1);
+      state.items.forEach((item,idx)=>item.sl=idx+1);
       renderItems();
       renderPreview();
     });
@@ -738,6 +784,29 @@ function renderSignatures(){
 
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function escapeAttr(s){ return escapeHtml(String(s==null?"":s)); }
+function compressImage(file,maxW,maxH,quality){
+  return new Promise((resolve,reject)=>{
+    if(!file.type.startsWith('image/')) return reject(new Error('Please choose an image file.'));
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Could not read the picture.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('Could not open the picture.'));
+      img.onload=()=>{
+        const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function buildTermsHtml(terms){
   return (terms||'').split('\n').map(line=>{
@@ -757,13 +826,16 @@ function buildPaperHtml(order){
       <td class="num">${fmt(it.unitPrice)}</td>
       <td class="num">${fmt((Number(it.qty)||0)*(Number(it.unitPrice)||0))}</td>
       <td>${escapeHtml(it.remarks)}</td>
+      <td class="pic-cell">${it.image ? `<img src="${it.image}" alt="Style picture">` : ''}</td>
     </tr>`).join('');
-  const sigHtml = order.signatures.map(s=>`
-    <div class="doc-sig">
-      <div class="line"></div>
-      <div class="nm">${escapeHtml(s.name)||'&nbsp;'}</div>
-      <div class="ds">${escapeHtml(s.designation)}</div>
-    </div>`).join('');
+  const sigs = Array.isArray(order.signatures) ? order.signatures : [];
+  const assistants = sigs.filter(s => s.role === 'assistantMerchandiser' || (s.role === 'fixed' && /assistant merchandiser/i.test(s.designation||'')));
+  const supplierSig = sigs.find(s => s.role === 'supplier') || {name:'',designation:'Supplier'};
+  const assistantSig = assistants[0] || {name:'',designation:'Assistant Merchandiser'};
+  const managementSigs = sigs.filter(s => s !== supplierSig && s !== assistantSig && !assistants.includes(s));
+  const renderSig = s => `<div class="doc-sig"><div class="line"></div><div class="nm">${escapeHtml(s.name)||'&nbsp;'}</div><div class="ds">${escapeHtml(s.designation||'')}</div></div>`;
+  const sigHtml = `<div class="sig-row sig-row-primary">${renderSig(assistantSig)}${renderSig(supplierSig)}</div>`
+    + `<div class="sig-row sig-row-management">${managementSigs.slice(0,4).map(renderSig).join('')}</div>`;
   return `
     <div class="company-name">${escapeHtml(order.company)||'Company name'}</div>
     <div class="company-meta">
@@ -784,7 +856,7 @@ function buildPaperHtml(order){
     </div>
     <div class="subject">Subject: ${escapeHtml(order.subject)}</div>
     <table class="doc-items">
-      <thead><tr><th>SL</th><th>Style name</th><th>Total order qty (pcs)</th><th>Unit price (TK)</th><th>Total price</th><th>Remarks</th></tr></thead>
+      <thead><tr><th>SL</th><th>Style name</th><th>Total order qty (pcs)</th><th>Unit price (TK)</th><th>Total price</th><th>Remarks</th><th>Picture</th></tr></thead>
       <tbody>${itemsRows}</tbody>
     </table>
     <div class="doc-total-row">Total amount (BDT) <b>${fmt(total)}</b></div>
@@ -887,55 +959,96 @@ async function downloadExcel(){
     const info=settings.companyInfo[state.company]||{};
     const wb=new ExcelJS.Workbook();
     wb.creator='Work Order Desk'; wb.created=new Date();
-    const ws=wb.addWorksheet('Work Order',{pageSetup:{orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0},views:[{showGridLines:false}]});
-    ws.columns=[{width:8},{width:26},{width:19},{width:17},{width:18},{width:27}];
+    const ws=wb.addWorksheet('Work Order',{pageSetup:{orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1,paperSize:9},views:[{showGridLines:false}]});
+    ws.columns=[{width:7},{width:24},{width:16},{width:15},{width:16},{width:24},{width:13}];
     const border={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
     const thinFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFEDE8DB'}};
     const titleFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFD9E8E4'}};
     function mergeText(range,text,opts={}){ws.mergeCells(range);const c=ws.getCell(range.split(':')[0]);c.value=text;c.font={name:'Arial',size:opts.size||11,bold:!!opts.bold};c.alignment={horizontal:opts.align||'left',vertical:'middle',wrapText:true};if(opts.fill)c.fill=opts.fill;}
     let r=1;
-    mergeText(`A${r}:F${r}`,state.company||'Work Order',{size:18,bold:true,align:'center',fill:titleFill});ws.getRow(r).height=28;r++;
-    if(info.factoryAddress){mergeText(`A${r}:F${r}`,'Factory Address: '+info.factoryAddress,{align:'center'});r++;}
-    if(info.corporateAddress){mergeText(`A${r}:F${r}`,'Corporate Office Address: '+info.corporateAddress,{align:'center'});r++;}
+    mergeText(`A${r}:G${r}`,state.company||'Work Order',{size:18,bold:true,align:'center',fill:titleFill});ws.getRow(r).height=28;r++;
+    if(info.factoryAddress){mergeText(`A${r}:G${r}`,'Factory Address: '+info.factoryAddress,{align:'center'});r++;}
+    if(info.corporateAddress){mergeText(`A${r}:G${r}`,'Corporate Office Address: '+info.corporateAddress,{align:'center'});r++;}
     const contact=[info.phone?('Phone: '+info.phone):'',info.email?('E-mail: '+info.email):'',info.web?('Web: '+info.web):''].filter(Boolean).join('   |   ');
-    if(contact){mergeText(`A${r}:F${r}`,contact,{align:'center'});r++;}
+    if(contact){mergeText(`A${r}:G${r}`,contact,{align:'center'});r++;}
     r++;
-    ws.getCell(`A${r}`).value='Date:';ws.getCell(`B${r}`).value=state.date||'';ws.getCell(`D${r}`).value='Work Order No:';ws.getCell(`E${r}`).value=state.woNumber||'';ws.mergeCells(`E${r}:F${r}`);
+    ws.getCell(`A${r}`).value='Date:';ws.getCell(`B${r}`).value=state.date||'';ws.getCell(`D${r}`).value='Work Order No:';ws.getCell(`E${r}`).value=state.woNumber||'';ws.mergeCells(`F${r}:G${r}`);
     ['A','D'].forEach(c=>{ws.getCell(`${c}${r}`).font={bold:true};});
-    ['A','B','D','E','F'].forEach(c=>ws.getCell(`${c}${r}`).border=border);r+=2;
+    ['A','B','D','E','F','G'].forEach(c=>ws.getCell(`${c}${r}`).border=border);r+=2;
     ws.getCell(`A${r}`).value='To:';ws.getCell(`A${r}`).font={bold:true};r++;
-    [state.supplierContact||'',state.supplierCompany||''].forEach((v,i)=>{mergeText(`A${r}:F${r}`,v,{bold:i===1});r++;});
-    if(state.supplierAddress){ws.getCell(`A${r}`).value='Office Address:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierAddress;ws.mergeCells(`B${r}:F${r}`);r++;}
+    [state.supplierContact||'',state.supplierCompany||''].forEach((v,i)=>{mergeText(`A${r}:G${r}`,v,{bold:i===1});r++;});
+    if(state.supplierAddress){ws.getCell(`A${r}`).value='Office Address:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierAddress;ws.mergeCells(`B${r}:G${r}`);r++;}
     r++;
-    ws.getCell(`A${r}`).value='Subject:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.subject||'';ws.mergeCells(`B${r}:F${r}`);r+=2;
+    ws.getCell(`A${r}`).value='Subject:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.subject||'';ws.mergeCells(`B${r}:G${r}`);r+=2;
     const headerRow=r;
-    ['SL','Style Name','Total Order QTY Pcs','Unit Price (TK)','Total Price','Remarks'].forEach((v,i)=>{const c=ws.getCell(headerRow,i+1);c.value=v;c.font={bold:true};c.fill=thinFill;c.alignment={horizontal:'center',vertical:'middle',wrapText:true};c.border=border;});
+    ['SL','Style Name','Total Order QTY Pcs','Unit Price (TK)','Total Price','Remarks','Picture'].forEach((v,i)=>{const c=ws.getCell(headerRow,i+1);c.value=v;c.font={bold:true};c.fill=thinFill;c.alignment={horizontal:'center',vertical:'middle',wrapText:true};c.border=border;});
     ws.getRow(headerRow).height=28;r++;
-    state.items.forEach((it,i)=>{const vals=[i+1,it.style||'',Number(it.qty)||0,Number(it.unitPrice)||0,(Number(it.qty)||0)*(Number(it.unitPrice)||0),it.remarks||''];vals.forEach((v,j)=>{const c=ws.getCell(r,j+1);c.value=v;c.border=border;c.alignment={vertical:'top',wrapText:true,horizontal:j===0||j===2||j===3||j===4?'right':'left'};if(j===2||j===3||j===4)c.numFmt='#,##0.00';});r++;});
-    ws.mergeCells(`A${r}:D${r}`);ws.getCell(`A${r}`).value='Total Amount (BDT)';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`E${r}`).value=recalcTotal();ws.getCell(`E${r}`).font={bold:true};ws.getCell(`E${r}`).numFmt='#,##0.00';ws.mergeCells(`E${r}:F${r}`);
-    for(let c=1;c<=6;c++){ws.getCell(r,c).border=border;ws.getCell(r,c).fill=thinFill;}r+=2;
-    if(state.shipmentDate){ws.getCell(`A${r}`).value='Shipment Date:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.shipmentDate;ws.mergeCells(`B${r}:F${r}`);r++;}
+    state.items.forEach((it,i)=>{
+      const rowNum=r;
+      const vals=[i+1,it.style||'',Number(it.qty)||0,Number(it.unitPrice)||0,(Number(it.qty)||0)*(Number(it.unitPrice)||0),it.remarks||''];
+      vals.forEach((v,j)=>{const c=ws.getCell(rowNum,j+1);c.value=v;c.border=border;c.alignment={vertical:'middle',wrapText:true,horizontal:j===0||j===2||j===3||j===4?'right':'left'};if(j===2||j===3||j===4)c.numFmt='#,##0.00';});
+      ws.getCell(rowNum,7).border=border;
+      ws.getCell(rowNum,7).alignment={horizontal:'center',vertical:'middle'};
+      if(it.image){
+        try{
+          const ext=(it.image.match(/^data:image\/(png|jpeg|jpg|gif);base64,/)||[])[1]||'jpeg';
+          const imageId=wb.addImage({base64:it.image,extension:ext==='jpg'?'jpeg':ext});
+          ws.addImage(imageId,{tl:{col:6.18,row:rowNum-1+0.08},ext:{width:78,height:58}});
+          ws.getRow(rowNum).height=48;
+        }catch(imgErr){ console.warn('Excel image skipped',imgErr); }
+      }
+      r++;
+    });
+    ws.mergeCells(`A${r}:E${r}`);ws.getCell(`A${r}`).value='Total Amount (BDT)';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`F${r}`).value=recalcTotal();ws.getCell(`F${r}`).font={bold:true};ws.getCell(`F${r}`).numFmt='#,##0.00';ws.mergeCells(`F${r}:G${r}`);
+    for(let c=1;c<=7;c++){ws.getCell(r,c).border=border;ws.getCell(r,c).fill=thinFill;}r+=2;
+    if(state.shipmentDate){ws.getCell(`A${r}`).value='Shipment Date:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.shipmentDate;ws.mergeCells(`B${r}:G${r}`);r++;}
     r++;
-    mergeText(`A${r}:F${r}`,'Terms & Conditions',{bold:true,fill:titleFill});r++;
-    (state.terms||'').split('\n').forEach(line=>{const idx=line.indexOf(':');if(idx>0){ws.getCell(`A${r}`).value={richText:[{text:line.slice(0,idx+1),font:{bold:true}},{text:line.slice(idx+1)}]};}else ws.getCell(`A${r}`).value=line;ws.mergeCells(`A${r}:F${r}`);for(let c=1;c<=6;c++)ws.getCell(r,c).border=border;ws.getRow(r).height=22;r++;});
+    mergeText(`A${r}:G${r}`,'Terms & Conditions',{bold:true,fill:titleFill});r++;
+    (state.terms||'').split('\n').forEach(line=>{const idx=line.indexOf(':');if(idx>0){ws.getCell(`A${r}`).value={richText:[{text:line.slice(0,idx+1),font:{bold:true}},{text:line.slice(idx+1)}]};}else ws.getCell(`A${r}`).value=line;ws.mergeCells(`A${r}:G${r}`);for(let c=1;c<=7;c++)ws.getCell(r,c).border=border;ws.getRow(r).height=22;r++;});
     r++;
     const sigs=state.signatures||[];
-    for(let i=0;i<Math.max(3,Math.ceil(sigs.length/2));i++){
-      const left=sigs[i*2]||{}, right=sigs[i*2+1]||{};
-      ws.mergeCells(`A${r}:C${r}`);ws.mergeCells(`D${r}:F${r}`);
-      ws.getCell(`A${r}`).value=left.name||'';ws.getCell(`D${r}`).value=right.name||'';
-      ws.getCell(`A${r+1}`).value=left.designation||'';ws.getCell(`D${r+1}`).value=right.designation||'';
-      for(const cell of [`A${r}`,`B${r}`,`C${r}`,`D${r}`,`E${r}`,`F${r}`,`A${r+1}`,`B${r+1}`,`C${r+1}`,`D${r+1}`,`E${r+1}`,`F${r+1}`]){ws.getCell(cell).border=border;ws.getCell(cell).alignment={horizontal:'center',vertical:'middle',wrapText:true};}
+    const assistant=sigs.find(s=>s.role==='assistantMerchandiser') || sigs.find(s=>s.role==='fixed' && /assistant merchandiser/i.test(s.designation||'')) || {};
+    const supplier=sigs.find(s=>s.role==='supplier') || {};
+    const managers=sigs.filter(s=>s!==assistant && s!==supplier).slice(0,2);
+    while(managers.length<2) managers.push({});
+    const sigRows=[[assistant,supplier],[managers[0],managers[1]]];
+    sigRows.forEach(pair=>{
+      ws.mergeCells(`A${r}:C${r}`);ws.mergeCells(`D${r}:G${r}`);
+      ws.getCell(`A${r}`).value=pair[0].name||'';ws.getCell(`D${r}`).value=pair[1].name||'';
+      ws.getCell(`A${r+1}`).value=pair[0].designation||'Assistant Merchandiser';ws.getCell(`D${r+1}`).value=pair[1].designation||'Supplier';
+      for(const cell of [`A${r}`,`B${r}`,`C${r}`,`D${r}`,`E${r}`,`F${r}`,`G${r}`,`A${r+1}`,`B${r+1}`,`C${r+1}`,`D${r+1}`,`E${r+1}`,`F${r+1}`,`G${r+1}`]){ws.getCell(cell).border=border;ws.getCell(cell).alignment={horizontal:'center',vertical:'middle',wrapText:true};}
       ws.getCell(`A${r}`).font={bold:true};ws.getCell(`D${r}`).font={bold:true};r+=2;
-    }
-    mergeText(`A${r}:F${r}`,`N.B.: ${state.company} ${state.footerNote||''}`,{size:9});
+    });
+    mergeText(`A${r}:G${r}`,`N.B.: ${state.company} ${state.footerNote||''}`,{size:9});
     for(let rr=1;rr<=ws.rowCount;rr++) ws.getRow(rr).alignment={vertical:'middle',wrapText:true};
     ws.pageSetup.margins={left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2};
-    ws.pageSetup.printArea=`A1:F${r}`;
+    ws.pageSetup.printArea=`A1:G${r}`;
     const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
     const buffer=await wb.xlsx.writeBuffer();
     const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${safeCompany}_${safeWo}.xlsx`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
   }catch(e){console.error(e);alert(e.message||'Excel export failed.');}
+}
+
+async function downloadPdf(){
+  try{
+    readFormIntoState();
+    if(!window.html2canvas || !window.jspdf){ alert('PDF export library could not be loaded. Please check your internet connection and try again.'); return; }
+    const source=document.getElementById('paper');
+    const clone=source.cloneNode(true);
+    clone.style.position='fixed'; clone.style.left='-100000px'; clone.style.top='0'; clone.style.width='210mm'; clone.style.minHeight='297mm'; clone.style.height='297mm'; clone.style.padding='9mm 11mm'; clone.style.background='#FBF8F1'; clone.style.boxShadow='none'; clone.style.overflow='hidden'; clone.id='pdfClone';
+    document.body.appendChild(clone);
+    const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#FBF8F1',useCORS:true,logging:false});
+    document.body.removeChild(clone);
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    const pageW=210,pageH=297;
+    const ratio=Math.min(pageW/canvas.width,pageH/canvas.height);
+    const w=canvas.width*ratio,h=canvas.height*ratio;
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',(pageW-w)/2,0,w,h);
+    const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');
+    const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
+    pdf.save(`${safeCompany}_${safeWo}.pdf`);
+  }catch(e){ console.error(e); alert(e.message||'PDF export failed.'); }
 }
 
 function addItem(){
@@ -978,6 +1091,7 @@ document.getElementById('btnNew').addEventListener('click', ()=>{
 });
 document.getElementById('btnSave').addEventListener('click', saveOrder);
 document.getElementById('btnDownload').addEventListener('click', downloadExcel);
+document.getElementById('btnDownloadPdf').addEventListener('click', downloadPdf);
 document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
 document.getElementById('btnLogout').style.display='none';
 document.getElementById('btnAddItem').addEventListener('click', addItem);
