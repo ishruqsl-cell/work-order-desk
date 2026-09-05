@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Work Order Desk</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --chrome-bg:#DDD9CD;
+  --chrome-bg-deep:#CFCABB;
+  --paper:#FBF8F1;
+  --paper-edge:#EFE9DA;
+  --ink:#23241F;
+  --ink-soft:#524C40;
+  --accent:#1F5C55;
+  --accent-deep:#153F3A;
+  --line:#C9C3B4;
+  --danger:#8C3B2E;
+  --white:#fff;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--chrome-bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif;
+  min-height:100vh;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 24px;
+  background:var(--chrome-bg-deep);
+  border-bottom:2px solid var(--line);
+  flex-wrap:wrap;
+}
+.brand{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+.brand .mark{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--accent);
+  display:inline-block;
+}
+.brand h1{
+  font-family:'Source Serif 4',serif;
+  font-size:20px;
+  font-weight:600;
+  margin:0;
+  letter-spacing:0.2px;
+}
+.brand .sub{
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.topbar-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+button{
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  border:1.5px solid var(--ink);
+  background:var(--white);
+  color:var(--ink);
+  padding:8px 14px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:background .12s ease, color .12s ease, transform .05s ease;
+}
+button:hover{background:var(--ink);color:var(--white);}
+button:active{transform:translateY(1px);}
+button.primary{background:var(--accent);border-color:var(--accent-deep);color:var(--white);}
+button.primary:hover{background:var(--accent-deep);}
+button.ghost{border-color:var(--line);color:var(--ink-soft);}
+button.ghost:hover{background:var(--ink-soft);color:var(--white);}
+button.danger{border-color:var(--danger);color:var(--danger);}
+button.danger:hover{background:var(--danger);color:var(--white);}
+button.small{padding:4px 9px;font-size:12px;}
+select,input,textarea{
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:13px;
+  padding:7px 9px;
+  border:1.3px solid var(--line);
+  border-radius:3px;
+  background:var(--white);
+  color:var(--ink);
+  width:100%;
+}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+label{
+  display:block;
+  font-size:11px;
+  text-transform:none;
+  color:var(--ink-soft);
+  margin-bottom:3px;
+  font-weight:500;
+}
+.field{margin-bottom:12px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(320px,460px) 3px 1fr;
+  gap:0;
+  align-items:start;
+  padding:20px;
+}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .seam{display:none;}
+}
+.seam{
+  align-self:stretch;
+  background:repeating-linear-gradient(to bottom, var(--ink-soft) 0 6px, transparent 6px 12px);
+  opacity:.35;
+  margin:0 10px;
+}
+
+.panel{
+  background:var(--white);
+  border:1.3px solid var(--line);
+  border-radius:4px;
+  padding:18px;
+}
+.panel h2{
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink-soft);
+  margin:0 0 12px 0;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+.panel + .panel{margin-top:16px;}
+
+.items-table{width:100%;border-collapse:collapse;margin-bottom:8px;table-layout:fixed;}
+.items-table th{
+  font-size:10.5px;
+  text-align:left;
+  color:var(--ink-soft);
+  font-weight:600;
+  padding:4px 4px;
+  border-bottom:1.3px solid var(--line);
+}
+.items-table td{padding:3px 4px;vertical-align:top;}
+.items-table input{padding:5px 6px;font-size:12.5px;}
+.items-table .num{text-align:right;}
+.items-table .rm{width:26px;text-align:center;}
+ .items-table .rm button{padding:2px 6px;font-size:11px;}
+.items-table .pic-col{width:74px;text-align:center;}
+.item-picture{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.item-picture img{width:58px;height:58px;object-fit:contain;border:1px solid var(--line);background:#fff;border-radius:3px;display:block;}
+.item-picture .pic-placeholder{width:58px;height:58px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink-soft);text-align:center;background:#fafafa;}
+.item-picture input[type=file]{font-size:10px;padding:2px;border:0;width:70px;background:transparent;}
+.item-picture .remove-pic{padding:2px 6px;font-size:10px;}
+.items-total{
+  display:flex;justify-content:flex-end;gap:10px;align-items:baseline;
+  padding-top:6px;border-top:1.3px solid var(--line);
+  font-size:13px;
+}
+.items-total b{font-family:'Source Serif 4',serif;font-size:16px;}
+
+.sig-block{
+  border:1px dashed var(--line);
+  border-radius:3px;
+  padding:10px;
+  margin-bottom:8px;
+  position:relative;
+}
+.sig-block .rm-sig{position:absolute;top:6px;right:6px;}
+.sig-block .pill{margin-bottom:2px;}
+
+.saved-list{max-height:340px;overflow-y:auto;}
+.saved-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:8px 6px;border-bottom:1px solid var(--paper-edge);font-size:12.5px;
+}
+.saved-item:hover{background:var(--paper-edge);cursor:pointer;}
+.saved-item:focus{outline:2px solid var(--accent);outline-offset:-2px;}
+.saved-item .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.saved-item .meta b{display:block;font-size:13px;}
+.saved-item .meta span{color:var(--ink-soft);font-size:11.5px;}
+.saved-actions{display:flex;gap:4px;flex-shrink:0;}
+
+/* --- Paper preview --- */
+.paper-wrap{
+  background:var(--paper);
+  border:1px solid var(--paper-edge);
+  box-shadow:0 2px 0 var(--paper-edge), 0 12px 26px rgba(35,36,31,0.12);
+  padding:12mm 12mm 10mm;
+  font-family:'Source Serif 4',serif;
+  color:var(--ink);
+  width:210mm;
+  min-height:297mm;
+  margin:0 auto;
+  overflow:hidden;
+}
+.paper-preview-note{font-family:'IBM Plex Sans',sans-serif;font-size:8px;color:var(--ink-soft);margin:0 0 8px;text-align:center;}
+.doc-page{width:100%;}
+.doc-signature-area{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;break-inside:avoid;page-break-inside:avoid;}
+.paper-wrap .company-name{
+  font-size:21px;font-weight:700;text-align:center;margin:0 0 2px 0;
+}
+.paper-wrap .company-meta{
+  text-align:center;font-size:10.5px;color:var(--ink-soft);font-family:'IBM Plex Sans',sans-serif;
+  line-height:1.5;margin-bottom:14px;
+}
+.paper-wrap hr{border:none;border-top:1.2px solid var(--ink);margin:8px 0 12px 0;}
+.paper-topline{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:10px;}
+.paper-wrap .to-block{font-size:12px;line-height:1.45;margin-bottom:8px;}
+.paper-wrap .subject{font-size:12.5px;font-weight:600;margin-bottom:10px;}
+table.doc-items{width:100%;border-collapse:collapse;margin-bottom:7px;font-size:10.5px;table-layout:fixed;}
+table.doc-items th,table.doc-items td{border:1px solid var(--ink);padding:4px 4px;vertical-align:middle;}
+table.doc-items th{background:var(--paper-edge);font-family:'IBM Plex Sans',sans-serif;font-size:8.5px;text-transform:uppercase;letter-spacing:.2px;}
+table.doc-items .pic-cell{width:56px;text-align:center;vertical-align:middle;}
+table.doc-items .pic-cell img{width:44px;height:44px;object-fit:contain;display:block;margin:0 auto;}
+table.doc-items td.num{text-align:right;}
+.doc-total-row{display:flex;justify-content:flex-end;gap:12px;font-size:11.5px;margin-bottom:9px;}
+.doc-total-row b{font-size:13px;}
+.doc-shipment{font-size:11.5px;margin-bottom:10px;}
+.doc-terms-title{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:9.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.doc-terms{font-family:'IBM Plex Sans',sans-serif;font-size:9.5px;line-height:1.42;color:var(--ink);white-space:pre-wrap;margin-bottom:8px;}
+.doc-signatures{margin-top:0;break-inside:avoid;page-break-inside:avoid;}
+.sig-row{display:grid;gap:18px;margin-top:0;break-inside:avoid;page-break-inside:avoid;}
+.sig-row-primary{grid-template-columns:1fr 1fr;min-height:43mm;}
+.sig-row-management{grid-template-columns:repeat(4,1fr);gap:8px;min-height:31mm;border-top:1px solid var(--line);padding-top:4mm;}
+.doc-sig{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 4px 2px;}
+.doc-sig .line{border-top:1px solid var(--ink);width:90%;margin-bottom:5px;}
+.doc-sig .nm{font-size:10.5px;font-weight:600;min-height:13px;}
+.doc-sig .ds{font-family:'IBM Plex Sans',sans-serif;font-size:8.5px;color:var(--ink-soft);line-height:1.25;}
+.sig-row-primary .doc-sig{padding-bottom:5mm;}
+.sig-row-management .doc-sig{padding-bottom:1mm;}
+.doc-footer{margin-top:5px;font-family:'IBM Plex Sans',sans-serif;font-size:8px;color:var(--ink-soft);font-style:italic;}
+
+.empty-note{color:var(--ink-soft);font-size:12.5px;padding:16px 4px;}
+.search-row{display:flex;gap:8px;margin-bottom:10px;}
+.pill{
+  display:inline-block;font-size:10.5px;background:var(--paper-edge);color:var(--ink-soft);
+  padding:2px 7px;border-radius:20px;font-family:'IBM Plex Sans',sans-serif;
+}
+
+.modal-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(35,36,31,0.55);
+  align-items:flex-start;
+  justify-content:center;
+  padding:36px 16px;
+  overflow-y:auto;
+  z-index:1000;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--chrome-bg);
+  border-radius:6px;
+  padding:12px;
+  width:min(1250px,98vw);
+}
+#previewModal .paper-wrap{box-shadow:0 3px 18px rgba(0,0,0,.18);}
+#previewModal .modal-paper-scroll{max-height:calc(100vh - 95px);overflow:auto;padding:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:14px;}
+
+@media print{
+  @page{size:A4 portrait;margin:0;}
+  body *{visibility:hidden;}
+  .paper-wrap#paper, .paper-wrap#paper *{visibility:visible;}
+  .paper-wrap#paper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:10mm 12mm 8mm;overflow:hidden;}
+  body.printing-modal .paper-wrap#paper{visibility:hidden !important;}
+  body.printing-modal .paper-wrap#modalPaper, body.printing-modal .paper-wrap#modalPaper *{visibility:visible;}
+  body.printing-modal .paper-wrap#modalPaper{position:absolute;top:0;left:0;width:210mm;min-height:297mm;height:297mm;box-shadow:none;border:none;padding:10mm 12mm 8mm;overflow:hidden;}
+  .doc-items{break-inside:avoid;page-break-inside:avoid;}
+  .doc-signatures{break-inside:avoid;page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark"></span>
+    <div>
+      <h1>Work Order Desk</h1>
+      <div class="sub">Draft, save, view, and export work orders</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="ghost" id="btnNew">+ New order</button>
+    <button class="primary" id="btnSave">Save</button>
+    <button id="btnDownload">Download Excel</button>
+    <button id="btnDownloadPdf">Download PDF</button>
+    <button id="btnPrint">Print / PDF</button>
+    <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
+    <button class="ghost" id="btnLogout">Logout</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- DRAFT PANEL -->
+  <div>
+    <div class="panel">
+      <h2>Order details</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Company (issuing)</label>
+          <input list="companyList" id="fCompany" placeholder="e.g. SaRa Lifestyle Ltd.">
+          <datalist id="companyList"></datalist>
+        </div>
+        <div class="field">
+          <label>Work order no.</label>
+          <input id="fWoNumber" placeholder="e.g. OB-2601">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="fDate">
+        </div>
+        <div class="field">
+          <label>Shipment date</label>
+          <input type="date" id="fShipDate">
+        </div>
+      </div>
+      <div class="field">
+        <label>Subject</label>
+        <input id="fSubject" placeholder="e.g. Work Order for Girls Items">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Supplier / recipient</h2>
+      <div class="field">
+        <label>Contact name</label>
+        <input id="fSupContact" placeholder="e.g. Rajib Hossain">
+      </div>
+      <div class="field">
+        <label>Supplier company</label>
+        <input id="fSupCompany" placeholder="e.g. Pana Fashion">
+      </div>
+      <div class="field">
+        <label>Office address</label>
+        <textarea id="fSupAddress" rows="2" placeholder="Full address"></textarea>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Line items</h2>
+      <table class="items-table" id="itemsTable">
+        <colgroup>
+          <col style="width:26px">
+          <col>
+          <col style="width:74px">
+          <col style="width:84px">
+          <col style="width:94px">
+          <col>
+          <col style="width:28px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th style="width:24px;">SL</th>
+            <th>Style name</th>
+            <th style="width:70px;">Qty (pcs)</th>
+            <th style="width:80px;">Unit price</th>
+            <th style="width:90px;">Total price</th>
+            <th>Remarks</th>
+            <th class="pic-col">Picture</th>
+            <th class="rm"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <button class="small ghost" id="btnAddItem">+ Add row</button>
+      <div class="items-total">Total amount (BDT) <b id="grandTotal">0</b></div>
+    </div>
+
+    <div class="panel">
+      <h2>Terms &amp; conditions</h2>
+      <textarea id="fTerms" rows="8"></textarea>
+      <div class="field" style="margin-top:10px;">
+        <label>Footer note</label>
+        <input id="fFooterNote">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Signatures</h2>
+      <div id="sigList"></div>
+      <button class="small ghost" id="btnAddSig">+ Add extra signature</button>
+    </div>
+
+    <div class="panel">
+      <h2>Company info (for letterhead)</h2>
+      <div class="field">
+        <label>Factory address</label>
+        <input id="fFactoryAddr">
+      </div>
+      <div class="field">
+        <label>Corporate office address</label>
+        <input id="fCorpAddr">
+      </div>
+      <div class="row3">
+        <div class="field"><label>Phone</label><input id="fPhone"></div>
+        <div class="field"><label>Email</label><input id="fEmail"></div>
+        <div class="field"><label>Web</label><input id="fWeb"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Saved work orders</h2>
+      <div class="search-row">
+        <input id="fSearch" placeholder="Search by company, WO no., supplier, or style code">
+      </div>
+      <div class="saved-list" id="savedList"></div>
+    </div>
+  </div>
+
+  <div class="seam"></div>
+
+  <!-- PAPER PREVIEW -->
+  <div>
+    <div class="paper-wrap" id="paper"></div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-box">
+    <div class="modal-actions">
+      <button class="primary" id="modalPrint">Print</button>
+      <button id="modalEdit">Edit this order</button>
+      <button class="ghost" id="modalClose">Close</button>
+    </div>
+    <div class="modal-paper-scroll"><div class="paper-wrap" id="modalPaper"></div></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_TERMS = `Delivery Date: Delivery must be completed within the specified timeline.
+Shipment: Goods must be delivered to the warehouse (negotiable).
+Size Set Approval: Size set approval must be obtained before starting bulk production.
+Quality: Goods must be supplied strictly in accordance with the approved sample.
+Inspection Policy: 100% QC shall be conducted at both the supplier's and our factories. Any defects must be rectified within 7 days; otherwise, the cost will be deducted from the payment.
+Mode of Payment: Payment shall be made within 7 days of delivery, subject to verification of QC report, DC report, Delivery Challan, Receive Challan, Approval Sheet, and Work Order.
+Payment Methods: Payment will be made via Cash, Cheque, or Online Bank Transfer.
+Delay in Delivery: Payment terms remain 7 days; however, delays will result in 25% deduction after 14 days and 50% after 21 days. Delays beyond one month may lead to delivery without payment, subject to mutual discussion.
+Sales Restriction: Products must not be sold or supplied to any third party without prior approval. Any violation may result in legal action and claims for damages.`;
+
+const DEFAULT_FOOTER = "reserves the right to modify these terms and conditions at any time.";
+
+let settings = {
+  companies: ["SaRa Lifestyle Ltd."],
+  companyInfo: {
+    "SaRa Lifestyle Ltd.": {
+      factoryAddress: "Plot No- Shilpa/01, Section-07, Milkvita Road, Mirpur, Dhaka-1216, Bangladesh",
+      corporateAddress: "House-1339, Road-13, Ave-2A, DOHS, Mirpur-1216, Bangladesh",
+      phone: "+880258070826",
+      email: "info@saralifestyle.com.bd",
+      web: "www.saralifestyle.com"
+    }
+  },
+  fixedTeam: {
+    deputyManager: { name: "Saddam Hossain", designation: "Deputy Manager (Value Chain)" },
+    self: { name: "Ishruq Ahammed Fahim", designation: "Assistant Merchandiser (Value Chain)" },
+    seniorManager: { name: "Mr. Mozammel", designation: "Sr. Manager (Merchandising)" }
+  },
+  categoryLeaders: [
+    { name: "Sazzadur Rahman Sagar", designation: "Category Leader" },
+    { name: "Shakib Arnob", designation: "Sr. Executive (Category)" },
+    { name: "Rakib Raihan", designation: "Category Leader" },
+    { name: "Zihadul Islam", designation: "Category Leader" }
+  ],
+  assistantMerchandisers: [
+    { name: "Nafisa Mahmood", designation: "Assistant Merchandiser" },
+    { name: "Akib Ahamed Cizar", designation: "Assistant Merchandiser" },
+    { name: "Anik Kumar Das", designation: "Assistant Merchandiser" }
+  ],
+  nextNumbers: {}
+};
+let index = []; // [{key, company, woNumber, date, supplierCompany, total, savedAt}]
+let state = null;
+
+function blankItem(sl){ return {sl, style:"", qty:"", unitPrice:"", remarks:"", image:""}; }
+
+function blankOrder(){
+  const company = state && state.company ? state.company : (settings.companies[0] || "");
+  return {
+    company,
+    woNumber: "",
+    date: new Date().toISOString().slice(0,10),
+    shipmentDate: "",
+    subject: "",
+    supplierContact: "",
+    supplierCompany: "",
+    supplierAddress: "",
+    items: [blankItem(1), blankItem(2)],
+    terms: DEFAULT_TERMS,
+    footerNote: DEFAULT_FOOTER,
+    signatures: [
+      { role:'fixed', key:'deputyManager', name: settings.fixedTeam.deputyManager.name, designation: settings.fixedTeam.deputyManager.designation, locked:true },
+      { role:'supplier', name:'', designation:'Supplier', locked:true },
+      { role:'fixed', key:'self', name: settings.fixedTeam.self.name, designation: settings.fixedTeam.self.designation, locked:true },
+      { role:'assistantMerchandiser', name:'', designation:'', locked:true },
+      { role:'categoryLeader', name:'', designation:'', locked:true },
+      { role:'fixed', key:'seniorManager', name: settings.fixedTeam.seniorManager.name, designation: settings.fixedTeam.seniorManager.designation, locked:true }
+    ]
+  };
+}
+
+async function apiJson(url, options={}){
+  const r=await fetch(url,{credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},...options});
+  if(r.status===401){ window.location.href='/'; throw new Error('Session expired'); }
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||'Request failed');
+  return d;
+}
+async function saveSettings(){ await apiJson('/api/settings',{method:'PUT',body:JSON.stringify({settings})}); }
+async function loadAll(){
+  try{
+    const me=await apiJson('/api/me');
+    document.getElementById('userBadge').textContent='Local User';
+    const sr=await apiJson('/api/settings');
+    if(sr.settings){
+      const s=sr.settings;
+      settings=Object.assign(settings,s,{
+        companies:s.companies||settings.companies,
+        companyInfo:s.companyInfo||settings.companyInfo,
+        fixedTeam:s.fixedTeam||settings.fixedTeam,
+        categoryLeaders:s.categoryLeaders||settings.categoryLeaders,
+        assistantMerchandisers:s.assistantMerchandisers||settings.assistantMerchandisers,
+        nextNumbers:s.nextNumbers||settings.nextNumbers
+      });
+    }else{ await saveSettings(); }
+    const wr=await apiJson('/api/work-orders');
+    index=wr.index||[];
+    state=blankOrder();
+    renderAll();
+  }catch(e){ console.error(e); if(!document.hidden) alert(e.message||'Unable to load the software.'); }
+}
+async function storeGet(key){
+  if(key==='settings'){ const r=await apiJson('/api/settings'); return r.settings; }
+  const r=await apiJson('/api/work-orders/'+encodeURIComponent(key));
+  return r.order||null;
+}
+async function storeSet(key,val){
+  if(key==='settings'){ settings=val; await saveSettings(); return true; }
+  await apiJson('/api/work-orders',{method:'POST',body:JSON.stringify({order:val})});
+  return true;
+}
+async function storeDelete(key){ await apiJson('/api/work-orders/'+encodeURIComponent(key),{method:'DELETE'}); }
+async function refreshIndex(){ const r=await apiJson('/api/work-orders'); index=r.index||[]; }
+
+function fmt(n){
+  n = Number(n)||0;
+  return n.toLocaleString('en-US');
+}
+
+function recalcTotal(){
+  return state.items.reduce((sum,it)=> sum + (Number(it.qty)||0)*(Number(it.unitPrice)||0), 0);
+}
+
+function readFormIntoState(){
+  state.company = document.getElementById('fCompany').value.trim();
+  state.woNumber = document.getElementById('fWoNumber').value.trim();
+  state.date = document.getElementById('fDate').value;
+  state.shipmentDate = document.getElementById('fShipDate').value;
+  state.subject = document.getElementById('fSubject').value;
+  state.supplierContact = document.getElementById('fSupContact').value;
+  state.supplierCompany = document.getElementById('fSupCompany').value;
+  state.supplierAddress = document.getElementById('fSupAddress').value;
+  state.terms = document.getElementById('fTerms').value;
+  state.footerNote = document.getElementById('fFooterNote').value;
+  state.companyInfoDraft = {
+    factoryAddress: document.getElementById('fFactoryAddr').value,
+    corporateAddress: document.getElementById('fCorpAddr').value,
+    phone: document.getElementById('fPhone').value,
+    email: document.getElementById('fEmail').value,
+    web: document.getElementById('fWeb').value
+  };
+}
+
+function renderCompanyList(){
+  document.getElementById('fCompany').value = state.company || "";
+  const dl = document.getElementById('companyList');
+  dl.innerHTML = settings.companies.map(c=>`<option value="${escapeHtml(c)}">`).join('');
+}
+
+function renderCompanyInfoFields(){
+  const info = settings.companyInfo[state.company] || {factoryAddress:"",corporateAddress:"",phone:"",email:"",web:""};
+  document.getElementById('fFactoryAddr').value = info.factoryAddress||"";
+  document.getElementById('fCorpAddr').value = info.corporateAddress||"";
+  document.getElementById('fPhone').value = info.phone||"";
+  document.getElementById('fEmail').value = info.email||"";
+  document.getElementById('fWeb').value = info.web||"";
+}
+function selectCompanyAndAutofill(){
+  state.company = document.getElementById('fCompany').value.trim();
+  if (settings.companyInfo[state.company]) renderCompanyInfoFields();
+  renderPreview();
+}
+
+function renderHeaderFields(){
+  document.getElementById('fWoNumber').value = state.woNumber||"";
+  document.getElementById('fDate').value = state.date||"";
+  document.getElementById('fShipDate').value = state.shipmentDate||"";
+  document.getElementById('fSubject').value = state.subject||"";
+  document.getElementById('fSupContact').value = state.supplierContact||"";
+  document.getElementById('fSupCompany').value = state.supplierCompany||"";
+  document.getElementById('fSupAddress').value = state.supplierAddress||"";
+  document.getElementById('fTerms').value = state.terms||"";
+  document.getElementById('fFooterNote').value = state.footerNote||"";
+}
+
+function renderItems(){
+  const body = document.getElementById('itemsBody');
+  body.innerHTML = "";
+  state.items.forEach((it,i)=>{
+    const tr = document.createElement('tr');
+    const total = (Number(it.qty)||0)*(Number(it.unitPrice)||0);
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td><input data-i="${i}" data-f="style" value="${escapeAttr(it.style)}"></td>
+      <td><input data-i="${i}" data-f="qty" class="num" value="${escapeAttr(it.qty)}"></td>
+      <td><input data-i="${i}" data-f="unitPrice" class="num" value="${escapeAttr(it.unitPrice)}"></td>
+      <td class="num">${fmt(total)}</td>
+      <td><input data-i="${i}" data-f="remarks" value="${escapeAttr(it.remarks)}"></td>
+      <td class="pic-col">
+        <div class="item-picture">
+          ${it.image ? `<img src="${it.image}" alt="Style picture">` : `<div class="pic-placeholder">No picture</div>`}
+          <input type="file" accept="image/*" data-img-i="${i}" title="Upload style picture">
+          ${it.image ? `<button type="button" class="ghost remove-pic" data-rmpic="${i}">Remove</button>` : ''}
+        </div>
+      </td>
+      <td class="rm"><button data-rm="${i}">✕</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('input[data-i]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i, f = e.target.dataset.f;
+      state.items[i][f] = e.target.value;
+      const row = e.target.closest('tr');
+      const totalCell = row && row.querySelector('td:nth-child(5)');
+      if (totalCell) totalCell.textContent = fmt((Number(state.items[i].qty)||0)*(Number(state.items[i].unitPrice)||0));
+      document.getElementById('grandTotal').textContent = fmt(recalcTotal());
+      renderPreview();
+    });
+  });
+  body.querySelectorAll('input[type=file][data-img-i]').forEach(inp=>{
+    inp.addEventListener('change', async e=>{
+      const i = +e.target.dataset.imgI;
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      try{
+        state.items[i].image = await compressImage(file,1000,1000,0.84);
+        renderItems();
+        renderPreview();
+      }catch(err){ alert(err.message||'Picture upload failed.'); }
+    });
+  });
+  body.querySelectorAll('[data-rmpic]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.rmpic;
+      state.items[i].image = '';
+      renderItems();
+      renderPreview();
+    });
+  });
+  body.querySelectorAll('[data-rm]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.rm;
+      state.items.splice(i,1);
+      state.items.forEach((item,idx)=>item.sl=idx+1);
+      renderItems();
+      renderPreview();
+    });
+  });
+  document.getElementById('grandTotal').textContent = fmt(recalcTotal());
+}
+
+function roleLabel(role){
+  return {fixed:'Fixed', supplier:'Supplier', categoryLeader:'Category Leader', assistantMerchandiser:'Assistant Merchandiser', extra:'Extra'}[role] || '';
+}
+
+function renderSignatures(){
+  const wrap = document.getElementById('sigList');
+  wrap.innerHTML = "";
+  const allNames = [
+    settings.fixedTeam.deputyManager.name, settings.fixedTeam.self.name, settings.fixedTeam.seniorManager.name,
+    ...settings.categoryLeaders.map(r=>r.name), ...settings.assistantMerchandisers.map(r=>r.name)
+  ];
+
+  state.signatures.forEach((sig,i)=>{
+    const block = document.createElement('div');
+    block.className = 'sig-block';
+    let inner = `<span class="pill">${roleLabel(sig.role)}</span>`;
+    if (!sig.locked){
+      inner += `<button class="small danger rm-sig" data-rmsig="${i}">✕</button>`;
+    }
+
+    if (sig.role === 'categoryLeader' || sig.role === 'assistantMerchandiser'){
+      const options = sig.role === 'categoryLeader' ? settings.categoryLeaders : settings.assistantMerchandisers;
+      inner += `
+        <div class="field" style="margin-top:6px;">
+          <label>${roleLabel(sig.role)}</label>
+          <select data-i="${i}" data-f="select">
+            <option value="">— Select —</option>
+            ${options.map(o=>`<option value="${escapeAttr(o.name)}" ${o.name===sig.name?'selected':''}>${escapeHtml(o.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Designation</label>
+          <input data-i="${i}" data-f="designation" value="${escapeAttr(sig.designation)}" placeholder="e.g. Category Leader">
+        </div>`;
+    } else if (sig.role === 'supplier'){
+      inner += `
+        <div class="field" style="margin-top:6px;margin-bottom:0;">
+          <label>Supplier signatory (blank until they sign)</label>
+          <input data-i="${i}" data-f="name" value="${escapeAttr(sig.name)}" placeholder="Left blank for supplier to fill in">
+        </div>`;
+    } else if (sig.role === 'fixed'){
+      inner += `
+        <div class="field" style="margin-top:6px;">
+          <label>Name</label>
+          <input data-i="${i}" data-f="name" value="${escapeAttr(sig.name)}">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Designation</label>
+          <input data-i="${i}" data-f="designation" value="${escapeAttr(sig.designation)}">
+        </div>`;
+    } else {
+      inner += `
+        <div class="field" style="margin-top:6px;">
+          <label>Name</label>
+          <input list="rosterList" data-i="${i}" data-f="name" value="${escapeAttr(sig.name)}" placeholder="Type or pick a name">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Designation</label>
+          <input data-i="${i}" data-f="designation" value="${escapeAttr(sig.designation)}">
+        </div>`;
+    }
+    block.innerHTML = inner;
+    wrap.appendChild(block);
+  });
+
+  if (!document.getElementById('rosterList')){
+    const dl = document.createElement('datalist');
+    dl.id = 'rosterList';
+    document.body.appendChild(dl);
+  }
+  document.getElementById('rosterList').innerHTML = allNames.map(n=>`<option value="${escapeHtml(n)}">`).join('');
+
+  wrap.querySelectorAll('select[data-f="select"]').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const i = +e.target.dataset.i;
+      const role = state.signatures[i].role;
+      const options = role === 'categoryLeader' ? settings.categoryLeaders : settings.assistantMerchandisers;
+      const match = options.find(o=>o.name === e.target.value);
+      state.signatures[i].name = match ? match.name : '';
+      state.signatures[i].designation = match ? match.designation : '';
+      renderSignatures();
+      renderPreview();
+    });
+  });
+  wrap.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i, f = e.target.dataset.f;
+      state.signatures[i][f] = e.target.value;
+      renderPreview();
+    });
+  });
+  wrap.querySelectorAll('[data-rmsig]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      state.signatures.splice(+e.target.dataset.rmsig,1);
+      renderSignatures();
+      renderPreview();
+    });
+  });
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function escapeAttr(s){ return escapeHtml(String(s==null?"":s)); }
+function compressImage(file,maxW,maxH,quality){
+  return new Promise((resolve,reject)=>{
+    if(!file.type.startsWith('image/')) return reject(new Error('Please choose an image file.'));
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Could not read the picture.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('Could not open the picture.'));
+      img.onload=()=>{
+        const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildTermsHtml(terms){
+  return (terms||'').split('\n').map(line=>{
+    const m=line.match(/^\s*([^:]+):\s*(.*)$/);
+    return m ? `<div><b>${escapeHtml(m[1])}:</b> ${escapeHtml(m[2])}</div>` : `<div>${escapeHtml(line)}</div>`;
+  }).join('');
+}
+
+function buildPaperHtml(order){
+  const info = settings.companyInfo[order.company] || {};
+  const total = order.items.reduce((sum,it)=> sum + (Number(it.qty)||0)*(Number(it.unitPrice)||0), 0);
+  const itemsRows = order.items.map((it,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${escapeHtml(it.style)}</td>
+      <td class="num">${fmt(it.qty)}</td>
+      <td class="num">${fmt(it.unitPrice)}</td>
+      <td class="num">${fmt((Number(it.qty)||0)*(Number(it.unitPrice)||0))}</td>
+      <td>${escapeHtml(it.remarks)}</td>
+      <td class="pic-cell">${it.image ? `<img src="${it.image}" alt="Style picture">` : ''}</td>
+    </tr>`).join('');
+  const sigs = Array.isArray(order.signatures) ? order.signatures : [];
+  const assistants = sigs.filter(s => s.role === 'assistantMerchandiser' || (s.role === 'fixed' && /assistant merchandiser/i.test(s.designation||'')));
+  const supplierSig = sigs.find(s => s.role === 'supplier') || {name:'',designation:'Supplier'};
+  const assistantSig = assistants[0] || {name:'',designation:'Assistant Merchandiser'};
+  const managementSigs = sigs.filter(s => s !== supplierSig && s !== assistantSig && !assistants.includes(s));
+  const renderSig = s => `<div class="doc-sig"><div class="line"></div><div class="nm">${escapeHtml(s.name)||'&nbsp;'}</div><div class="ds">${escapeHtml(s.designation||'')}</div></div>`;
+  const sigHtml = `<div class="sig-row sig-row-primary">${renderSig(assistantSig)}${renderSig(supplierSig)}</div>`
+    + `<div class="sig-row sig-row-management">${managementSigs.slice(0,4).map(renderSig).join('')}</div>`;
+  return `<div class="doc-page">
+    <div class="company-name">${escapeHtml(order.company)||'Company name'}</div>
+    <div class="company-meta">
+      ${info.factoryAddress? 'Factory Address: '+escapeHtml(info.factoryAddress)+'<br>':''}
+      ${info.corporateAddress? 'Corporate Office Address: '+escapeHtml(info.corporateAddress)+'<br>':''}
+      ${[info.phone?('Phone: '+escapeHtml(info.phone)):'', info.email?('E-mail: '+escapeHtml(info.email)):'', info.web?('Web: '+escapeHtml(info.web)):''].filter(Boolean).join(' &nbsp;|&nbsp; ')}
+    </div>
+    <hr>
+    <div class="paper-topline">
+      <div>Date: ${escapeHtml(order.date)}</div>
+      <div>Work Order No: ${escapeHtml(order.woNumber)||'—'}</div>
+    </div>
+    <div class="to-block">
+      To<br>
+      ${escapeHtml(order.supplierContact)}<br>
+      <b>${escapeHtml(order.supplierCompany)}</b><br>
+      ${order.supplierAddress? 'Office Address: '+escapeHtml(order.supplierAddress):''}
+    </div>
+    <div class="subject">Subject: ${escapeHtml(order.subject)}</div>
+    <table class="doc-items">
+      <thead><tr><th>SL</th><th>Style name</th><th>Total order qty (pcs)</th><th>Unit price (TK)</th><th>Total price</th><th>Remarks</th><th>Picture</th></tr></thead>
+      <tbody>${itemsRows}</tbody>
+    </table>
+    <div class="doc-total-row">Total amount (BDT) <b>${fmt(total)}</b></div>
+    ${order.shipmentDate? `<div class="doc-shipment">Shipment Date: ${escapeHtml(order.shipmentDate)}</div>`:''}
+    <div class="doc-terms-title">Terms &amp; Conditions</div>
+    <div class="doc-terms">${buildTermsHtml(order.terms)}</div>
+    <div class="doc-signature-area"><div class="doc-signatures">${sigHtml}</div></div>
+    <div class="doc-footer">N.B.: ${escapeHtml(order.company)} ${escapeHtml(order.footerNote)}</div>
+  </div>`;
+}
+
+function renderPreview(){
+  document.getElementById('paper').innerHTML = buildPaperHtml(state);
+}
+
+function renderSavedList(){
+  const q = (document.getElementById('fSearch').value||'').toLowerCase().trim();
+  const list = document.getElementById('savedList');
+  const rows = index
+    .map(r=>{
+      const styles = (r.items||[]).map(it=>it.style);
+      const matchedStyles = q ? styles.filter(s=>(s||'').toLowerCase().includes(q)) : [];
+      return {r, styles, matchedStyles};
+    })
+    .filter(({r, styles})=> !q || (r.company+" "+r.woNumber+" "+(r.supplierCompany||"")+" "+styles.join(" ")).toLowerCase().includes(q))
+    .sort((a,b)=> (b.r.savedAt||"").localeCompare(a.r.savedAt||""));
+  if (!rows.length){
+    list.innerHTML = `<div class="empty-note">${q? 'No archived work orders match that search.' : 'No saved work orders yet. Fill the form and hit Save.'}</div>`;
+    return;
+  }
+  list.innerHTML = rows.map(({r, styles, matchedStyles})=>`
+    <div class="saved-item" data-open-row="${r.key}" role="button" tabindex="0" title="Open work order">
+      <div class="meta">
+        <b>${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
+        <span>${escapeHtml(r.company)} · ${escapeHtml(r.date||'')} · BDT ${fmt(r.total)}</span>
+        ${matchedStyles.length ? `<span>Matched style: ${matchedStyles.map(escapeHtml).join(', ')}</span>` : (styles.length ? `<span>Styles: ${styles.slice(0,4).map(escapeHtml).join(', ')}${styles.length>4?'…':''}</span>` : '')}
+      </div>
+      <div class="saved-actions">
+        <button class="small primary" data-preview="${r.key}">View Work Order</button>
+        <button class="small" data-load="${r.key}">Open</button>
+        <button class="small danger" data-del="${r.key}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); previewOrder(e.target.dataset.preview);}));
+  list.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); loadOrder(e.target.dataset.load);}));
+  list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); deleteOrder(e.target.dataset.del);}));
+  list.querySelectorAll('[data-open-row]').forEach(row=>{ row.addEventListener('click',e=>{if(!e.target.closest('button'))loadOrder(row.dataset.openRow);}); row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();loadOrder(row.dataset.openRow);}}); });
+}
+
+async function loadOrder(key){
+  const rec = await storeGet(key);
+  if (!rec) { alert('This work order could not be loaded. Please save it again.'); return; }
+  const base = blankOrder();
+  state = Object.assign(base, rec);
+  state.items = Array.isArray(rec.items) && rec.items.length ? rec.items.map((it,i)=>Object.assign(blankItem(i+1),it,{sl:i+1})) : [blankItem(1),blankItem(2)];
+  state.signatures = Array.isArray(rec.signatures) && rec.signatures.length ? rec.signatures : base.signatures;
+  renderAll();
+}
+
+async function deleteOrder(key){
+  if (!confirm("Archive this work order? It will disappear from the active list, but all saved versions will remain permanently in the database.")) return;
+  try{ await storeDelete(key); await refreshIndex(); renderSavedList(); }catch(e){ alert(e.message||'Archive failed.'); }
+}
+
+function keyFor(company, woNumber){
+  return `wo:${company}::${woNumber}`;
+}
+
+async function saveOrder(){
+  try{
+    readFormIntoState();
+    if (!state.company){ alert("Enter the issuing company name first."); return; }
+    if (!state.woNumber){ alert("Enter a work order number first."); return; }
+    if (!settings.companies.includes(state.company)) settings.companies.push(state.company);
+    settings.companyInfo[state.company] = state.companyInfoDraft;
+    delete state.companyInfoDraft;
+    await saveSettings();
+    const total = recalcTotal();
+    state.savedAt = new Date().toISOString();
+    await storeSet(keyFor(state.company,state.woNumber),state);
+    await refreshIndex();
+    renderCompanyList();
+    renderSavedList();
+    flashButton('btnSave', 'Saved ✓');
+  }catch(e){ alert(e.message||'Save failed.'); }
+}
+
+function flashButton(id, text){
+  const btn = document.getElementById(id);
+  const old = btn.textContent;
+  btn.textContent = text;
+  setTimeout(()=>{ btn.textContent = old; }, 1200);
+}
+
+async function downloadExcel(){
+  try{
+    readFormIntoState();
+    if(!window.ExcelJS){ alert('Excel export library could not be loaded. Please check your internet connection and try again.'); return; }
+    const info=settings.companyInfo[state.company]||{};
+    const wb=new ExcelJS.Workbook();
+    wb.creator='Work Order Desk'; wb.created=new Date();
+    const ws=wb.addWorksheet('Work Order',{pageSetup:{orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1,paperSize:9},views:[{showGridLines:false}]});
+    ws.columns=[{width:7},{width:24},{width:16},{width:15},{width:16},{width:24},{width:13}];
+    const border={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
+    const thinFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFEDE8DB'}};
+    const titleFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFD9E8E4'}};
+    function mergeText(range,text,opts={}){ws.mergeCells(range);const c=ws.getCell(range.split(':')[0]);c.value=text;c.font={name:'Arial',size:opts.size||11,bold:!!opts.bold};c.alignment={horizontal:opts.align||'left',vertical:'middle',wrapText:true};if(opts.fill)c.fill=opts.fill;}
+    let r=1;
+    mergeText(`A${r}:G${r}`,state.company||'Work Order',{size:18,bold:true,align:'center',fill:titleFill});ws.getRow(r).height=28;r++;
+    if(info.factoryAddress){mergeText(`A${r}:G${r}`,'Factory Address: '+info.factoryAddress,{align:'center'});r++;}
+    if(info.corporateAddress){mergeText(`A${r}:G${r}`,'Corporate Office Address: '+info.corporateAddress,{align:'center'});r++;}
+    const contact=[info.phone?('Phone: '+info.phone):'',info.email?('E-mail: '+info.email):'',info.web?('Web: '+info.web):''].filter(Boolean).join('   |   ');
+    if(contact){mergeText(`A${r}:G${r}`,contact,{align:'center'});r++;}
+    r++;
+    ws.getCell(`A${r}`).value='Date:';ws.getCell(`B${r}`).value=state.date||'';ws.getCell(`D${r}`).value='Work Order No:';ws.getCell(`E${r}`).value=state.woNumber||'';ws.mergeCells(`F${r}:G${r}`);
+    ['A','D'].forEach(c=>{ws.getCell(`${c}${r}`).font={bold:true};});
+    ['A','B','D','E','F','G'].forEach(c=>ws.getCell(`${c}${r}`).border=border);r+=2;
+    ws.getCell(`A${r}`).value='To:';ws.getCell(`A${r}`).font={bold:true};r++;
+    [state.supplierContact||'',state.supplierCompany||''].forEach((v,i)=>{mergeText(`A${r}:G${r}`,v,{bold:i===1});r++;});
+    if(state.supplierAddress){ws.getCell(`A${r}`).value='Office Address:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierAddress;ws.mergeCells(`B${r}:G${r}`);r++;}
+    r++;
+    ws.getCell(`A${r}`).value='Subject:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.subject||'';ws.mergeCells(`B${r}:G${r}`);r+=2;
+    const headerRow=r;
+    ['SL','Style Name','Total Order QTY Pcs','Unit Price (TK)','Total Price','Remarks','Picture'].forEach((v,i)=>{const c=ws.getCell(headerRow,i+1);c.value=v;c.font={bold:true};c.fill=thinFill;c.alignment={horizontal:'center',vertical:'middle',wrapText:true};c.border=border;});
+    ws.getRow(headerRow).height=28;r++;
+    state.items.forEach((it,i)=>{
+      const rowNum=r;
+      const vals=[i+1,it.style||'',Number(it.qty)||0,Number(it.unitPrice)||0,(Number(it.qty)||0)*(Number(it.unitPrice)||0),it.remarks||''];
+      vals.forEach((v,j)=>{const c=ws.getCell(rowNum,j+1);c.value=v;c.border=border;c.alignment={vertical:'middle',wrapText:true,horizontal:j===0||j===2||j===3||j===4?'right':'left'};if(j===2||j===3||j===4)c.numFmt='#,##0.00';});
+      ws.getCell(rowNum,7).border=border;
+      ws.getCell(rowNum,7).alignment={horizontal:'center',vertical:'middle'};
+      if(it.image){
+        try{
+          const ext=(it.image.match(/^data:image\/(png|jpeg|jpg|gif);base64,/)||[])[1]||'jpeg';
+          const imageId=wb.addImage({base64:it.image,extension:ext==='jpg'?'jpeg':ext});
+          ws.addImage(imageId,{tl:{col:6.18,row:rowNum-1+0.08},ext:{width:78,height:58}});
+          ws.getRow(rowNum).height=48;
+        }catch(imgErr){ console.warn('Excel image skipped',imgErr); }
+      }
+      r++;
+    });
+    ws.mergeCells(`A${r}:E${r}`);ws.getCell(`A${r}`).value='Total Amount (BDT)';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`F${r}`).value=recalcTotal();ws.getCell(`F${r}`).font={bold:true};ws.getCell(`F${r}`).numFmt='#,##0.00';ws.mergeCells(`F${r}:G${r}`);
+    for(let c=1;c<=7;c++){ws.getCell(r,c).border=border;ws.getCell(r,c).fill=thinFill;}r+=2;
+    if(state.shipmentDate){ws.getCell(`A${r}`).value='Shipment Date:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.shipmentDate;ws.mergeCells(`B${r}:G${r}`);r++;}
+    r++;
+    mergeText(`A${r}:G${r}`,'Terms & Conditions',{bold:true,fill:titleFill});r++;
+    (state.terms||'').split('\n').forEach(line=>{const idx=line.indexOf(':');if(idx>0){ws.getCell(`A${r}`).value={richText:[{text:line.slice(0,idx+1),font:{bold:true}},{text:line.slice(idx+1)}]};}else ws.getCell(`A${r}`).value=line;ws.mergeCells(`A${r}:G${r}`);for(let c=1;c<=7;c++)ws.getCell(r,c).border=border;ws.getRow(r).height=22;r++;});
+    r++;
+    const sigs=state.signatures||[];
+    const assistant=sigs.find(s=>s.role==='assistantMerchandiser') || sigs.find(s=>s.role==='fixed' && /assistant merchandiser/i.test(s.designation||'')) || {};
+    const supplier=sigs.find(s=>s.role==='supplier') || {};
+    const managers=sigs.filter(s=>s!==assistant && s!==supplier).slice(0,2);
+    while(managers.length<2) managers.push({});
+    const sigRows=[[assistant,supplier],[managers[0],managers[1]]];
+    sigRows.forEach(pair=>{
+      ws.mergeCells(`A${r}:C${r}`);ws.mergeCells(`D${r}:G${r}`);
+      ws.getCell(`A${r}`).value=pair[0].name||'';ws.getCell(`D${r}`).value=pair[1].name||'';
+      ws.getCell(`A${r+1}`).value=pair[0].designation||'Assistant Merchandiser';ws.getCell(`D${r+1}`).value=pair[1].designation||'Supplier';
+      for(const cell of [`A${r}`,`B${r}`,`C${r}`,`D${r}`,`E${r}`,`F${r}`,`G${r}`,`A${r+1}`,`B${r+1}`,`C${r+1}`,`D${r+1}`,`E${r+1}`,`F${r+1}`,`G${r+1}`]){ws.getCell(cell).border=border;ws.getCell(cell).alignment={horizontal:'center',vertical:'middle',wrapText:true};}
+      ws.getCell(`A${r}`).font={bold:true};ws.getCell(`D${r}`).font={bold:true};r+=2;
+    });
+    mergeText(`A${r}:G${r}`,`N.B.: ${state.company} ${state.footerNote||''}`,{size:9});
+    for(let rr=1;rr<=ws.rowCount;rr++) ws.getRow(rr).alignment={vertical:'middle',wrapText:true};
+    ws.pageSetup.margins={left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2};
+    ws.pageSetup.printArea=`A1:G${r}`;
+    const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
+    const buffer=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${safeCompany}_${safeWo}.xlsx`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+  }catch(e){console.error(e);alert(e.message||'Excel export failed.');}
+}
+
+async function downloadPdf(){
+  try{
+    readFormIntoState();
+    if(!window.html2canvas || !window.jspdf){ alert('PDF export library could not be loaded. Please check your internet connection and try again.'); return; }
+    const source=document.getElementById('paper');
+    const clone=source.cloneNode(true);
+    clone.id='pdfClone';
+    clone.style.position='fixed';
+    clone.style.left='-100000px';
+    clone.style.top='0';
+    clone.style.width='210mm';
+    clone.style.minHeight='0';
+    clone.style.height='auto';
+    clone.style.margin='0';
+    clone.style.padding='10mm 12mm 8mm';
+    clone.style.background='#FBF8F1';
+    clone.style.boxShadow='none';
+    clone.style.overflow='visible';
+    clone.style.border='none';
+    document.body.appendChild(clone);
+
+    // Wait for all style pictures to finish loading before capture.
+    const imgs=[...clone.querySelectorAll('img')];
+    await Promise.all(imgs.map(img=>img.complete ? Promise.resolve() : new Promise(res=>{img.onload=img.onerror=res;})));
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+
+    const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#FBF8F1',useCORS:true,logging:false,windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight});
+    document.body.removeChild(clone);
+
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    const pageW=210,pageH=297,margin=5;
+    const usableW=pageW-margin*2, usableH=pageH-margin*2;
+    const ratio=Math.min(usableW/canvas.width,usableH/canvas.height);
+    const w=canvas.width*ratio, h=canvas.height*ratio;
+    const x=(pageW-w)/2, y=(pageH-h)/2;
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',x,y,w,h,undefined,'FAST');
+
+    const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');
+    const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
+    pdf.save(`${safeCompany}_${safeWo}.pdf`);
+  }catch(e){ console.error(e); alert(e.message||'PDF export failed.'); }
+}
+
+function addItem(){
+  state.items.push(blankItem(state.items.length+1));
+  renderItems();
+  renderPreview();
+}
+function addSignature(){
+  state.signatures.push({role:'extra', name:"",designation:"",locked:false});
+  renderSignatures();
+  renderPreview();
+}
+
+function renderAll(){
+  renderCompanyList();
+  renderCompanyInfoFields();
+  renderHeaderFields();
+  renderItems();
+  renderSignatures();
+  renderPreview();
+  renderSavedList();
+}
+
+async function previewOrder(key){
+  const rec = await storeGet(key);
+  if (!rec) return;
+  document.getElementById('modalPaper').innerHTML = buildPaperHtml(rec);
+  document.getElementById('previewModal').dataset.key = key;
+  document.getElementById('previewModal').classList.add('open');
+}
+function closePreview(){
+  document.getElementById('previewModal').classList.remove('open');
+}
+
+document.getElementById('btnNew').addEventListener('click', ()=>{
+  const keepCompany = state.company;
+  state = blankOrder();
+  state.company = keepCompany;
+  renderAll();
+});
+document.getElementById('btnSave').addEventListener('click', saveOrder);
+document.getElementById('btnDownload').addEventListener('click', downloadExcel);
+document.getElementById('btnDownloadPdf').addEventListener('click', downloadPdf);
+document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
+document.getElementById('btnLogout').style.display='none';
+document.getElementById('btnAddItem').addEventListener('click', addItem);
+document.getElementById('btnAddSig').addEventListener('click', addSignature);
+document.getElementById('fSearch').addEventListener('input', renderSavedList);
+document.getElementById('modalClose').addEventListener('click', closePreview);
+document.getElementById('modalEdit').addEventListener('click', ()=>{
+  const key = document.getElementById('previewModal').dataset.key;
+  closePreview();
+  if (key) loadOrder(key);
+});
+document.getElementById('modalPrint').addEventListener('click', ()=>{
+  document.body.classList.add('printing-modal');
+  window.print();
+});
+window.addEventListener('afterprint', ()=>{
+  document.body.classList.remove('printing-modal');
+});
+document.getElementById('previewModal').addEventListener('click', e=>{
+  if (e.target.id === 'previewModal') closePreview();
+});
+document.getElementById('fCompany').addEventListener('change', selectCompanyAndAutofill);
+document.getElementById('fCompany').addEventListener('input', ()=>{
+  state.company = document.getElementById('fCompany').value.trim();
+  if (settings.companyInfo[state.company]) renderCompanyInfoFields();
+  renderPreview();
+});
+['fWoNumber','fDate','fShipDate','fSubject','fSupContact','fSupCompany','fSupAddress','fTerms','fFooterNote',
+ 'fFactoryAddr','fCorpAddr','fPhone','fEmail','fWeb'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ readFormIntoState(); renderPreview(); });
+});
+
+loadAll();
+</script>
+</body>
+</html>
