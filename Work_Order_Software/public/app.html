@@ -115,10 +115,12 @@ label{
 
 .layout{
   display:block;
+  width:100%;
   padding:20px;
 }
 .layout > .draft-column{
-  width:min(700px,100%);
+  width:100%;
+  max-width:none;
   margin:0;
 }
 .layout > .preview-column,
@@ -1036,28 +1038,28 @@ async function downloadExcel(){
     const info=settings.companyInfo[state.company]||{};
     const wb=new ExcelJS.Workbook();
     wb.creator='Work Order Desk'; wb.created=new Date();
-    const ws=wb.addWorksheet('Work Order',{pageSetup:{orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1,paperSize:9},views:[{showGridLines:false}]});
-    ws.columns=[{width:7},{width:20},{width:20},{width:15},{width:15},{width:16},{width:24},{width:13}];
+    const ws=wb.addWorksheet('Work Order',{pageSetup:{orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:1,paperSize:9,blackAndWhite:false,showGridLines:false},views:[{showGridLines:false}]});
+    ws.columns=[{width:5.5},{width:18},{width:18},{width:13},{width:13},{width:15},{width:18},{width:12}];
     const border={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
     const thinFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFEDE8DB'}};
     const titleFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFD9E8E4'}};
     function mergeText(range,text,opts={}){ws.mergeCells(range);const c=ws.getCell(range.split(':')[0]);c.value=text;c.font={name:'Arial',size:opts.size||11,bold:!!opts.bold};c.alignment={horizontal:opts.align||'left',vertical:'middle',wrapText:true};if(opts.fill)c.fill=opts.fill;}
     let r=1;
     mergeText(`A${r}:H${r}`,state.company||'Work Order',{size:18,bold:true,align:'center',fill:titleFill});ws.getRow(r).height=28;r++;
-    if(info.factoryAddress){mergeText(`A${r}:H${r}`,'Factory Address: '+info.factoryAddress,{align:'center'});r++;}
-    if(info.corporateAddress){mergeText(`A${r}:H${r}`,'Corporate Office Address: '+info.corporateAddress,{align:'center'});r++;}
+    if(info.factoryAddress){mergeText(`A${r}:H${r}`,'Factory Address: '+info.factoryAddress,{align:'center',size:9});ws.getRow(r).height=17;r++;}
+    if(info.corporateAddress){mergeText(`A${r}:H${r}`,'Corporate Office Address: '+info.corporateAddress,{align:'center',size:9});ws.getRow(r).height=17;r++;}
     const contact=[info.phone?('Phone: '+info.phone):'',info.email?('E-mail: '+info.email):'',info.web?('Web: '+info.web):''].filter(Boolean).join('   |   ');
-    if(contact){mergeText(`A${r}:H${r}`,contact,{align:'center'});r++;}
+    if(contact){mergeText(`A${r}:H${r}`,contact,{align:'center',size:9});ws.getRow(r).height=17;r++;}
     r++;
     ws.getCell(`A${r}`).value='Date:';ws.getCell(`B${r}`).value=state.date||'';ws.getCell(`D${r}`).value='Work Order No:';ws.getCell(`E${r}`).value=state.woNumber||'';ws.mergeCells(`G${r}:H${r}`);
     ['A','D'].forEach(c=>{ws.getCell(`${c}${r}`).font={bold:true};});
     ['A','B','D','E','F','G'].forEach(c=>ws.getCell(`${c}${r}`).border=border);r++;
-    mergeText(`A${r}:H${r}`,`Prepared / Printed: ${actionDateTime()}`,{size:9,align:'right'});r+=2;
-    ws.getCell(`A${r}`).value='To:';ws.getCell(`A${r}`).font={bold:true};r++;
-    [state.supplierContact||'',state.supplierCompany||''].forEach((v,i)=>{mergeText(`A${r}:H${r}`,v,{bold:i===1});r++;});
-    if(state.supplierAddress){ws.getCell(`A${r}`).value='Office Address:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierAddress;ws.mergeCells(`B${r}:G${r}`);r++;}
+    mergeText(`A${r}:H${r}`,`Prepared / Printed: ${actionDateTime()}`,{size:8,align:'right'});ws.getRow(r).height=15;r+=2;
+    ws.getCell(`A${r}`).value='To:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierContact||'';ws.mergeCells(`B${r}:H${r}`);r++;
+    ws.getCell(`A${r}`).value='Supplier:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierCompany||'';ws.getCell(`B${r}`).font={bold:true};ws.mergeCells(`B${r}:H${r}`);r++;
+    if(state.supplierAddress){ws.getCell(`A${r}`).value='Office Address:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.supplierAddress;ws.mergeCells(`B${r}:H${r}`);ws.getCell(`B${r}`).alignment={wrapText:true,vertical:'middle'};ws.getRow(r).height=28;r++;}
     r++;
-    ws.getCell(`A${r}`).value='Subject:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.subject||'';ws.mergeCells(`B${r}:G${r}`);r+=2;
+    ws.getCell(`A${r}`).value='Subject:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.subject||'';ws.mergeCells(`B${r}:H${r}`);ws.getCell(`B${r}`).alignment={wrapText:true,vertical:'middle'};ws.getRow(r).height=24;r+=2;
     const headerRow=r;
     ['SL','Style Name','Item Name','Order QTY Pcs','Unit Price (TK)','Total Price','Remark','Picture'].forEach((v,i)=>{const c=ws.getCell(headerRow,i+1);c.value=v;c.font={bold:true};c.fill=thinFill;c.alignment={horizontal:'center',vertical:'middle',wrapText:true};c.border=border;});
     ws.getRow(headerRow).height=28;r++;
@@ -1082,7 +1084,7 @@ async function downloadExcel(){
     if(state.shipmentDate){ws.getCell(`A${r}`).value='Shipment Date:';ws.getCell(`A${r}`).font={bold:true};ws.getCell(`B${r}`).value=state.shipmentDate;ws.mergeCells(`B${r}:G${r}`);r++;}
     r++;
     mergeText(`A${r}:H${r}`,'Terms & Conditions',{bold:true,fill:titleFill});r++;
-    (state.terms||'').split('\n').forEach(line=>{const idx=line.indexOf(':');if(idx>0){ws.getCell(`A${r}`).value={richText:[{text:line.slice(0,idx+1),font:{bold:true}},{text:line.slice(idx+1)}]};}else ws.getCell(`A${r}`).value=line;ws.mergeCells(`A${r}:H${r}`);for(let c=1;c<=8;c++)ws.getCell(r,c).border=border;ws.getRow(r).height=22;r++;});
+    (state.terms||'').split('\n').forEach(line=>{const idx=line.indexOf(':');if(idx>0){ws.getCell(`A${r}`).value={richText:[{text:line.slice(0,idx+1),font:{bold:true}},{text:line.slice(idx+1)}]};}else ws.getCell(`A${r}`).value=line;ws.mergeCells(`A${r}:H${r}`);for(let c=1;c<=8;c++){ws.getCell(r,c).border=border;ws.getCell(r,c).alignment={vertical:'middle',wrapText:true};}const lineLen=String(line).length;ws.getRow(r).height=Math.max(18,Math.min(42,18+Math.ceil(lineLen/120)*10));r++;});
     r++;
     const sigs=state.signatures||[];
     const assistant=sigs.find(s=>s.role==='assistantMerchandiser') || sigs.find(s=>s.role==='fixed' && /assistant merchandiser/i.test(s.designation||'')) || {};
@@ -1099,8 +1101,12 @@ async function downloadExcel(){
     });
     mergeText(`A${r}:H${r}`,`N.B.: ${state.company} ${state.footerNote||''}`,{size:9});
     for(let rr=1;rr<=ws.rowCount;rr++) ws.getRow(rr).alignment={vertical:'middle',wrapText:true};
-    ws.pageSetup.margins={left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2};
+    ws.pageSetup.margins={left:0.18,right:0.18,top:0.25,bottom:0.25,header:0.1,footer:0.1};
+    ws.pageSetup.horizontalDpi=300;
+    ws.pageSetup.verticalDpi=300;
     ws.pageSetup.printArea=`A1:H${r}`;
+    ws.printOptions.horizontalCentered=true;
+    ws.headerFooter.oddFooter.centeredText='Page &P of &N';
     const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
     const buffer=await wb.xlsx.writeBuffer();
     const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${safeCompany}_${safeWo}.xlsx`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
