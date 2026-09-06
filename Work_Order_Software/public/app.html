@@ -272,6 +272,24 @@ table.doc-items td.num{text-align:right;}
 #previewModal .modal-paper-scroll{flex:1;overflow:auto;padding:8px;display:flex;justify-content:center;align-items:flex-start;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px;flex-shrink:0;}
 @media(max-width:900px){.topbar{align-items:flex-start}.topbar-actions{flex-wrap:wrap}.paper-wrap{transform-origin:top center;}.modal-box{width:100vw;height:100vh;padding:6px}.modal-overlay{padding:0}}
+
+/* --- Privacy / access control --- */
+.access-overlay{display:none;position:fixed;inset:0;background:rgba(35,36,31,.72);align-items:center;justify-content:center;padding:16px;z-index:3000;}
+.access-overlay.open{display:flex;}
+.access-box{background:var(--white);border:1px solid var(--line);border-radius:6px;width:min(420px,96vw);padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.access-box h2{margin:0 0 6px;font-family:'Source Serif 4',serif;font-size:22px;}
+.access-box p{font-size:12px;color:var(--ink-soft);margin:0 0 16px;line-height:1.45;}
+.access-box .field{margin-bottom:12px;}
+.access-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+.access-error{color:var(--danger);font-size:12px;min-height:18px;margin-top:8px;}
+#btnLogin{display:inline-block;}
+#btnAdmin{display:none;}
+#accessStatus{font-size:11px;color:var(--ink-soft);margin-right:4px;}
+.user-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.user-table th,.user-table td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:left;vertical-align:middle;}
+.user-table th{font-size:10px;text-transform:uppercase;color:var(--ink-soft);}
+.user-actions{display:flex;gap:5px;flex-wrap:wrap;}
+
 @media print{
   @page{size:A4 portrait;margin:0;}
   body *{visibility:hidden;}
@@ -311,8 +329,11 @@ table.doc-items td.num{text-align:right;}
     <button id="btnDownload">Download Excel</button>
     <button id="btnDownloadPdf">Download PDF</button>
     <button id="btnPrint">Print / PDF</button>
+    <span id="accessStatus">Viewer</span>
     <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
-    <button class="ghost" id="btnLogout">Logout</button>
+    <button class="ghost" id="btnLogin">Editor Login</button>
+    <button class="ghost" id="btnAdmin">Admin</button>
+    <button class="ghost" id="btnLogout" style="display:none">Logout</button>
   </div>
 </div>
 
@@ -447,6 +468,41 @@ table.doc-items td.num{text-align:right;}
 
 </div>
 
+
+<!-- LOGIN -->
+<div class="access-overlay" id="loginOverlay">
+  <div class="access-box">
+    <h2>Editor Login</h2>
+    <p>Viewers can browse and export work orders. Login is required to create, edit, save, or archive work orders.</p>
+    <div class="field"><label>Username</label><input id="loginUsername" autocomplete="username" placeholder="Enter username"></div>
+    <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password"></div>
+    <div class="access-error" id="loginError"></div>
+    <div class="access-actions">
+      <button class="ghost" id="loginCancel">Cancel</button>
+      <button class="primary" id="loginSubmit">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN USER MANAGEMENT -->
+<div class="access-overlay" id="adminOverlay">
+  <div class="access-box" style="width:min(760px,97vw);">
+    <h2>Admin — User Management</h2>
+    <p>Add or disable Editor accounts. Passwords are stored securely by the server and are never shown here.</p>
+    <div class="panel" style="padding:12px;margin-bottom:12px;">
+      <h2>Add Editor</h2>
+      <div class="row2">
+        <div class="field"><label>Username</label><input id="newEditorUsername" placeholder="e.g. merchandising01"></div>
+        <div class="field"><label>Temporary password</label><input id="newEditorPassword" type="password" placeholder="Minimum 8 characters"></div>
+      </div>
+      <div class="access-error" id="adminError"></div>
+      <div class="access-actions"><button class="primary" id="addEditorBtn">Add Editor</button></div>
+    </div>
+    <div id="userListWrap"></div>
+    <div class="access-actions"><button class="ghost" id="adminClose">Close</button></div>
+  </div>
+</div>
+
 <!-- FULL WORK ORDER VIEW: appears only after Save / View Work Order -->
 <div id="documentView">
   <div class="document-toolbar">
@@ -561,16 +617,41 @@ function blankOrder(){
 
 async function apiJson(url, options={}){
   const r=await fetch(url,{credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},...options});
-  if(r.status===401){ window.location.href='/'; throw new Error('Session expired'); }
   const d=await r.json().catch(()=>({}));
+  if(r.status===401){ throw new Error(d.error||'Editor login required.'); }
   if(!r.ok) throw new Error(d.error||'Request failed');
   return d;
 }
 async function saveSettings(){ await apiJson('/api/settings',{method:'PUT',body:JSON.stringify({settings})}); }
+let currentUser = null;
+
+function isEditor(){ return !!currentUser && ['editor','admin'].includes(currentUser.role); }
+function isAdmin(){ return !!currentUser && currentUser.role === 'admin'; }
+
+function setControlState(){
+  const edit = isEditor();
+  const ids = ['btnNew','btnSave','btnAddItem','btnAddSig','fCompany','fWoNumber','fDate','fShipDate','fSubject','fSupContact','fSupCompany','fSupAddress','fTerms','fFooterNote','fFactoryAddr','fCorpAddr','fPhone','fEmail','fWeb'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=!edit; });
+  document.querySelectorAll('#itemsBody input,#itemsBody select,#itemsBody textarea,#sigList input,#sigList select,#sigList textarea').forEach(el=>el.disabled=!edit);
+  document.querySelectorAll('[data-del],[data-remove-pic],[data-del-sig]').forEach(el=>el.style.display=edit?'':'none');
+  document.getElementById('btnLogin').style.display=edit?'none':'inline-block';
+  document.getElementById('btnLogout').style.display=edit?'inline-block':'none';
+  document.getElementById('btnAdmin').style.display=isAdmin()?'inline-block':'none';
+  document.getElementById('accessStatus').textContent=edit?(isAdmin()?'Admin':'Editor'):'Viewer';
+  document.getElementById('userBadge').textContent=currentUser ? (currentUser.username||'') : '';
+}
+
+async function refreshMe(){
+  const r=await fetch('/api/me',{credentials:'same-origin'});
+  const d=await r.json().catch(()=>({user:null}));
+  currentUser=d.user||null;
+  setControlState();
+  return d;
+}
+
 async function loadAll(){
   try{
-    const me=await apiJson('/api/me');
-    document.getElementById('userBadge').textContent='Local User';
+    await refreshMe();
     const sr=await apiJson('/api/settings');
     if(sr.settings){
       const s=sr.settings;
@@ -583,13 +664,78 @@ async function loadAll(){
         assistantMerchandisers:s.assistantMerchandisers||settings.assistantMerchandisers,
         nextNumbers:s.nextNumbers||settings.nextNumbers
       });
-    }else{ await saveSettings(); }
+    }
     const wr=await apiJson('/api/work-orders');
     index=wr.index||[];
     state=blankOrder();
     renderAll();
+    setControlState();
   }catch(e){ console.error(e); if(!document.hidden) alert(e.message||'Unable to load the software.'); }
 }
+
+async function login(){
+  const username=document.getElementById('loginUsername').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginError');
+  err.textContent='';
+  if(!username||!password){err.textContent='Enter username and password.';return;}
+  const btn=document.getElementById('loginSubmit'); btn.disabled=true;
+  try{
+    const r=await fetch('/api/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Login failed.');
+    currentUser=d.user||null;
+    document.getElementById('loginOverlay').classList.remove('open');
+    document.getElementById('loginPassword').value='';
+    setControlState();
+    renderAll();
+  }catch(e){err.textContent=e.message;}
+  finally{btn.disabled=false;}
+}
+
+async function logout(){
+  try{ await fetch('/api/logout',{method:'POST',credentials:'same-origin'}); }catch(_){ }
+  currentUser=null;
+  setControlState();
+  renderAll();
+}
+
+async function openAdmin(){
+  if(!isAdmin()) return;
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('adminError').textContent='';
+  await loadUsers();
+}
+
+async function loadUsers(){
+  try{
+    const d=await apiJson('/api/users');
+    const users=d.users||[];
+    document.getElementById('userListWrap').innerHTML=`<table class="user-table"><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>${users.map(u=>`<tr><td><b>${escapeHtml(u.username)}</b></td><td>${escapeHtml(u.role)}</td><td>${u.active?'Active':'Disabled'}</td><td><div class="user-actions">${u.active && u.role==='editor'?`<button class="small danger" data-disable-user="${u.user_id}">Disable</button><button class="small" data-reset-user="${u.user_id}">Reset Password</button>`:''}</div></td></tr>`).join('')}</tbody></table>`;
+    document.querySelectorAll('[data-disable-user]').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Disable this Editor account?')) return;
+      try{await apiJson('/api/users/'+encodeURIComponent(b.dataset.disableUser)+'/active',{method:'PUT',body:JSON.stringify({active:false})});await loadUsers();}
+      catch(e){document.getElementById('adminError').textContent=e.message;}
+    }));
+    document.querySelectorAll('[data-reset-user]').forEach(b=>b.addEventListener('click',async()=>{
+      const pw=prompt('Enter the new password (minimum 8 characters):'); if(pw===null)return;
+      try{await apiJson('/api/users/'+encodeURIComponent(b.dataset.resetUser)+'/password',{method:'PUT',body:JSON.stringify({password:pw})});alert('Password reset successfully.');}
+      catch(e){document.getElementById('adminError').textContent=e.message;}
+    }));
+  }catch(e){document.getElementById('adminError').textContent=e.message||'Unable to load users.';}
+}
+
+async function addEditor(){
+  const username=document.getElementById('newEditorUsername').value.trim();
+  const password=document.getElementById('newEditorPassword').value;
+  const err=document.getElementById('adminError'); err.textContent='';
+  try{
+    await apiJson('/api/users',{method:'POST',body:JSON.stringify({username,password})});
+    document.getElementById('newEditorUsername').value='';document.getElementById('newEditorPassword').value='';
+    await loadUsers(); alert('Editor account created successfully.');
+  }catch(e){err.textContent=e.message||'Unable to create Editor.';}
+}
+
 async function storeGet(key){
   if(key==='settings'){ const r=await apiJson('/api/settings'); return r.settings; }
   const r=await apiJson('/api/work-orders/'+encodeURIComponent(key));
@@ -1185,6 +1331,7 @@ function renderAll(){
   renderSignatures();
   renderPreview();
   renderSavedList();
+  setControlState();
 }
 
 async function previewOrder(key){
@@ -1200,6 +1347,15 @@ async function previewOrder(key){
 function closePreview(){
   document.body.classList.remove('document-mode');
 }
+
+document.getElementById('btnLogin').addEventListener('click', ()=>{ document.getElementById('loginOverlay').classList.add('open'); document.getElementById('loginUsername').focus(); });
+document.getElementById('loginCancel').addEventListener('click', ()=>document.getElementById('loginOverlay').classList.remove('open'));
+document.getElementById('loginSubmit').addEventListener('click', login);
+document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+document.getElementById('btnLogout').addEventListener('click', logout);
+document.getElementById('btnAdmin').addEventListener('click', openAdmin);
+document.getElementById('adminClose').addEventListener('click', ()=>document.getElementById('adminOverlay').classList.remove('open'));
+document.getElementById('addEditorBtn').addEventListener('click', addEditor);
 
 document.getElementById('btnNew').addEventListener('click', ()=>{
   const keepCompany = state.company;
@@ -1224,7 +1380,6 @@ document.getElementById('docPrint').addEventListener('click', ()=>{
   document.body.classList.add('printing-modal');
   window.print();
 });
-document.getElementById('btnLogout').style.display='none';
 document.getElementById('btnAddItem').addEventListener('click', addItem);
 document.getElementById('btnAddSig').addEventListener('click', addSignature);
 document.getElementById('fSearch').addEventListener('input', renderSavedList);
