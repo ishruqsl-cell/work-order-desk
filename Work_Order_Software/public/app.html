@@ -860,7 +860,7 @@ function renderItems(){
       const i = +e.target.dataset.i, f = e.target.dataset.f;
       state.items[i][f] = e.target.value;
       const row = e.target.closest('tr');
-      const totalCell = row && row.querySelector('td:nth-child(5)');
+      const totalCell = row && row.querySelector('td:nth-child(6)');
       if (totalCell) totalCell.textContent = fmt((Number(state.items[i].qty)||0)*(Number(state.items[i].unitPrice)||0));
       document.getElementById('grandTotal').textContent = fmt(recalcTotal());
       renderPreview();
