@@ -378,7 +378,8 @@ table.doc-items td.num{text-align:right;}
       </div>
       <div class="field">
         <label>Supplier company</label>
-        <select id="fSupCompany"><option value="">Select supplier company</option></select>
+        <input id="fSupCompany" list="supplierCompanyList" placeholder="Type or select supplier company">
+        <datalist id="supplierCompanyList"></datalist>
       </div>
       <div class="field">
         <label>Office address</label>
@@ -799,21 +800,25 @@ function selectCompanyAndAutofill(){
 }
 
 function renderSupplierList(){
-  const sel=document.getElementById('fSupCompany');
-  if(!sel) return;
+  const input=document.getElementById('fSupCompany');
+  const dl=document.getElementById('supplierCompanyList');
+  if(!input || !dl) return;
   const current=state.supplierCompany||'';
-  sel.innerHTML='<option value="">Select supplier company</option>'+(settings.suppliers||[]).map(s=>`<option value="${escapeAttr(s.company)}">${escapeHtml(s.company)}</option>`).join('');
-  if(current && !(settings.suppliers||[]).some(s=>s.company===current)) sel.innerHTML += `<option value="${escapeAttr(current)}">${escapeHtml(current)}</option>`;
-  sel.value=current;
+  dl.innerHTML=(settings.suppliers||[]).map(s=>`<option value="${escapeAttr(s.company)}">`).join('');
+  input.value=current;
 }
 function autofillSupplier(){
-  const name=document.getElementById('fSupCompany').value;
+  const input=document.getElementById('fSupCompany');
+  if(!input) return;
+  const name=input.value.trim();
   state.supplierCompany=name;
-  const found=(settings.suppliers||[]).find(s=>s.company===name);
+  const found=(settings.suppliers||[]).find(s=>s.company.toLowerCase()===name.toLowerCase());
   if(found){
+    state.supplierCompany=found.company;
     state.supplierContact=found.contact||''; state.supplierAddress=found.address||'';
     document.getElementById('fSupContact').value=state.supplierContact;
     document.getElementById('fSupAddress').value=state.supplierAddress;
+    input.value=found.company;
   }
   renderPreview();
 }
@@ -1388,6 +1393,7 @@ window.addEventListener('afterprint', ()=>{
 });
 document.getElementById('fCompany').addEventListener('change', selectCompanyAndAutofill);
 document.getElementById('fSupCompany').addEventListener('change', autofillSupplier);
+document.getElementById('fSupCompany').addEventListener('blur', autofillSupplier);
 document.getElementById('fCompany').addEventListener('input', ()=>{
   state.company = document.getElementById('fCompany').value.trim();
   if (settings.companyInfo[state.company]) renderCompanyInfoFields();
