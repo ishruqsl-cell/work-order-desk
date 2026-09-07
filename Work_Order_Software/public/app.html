@@ -1160,6 +1160,28 @@ async function saveOrder(){
     if (!settings.companies.includes(state.company)) settings.companies.push(state.company);
     settings.companyInfo[state.company] = state.companyInfoDraft;
     delete state.companyInfoDraft;
+
+    // Remember supplier details by company name. If the company already exists,
+    // update its contact/address; otherwise create a new supplier entry.
+    const supplierCompany = (state.supplierCompany || '').trim();
+    if (supplierCompany) {
+      if (!Array.isArray(settings.suppliers)) settings.suppliers = [];
+      const existing = settings.suppliers.find(s =>
+        String(s.company || '').trim().toLowerCase() === supplierCompany.toLowerCase()
+      );
+      if (existing) {
+        existing.company = supplierCompany;
+        existing.contact = (state.supplierContact || '').trim();
+        existing.address = (state.supplierAddress || '').trim();
+      } else {
+        settings.suppliers.push({
+          company: supplierCompany,
+          contact: (state.supplierContact || '').trim(),
+          address: (state.supplierAddress || '').trim()
+        });
+      }
+    }
+
     await saveSettings();
     const total = recalcTotal();
     state.savedAt = new Date().toISOString();
@@ -1168,6 +1190,7 @@ async function saveOrder(){
     await storeSet(currentSavedKey,state);
     await refreshIndex();
     renderCompanyList();
+    renderSupplierList();
     renderSavedList();
     flashButton('btnSave', 'Saved ✓');
     document.getElementById('btnViewSaved').style.display='inline-block';
