@@ -666,6 +666,17 @@ async function loadAll(){
         nextNumbers:s.nextNumbers||settings.nextNumbers
       });
     }
+    // Load supplier memory from settings plus all previous work orders, including archived ones.
+    if (isEditor()) {
+      try {
+        const spr=await apiJson('/api/suppliers');
+        if (Array.isArray(spr.suppliers)) {
+          const byName=new Map((settings.suppliers||[]).map(s=>[String(s.company||'').trim().toLowerCase(),s]));
+          spr.suppliers.forEach(s=>byName.set(String(s.company||'').trim().toLowerCase(),s));
+          settings.suppliers=Array.from(byName.values()).filter(s=>String(s.company||'').trim());
+        }
+      } catch(e) { console.warn('Supplier directory unavailable:', e.message); }
+    }
     const wr=await apiJson('/api/work-orders');
     index=wr.index||[];
     state=blankOrder();
@@ -807,15 +818,37 @@ function renderSupplierList(){
   dl.innerHTML=(settings.suppliers||[]).map(s=>`<option value="${escapeAttr(s.company)}">`).join('');
   input.value=current;
 }
-function autofillSupplier(){
+async function autofillSupplier(){
   const input=document.getElementById('fSupCompany');
   if(!input) return;
   const name=input.value.trim();
   state.supplierCompany=name;
-  const found=(settings.suppliers||[]).find(s=>s.company.toLowerCase()===name.toLowerCase());
+  if(!name){ renderPreview(); return; }
+
+  // First use the local supplier directory (saved settings + past work orders).
+  let found=(settings.suppliers||[]).find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
+
+  // If a newly entered company is not in the directory, ask the server for the
+  // latest matching saved work order. This covers older/archived work orders too.
+  if(!found && isEditor()){
+    try{
+      const d=await apiJson('/api/suppliers');
+      const suppliers=Array.isArray(d.suppliers)?d.suppliers:[];
+      const match=suppliers.find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
+      if(match){
+        found=match;
+        const exists=(settings.suppliers||[]).find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
+        if(exists){ exists.company=match.company; exists.contact=match.contact||''; exists.address=match.address||''; }
+        else settings.suppliers.push({company:match.company,contact:match.contact||'',address:match.address||''});
+        renderSupplierList();
+      }
+    }catch(e){ console.warn('Supplier autofill lookup failed:',e.message); }
+  }
+
   if(found){
     state.supplierCompany=found.company;
-    state.supplierContact=found.contact||''; state.supplierAddress=found.address||'';
+    state.supplierContact=found.contact||'';
+    state.supplierAddress=found.address||'';
     document.getElementById('fSupContact').value=state.supplierContact;
     document.getElementById('fSupAddress').value=state.supplierAddress;
     input.value=found.company;
