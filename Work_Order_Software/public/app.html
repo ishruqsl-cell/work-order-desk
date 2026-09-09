@@ -821,41 +821,71 @@ function renderSupplierList(){
 async function autofillSupplier(){
   const input=document.getElementById('fSupCompany');
   if(!input) return;
+
   const name=input.value.trim();
   state.supplierCompany=name;
-  if(!name){ renderPreview(); return; }
+  if(!name){
+    document.getElementById('fSupContact').value='';
+    document.getElementById('fSupAddress').value='';
+    state.supplierContact='';
+    state.supplierAddress='';
+    renderPreview();
+    return;
+  }
 
-  // First use the local supplier directory (saved settings + past work orders).
-  let found=(settings.suppliers||[]).find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
+  // First check the local supplier directory.
+  let found=(settings.suppliers||[]).find(s=>
+    String(s.company||'').trim().toLowerCase()===name.toLowerCase()
+  );
 
-  // If a newly entered company is not in the directory, ask the server for the
-  // latest matching saved work order. This covers older/archived work orders too.
-  if(!found && isEditor()){
+  // Then ask the server for the exact company. This searches supplier
+  // profiles and previous Work Orders, including archived orders.
+  if(!found){
     try{
-      const d=await apiJson('/api/suppliers');
-      const suppliers=Array.isArray(d.suppliers)?d.suppliers:[];
-      const match=suppliers.find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
-      if(match){
-        found=match;
-        const exists=(settings.suppliers||[]).find(s=>String(s.company||'').trim().toLowerCase()===name.toLowerCase());
-        if(exists){ exists.company=match.company; exists.contact=match.contact||''; exists.address=match.address||''; }
-        else settings.suppliers.push({company:match.company,contact:match.contact||'',address:match.address||''});
+      const d=await apiJson('/api/suppliers/by-company?company='+encodeURIComponent(name));
+      const x=d && d.supplier;
+      if(x){
+        found={
+          company:x.company || name,
+          contact:x.contact ?? x.contactName ?? '',
+          address:x.address ?? x.officeAddress ?? ''
+        };
+
+        const key=String(found.company||'').trim().toLowerCase();
+        const existing=(settings.suppliers||[]).find(s=>
+          String(s.company||'').trim().toLowerCase()===key
+        );
+        if(existing){
+          existing.company=found.company;
+          existing.contact=found.contact;
+          existing.address=found.address;
+        }else{
+          settings.suppliers.push(found);
+        }
         renderSupplierList();
       }
-    }catch(e){ console.warn('Supplier autofill lookup failed:',e.message); }
+    }catch(e){
+      console.warn('Supplier exact lookup failed:',e.message);
+    }
   }
 
   if(found){
     state.supplierCompany=found.company;
-    state.supplierContact=found.contact||'';
-    state.supplierAddress=found.address||'';
+    state.supplierContact=found.contact ?? found.contactName ?? '';
+    state.supplierAddress=found.address ?? found.officeAddress ?? '';
     document.getElementById('fSupContact').value=state.supplierContact;
     document.getElementById('fSupAddress').value=state.supplierAddress;
     input.value=found.company;
   }
+
   renderPreview();
 }
 
+let supplierAutofillTimer=null;
+function scheduleSupplierAutofill(){
+  clearTimeout(supplierAutofillTimer);
+  supplierAutofillTimer=setTimeout(()=>autofillSupplier(),300);
+}
 function renderHeaderFields(){
   document.getElementById('fWoNumber').value = state.woNumber||"";
   document.getElementById('fDate').value = state.date||"";
@@ -1448,6 +1478,7 @@ window.addEventListener('afterprint', ()=>{
   document.body.classList.remove('printing-modal');
 });
 document.getElementById('fCompany').addEventListener('change', selectCompanyAndAutofill);
+document.getElementById('fSupCompany').addEventListener('input', scheduleSupplierAutofill);
 document.getElementById('fSupCompany').addEventListener('change', autofillSupplier);
 document.getElementById('fSupCompany').addEventListener('blur', autofillSupplier);
 document.getElementById('fCompany').addEventListener('input', ()=>{
