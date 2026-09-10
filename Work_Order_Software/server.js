@@ -1298,16 +1298,14 @@ app.get(
           ? `
               WHERE LOWER(
                 COALESCE(
-                  data_json->
-                  >'supplierCompany',
+                  data_json->>'supplierCompany',
                   ''
                 )
               ) LIKE $1
             `
           : `
               WHERE COALESCE(
-                data_json->
-                >'supplierCompany',
+                data_json->>'supplierCompany',
                 ''
               ) <> ''
             `;
@@ -1496,8 +1494,7 @@ app.get(
               FROM work_orders
               WHERE LOWER(
                 COALESCE(
-                  data_json->
-                  >'supplierCompany',
+                  data_json->>'supplierCompany',
                   ''
                 )
               )=$1
