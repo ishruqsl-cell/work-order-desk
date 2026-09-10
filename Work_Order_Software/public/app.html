@@ -1258,6 +1258,8 @@ async function saveOrder(){
     flashButton('btnSave', 'Saved ✓');
     document.getElementById('btnViewSaved').style.display='inline-block';
     document.body.classList.add('saved-state');
+    // Auto-backup: also drop a local Excel copy on this PC the moment the save succeeds.
+    downloadExcel().catch(err=>console.warn('Automatic local backup failed:', err.message));
   }catch(e){ alert(e.message||'Save failed.'); }
 }
 
