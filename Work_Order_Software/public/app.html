@@ -859,6 +859,100 @@ table tbody tr:hover{
 }
 
 </style>
+
+<style id="sara-document-navigation-fix">
+/* ===== FINAL NAVIGATION / HEADER FIX ===== */
+/* Keep the application header truly fixed. */
+.topbar{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  min-height:82px !important;
+  height:auto !important;
+  z-index:99999 !important;
+  transform:none !important;
+  will-change:auto !important;
+  contain:layout paint !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+/* Reserve space for the fixed header on the normal front page. */
+body:not(.document-mode) .layout{
+  padding-top:110px !important;
+}
+
+/* Document view must start BELOW the fixed header, so its Back button
+   can never disappear underneath the header. */
+#documentView{
+  position:fixed !important;
+  top:82px !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  width:auto !important;
+  height:auto !important;
+  inset-inline:auto !important;
+  overflow:auto !important;
+  padding:14px 18px 24px !important;
+  z-index:90000 !important;
+  transform:none !important;
+  border-radius:0 !important;
+}
+
+/* Always show a clear navigation/action bar in document mode. */
+body.document-mode .document-toolbar{
+  position:sticky !important;
+  top:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  min-height:48px !important;
+  padding:4px 0 12px !important;
+  z-index:10 !important;
+  background:linear-gradient(180deg,#0f172a 0%,rgba(15,23,42,.96) 75%,rgba(15,23,42,0) 100%) !important;
+}
+
+/* Make Back unmistakable and easy to click. */
+#docBack{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-weight:800 !important;
+  cursor:pointer !important;
+  position:relative !important;
+  z-index:20 !important;
+}
+
+/* The document remains centered and scrollable without affecting the header. */
+.document-paper-wrap{
+  min-height:calc(100% - 50px);
+  padding-bottom:28px !important;
+}
+
+/* Avoid the old heavy 3D transform causing scroll/render glitches. */
+body.document-mode #documentView,
+body.document-mode #documentView *{
+  transform-style:flat;
+}
+body.document-mode #documentPaper{
+  transform:none !important;
+}
+
+/* Clean bottom edge; do not paint a fake block behind the OS taskbar. */
+body.document-mode{
+  overflow:hidden !important;
+  background:#0f172a !important;
+}
+
+@media(max-width:900px){
+  #documentView{top:76px !important;padding:8px 10px 18px !important;}
+  body.document-mode .document-toolbar{flex-wrap:wrap !important;}
+}
+</style>
 </head>
 <body>
 
@@ -2140,5 +2234,25 @@ loadAll();
 })();
 </script>
 
+
+<script id="sara-document-navigation-js">
+/* Reliable document-view navigation */
+(function(){
+  const back=document.getElementById('docBack');
+  if(back){
+    back.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      document.body.classList.remove('document-mode','saved-state','printing-modal');
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+    }, true);
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && document.body.classList.contains('document-mode')){
+      document.body.classList.remove('document-mode','saved-state','printing-modal');
+    }
+  });
+})();
+</script>
 </body>
 </html>
