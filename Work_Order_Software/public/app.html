@@ -168,11 +168,32 @@ body.document-mode .layout{display:none;}
 .items-table .num{text-align:right;}
 .items-table .rm{width:26px;text-align:center;}
  .items-table .rm button{padding:2px 6px;font-size:11px;}
-.items-table .pic-col{width:74px;text-align:center;}
-.item-picture{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.item-picture img{width:58px;height:58px;object-fit:contain;border:1px solid var(--line);background:#fff;border-radius:3px;display:block;}
-.item-picture .pic-placeholder{width:58px;height:58px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink-soft);text-align:center;background:#fafafa;}
-.item-picture input[type=file]{font-size:10px;padding:2px;border:0;width:70px;background:transparent;}
+.items-table .pic-col{width:68px;min-width:68px;text-align:center;}
+.item-picture{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:58px;}
+.picture-picker{
+  width:56px;height:56px;padding:0;margin:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #b9d7ef;border-radius:2px;
+  background:linear-gradient(180deg,#f8fbff,#eef6fd);
+  cursor:pointer;
+  box-shadow:inset 0 1px #fff,0 1px 3px rgba(15,23,42,.08);
+  transition:background .15s,border-color .15s,transform .15s,box-shadow .15s;
+  overflow:hidden;
+}
+.picture-picker:hover{
+  background:linear-gradient(180deg,#edf7ff,#e0f0ff);
+  border-color:#5b9bd5;
+  transform:translateY(-1px);
+  box-shadow:0 3px 8px rgba(37,99,235,.16),inset 0 1px #fff;
+}
+.picture-picker:active{transform:translateY(1px);}
+.picture-picker .upload-icon{
+  width:20px;height:20px;display:block;
+  border-radius:3px;
+}
+.picture-picker.has-image{background:#fff;border-color:#8eb9dc;}
+.picture-picker img{width:54px;height:54px;object-fit:contain;display:block;background:#fff;}
+.item-picture input[type=file]{display:none !important;}
 .item-picture .remove-pic{padding:2px 6px;font-size:10px;}
 .items-total{
   display:flex;justify-content:flex-end;gap:10px;align-items:baseline;
@@ -309,6 +330,438 @@ table.doc-items td.num{text-align:right;}
   body.printing-modal .paper-wrap#documentPaper{position:absolute;top:0;left:0;width:210mm;height:297mm;min-height:297mm;box-shadow:none;border:none;padding:10mm 11mm 8mm;overflow:hidden;}
   .doc-items,.doc-signatures{break-inside:avoid;page-break-inside:avoid;}
 }
+
+/* ===== SaRa Premium UI Refresh ===== */
+:root{
+  --chrome-bg:#f4f6f8;
+  --chrome-bg-deep:#0f172a;
+  --paper:#ffffff;
+  --paper-edge:#e5e7eb;
+  --ink:#172033;
+  --ink-soft:#64748b;
+  --accent:#0f766e;
+  --accent-deep:#115e59;
+  --line:#dbe2ea;
+  --danger:#b42318;
+  --white:#fff;
+  --navy:#0f172a;
+  --navy-2:#1e293b;
+  --soft:#f8fafc;
+  --shadow:0 12px 30px rgba(15,23,42,.08);
+  --shadow-lg:0 20px 50px rgba(15,23,42,.12);
+}
+body{
+  background:
+    radial-gradient(circle at 10% 0%, rgba(15,118,110,.07), transparent 28%),
+    linear-gradient(180deg,#f8fafc 0%,#eef2f6 100%);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif;
+}
+.topbar{
+  position:sticky;top:0;z-index:100;
+  padding:16px 24px;
+  background:rgba(15,23,42,.97);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  box-shadow:0 8px 24px rgba(15,23,42,.16);
+  color:#fff;
+  backdrop-filter:blur(12px);
+}
+.brand{gap:12px;align-items:center}
+.brand .mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,#14b8a6,#0f766e);
+  box-shadow:0 6px 18px rgba(20,184,166,.28);
+  position:relative;
+}
+.brand .mark:after{
+  content:"S";position:absolute;inset:0;
+  display:grid;place-items:center;color:#fff;
+  font-weight:800;font-size:17px;
+}
+.brand h1{
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:18px;font-weight:700;letter-spacing:-.25px;color:#fff;
+}
+.brand .sub{color:#94a3b8;font-size:11px}
+.live-clock{color:#cbd5e1;font-size:11px}
+.topbar-actions{gap:7px}
+.topbar-actions button{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  color:#e2e8f0;
+  border-radius:9px;
+  padding:9px 12px;
+  font-weight:600;
+  transition:all .18s ease;
+}
+.topbar-actions button:hover{
+  background:rgba(255,255,255,.16);color:#fff;
+  transform:translateY(-1px);
+}
+.topbar-actions button.primary{
+  background:linear-gradient(135deg,#14b8a6,#0f766e);
+  border-color:#14b8a6;color:#fff;
+  box-shadow:0 5px 16px rgba(20,184,166,.24);
+}
+.topbar-actions button.primary:hover{background:linear-gradient(135deg,#2dd4bf,#0f766e)}
+.topbar-actions button.ghost{color:#cbd5e1;border-color:rgba(255,255,255,.14)}
+#accessStatus{
+  background:rgba(20,184,166,.14);
+  color:#5eead4;
+  border:1px solid rgba(94,234,212,.20);
+  padding:6px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;
+}
+#userBadge{
+  color:#cbd5e1!important;
+  background:rgba(255,255,255,.06);
+  border-radius:999px;
+  padding:6px 9px!important;
+}
+.layout{padding:28px;max-width:1500px;margin:auto}
+.panel{
+  background:rgba(255,255,255,.94);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:22px;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+.panel:hover{box-shadow:0 16px 36px rgba(15,23,42,.10)}
+.panel h2{
+  color:var(--navy);
+  font-size:13px;
+  letter-spacing:.2px;
+  margin:0 0 18px;
+  padding-bottom:12px;
+  border-bottom:1px solid #edf1f5;
+  display:flex;align-items:center;gap:8px;
+}
+.panel h2:before{
+  content:"";width:4px;height:17px;border-radius:4px;background:var(--accent);
+}
+.field{margin-bottom:15px}
+label{
+  color:#475569;font-size:11px;font-weight:700;
+  letter-spacing:.15px;margin-bottom:6px;
+}
+select,input,textarea{
+  border:1px solid #d7dee7;
+  border-radius:9px;
+  background:#fff;
+  color:var(--ink);
+  padding:10px 11px;
+  box-shadow:inset 0 1px 1px rgba(15,23,42,.02);
+  transition:border-color .16s,box-shadow .16s;
+}
+select:hover,input:hover,textarea:hover{border-color:#b8c4d2}
+select:focus,input:focus,textarea:focus{
+  outline:none;
+  border-color:#14b8a6;
+  box-shadow:0 0 0 3px rgba(20,184,166,.12);
+}
+#fWoNumber{
+  font-weight:800;
+  letter-spacing:.6px;
+  color:#0f766e;
+  background:linear-gradient(180deg,#f0fdfa,#fff);
+  border-color:#99f6e4;
+}
+#fWoNumber:disabled{opacity:1;color:#0f766e}
+.items-table{
+  border:1px solid #e6ebf0;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.items-table th{
+  background:#f8fafc;
+  color:#475569;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.35px;
+  padding:10px 7px;
+  border-bottom:1px solid #e2e8f0;
+}
+.items-table td{padding:6px 5px}
+.items-table input{border-radius:7px;padding:8px}
+.items-total{
+  padding:13px 4px 2px;
+  border-top:1px solid #e2e8f0;
+  color:#475569;
+}
+.items-total b{font-family:'IBM Plex Sans',sans-serif;color:#0f766e;font-size:18px}
+.sig-block{
+  border:1px solid #e2e8f0;
+  border-radius:11px;
+  background:#fbfdff;
+  padding:12px;
+}
+.saved-list{
+  border:1px solid #e5eaf0;
+  border-radius:12px;
+  overflow-y:auto;
+  background:#fff;
+}
+.saved-item{padding:12px 10px;border-bottom:1px solid #edf1f5}
+.saved-item:hover{background:#f0fdfa}
+.saved-item .meta b{color:#172033}
+button{
+  border:1px solid #cbd5e1;
+  background:#fff;
+  color:#334155;
+  border-radius:9px;
+  padding:9px 13px;
+  font-weight:600;
+}
+button:hover{background:#172033;color:#fff;border-color:#172033}
+button.primary{background:linear-gradient(135deg,#14b8a6,#0f766e);border-color:#0f766e}
+button.ghost{border-color:#d8e0e8;color:#475569}
+button.danger{border-color:#f0b7b2;color:#b42318}
+button.small{border-radius:7px}
+.document-toolbar button{
+  border-radius:9px;
+}
+#documentView{
+  background:#0f172a;
+  padding:18px;
+}
+#documentPaper{
+  box-shadow:0 24px 70px rgba(0,0,0,.32);
+}
+.paper-wrap{
+  border-radius:2px;
+  box-shadow:0 8px 30px rgba(15,23,42,.13);
+}
+@media(max-width:900px){
+  .topbar{padding:13px 15px}
+  .topbar-actions{width:100%}
+  .layout{padding:15px}
+  .panel{padding:16px;border-radius:13px}
+}
+
+</style>
+<style>
+
+/* ===== FOB WORK ORDER SaRa — 3D PREMIUM EDITION ===== */
+:root{
+  --3d-bg:#eef2f6;
+  --3d-card:rgba(255,255,255,.92);
+  --3d-card-solid:#fff;
+  --3d-navy:#0b1324;
+  --3d-navy2:#17243b;
+  --3d-teal:#0f766e;
+  --3d-teal2:#14b8a6;
+  --3d-line:#d9e2ec;
+  --3d-shadow:0 18px 45px rgba(15,23,42,.12),0 4px 12px rgba(15,23,42,.06);
+  --3d-shadow-deep:0 28px 70px rgba(15,23,42,.18),0 8px 20px rgba(15,23,42,.08);
+}
+
+/* depth-first page */
+body{
+  background:
+    radial-gradient(circle at 8% 4%, rgba(20,184,166,.13), transparent 28%),
+    radial-gradient(circle at 92% 12%, rgba(59,130,246,.10), transparent 25%),
+    linear-gradient(135deg,#f8fafc 0%,#edf2f7 48%,#e8eef4 100%) !important;
+  perspective:1400px;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.42) 50%,transparent 65%);
+  transform:translateX(-45%);
+  animation:saRaLightSweep 14s ease-in-out infinite;
+}
+@keyframes saRaLightSweep{
+  0%,65%{transform:translateX(-45%);opacity:0}
+  72%{opacity:.7}
+  100%{transform:translateX(45%);opacity:0}
+}
+
+.topbar{
+  background:linear-gradient(145deg,#07101f 0%,#0e1b30 52%,#172a43 100%) !important;
+  border-bottom:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 12px 35px rgba(2,8,23,.28), inset 0 -1px rgba(20,184,166,.22) !important;
+  transform:translateZ(20px);
+}
+.topbar::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:-2px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--3d-teal2),transparent);
+  opacity:.8;
+}
+.brand-mark{
+  box-shadow:0 8px 20px rgba(20,184,166,.30), inset 0 1px rgba(255,255,255,.45) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  transform:translateZ(22px);
+}
+.btn{
+  position:relative;
+  overflow:hidden;
+  border-radius:11px !important;
+  box-shadow:0 5px 0 rgba(15,23,42,.13),0 9px 18px rgba(15,23,42,.10),inset 0 1px rgba(255,255,255,.38) !important;
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease !important;
+}
+.btn::before{
+  content:"";
+  position:absolute; top:-120%; left:-30%; width:28%; height:340%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  transform:rotate(22deg);
+  transition:left .55s ease;
+}
+.btn:hover{transform:translateY(-3px) translateZ(12px);filter:saturate(1.08);box-shadow:0 8px 0 rgba(15,23,42,.12),0 16px 28px rgba(15,23,42,.15),inset 0 1px rgba(255,255,255,.42) !important}
+.btn:hover::before{left:115%}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(15,23,42,.12),0 5px 10px rgba(15,23,42,.10) !important}
+
+.layout{
+  transform-style:preserve-3d;
+}
+.panel{
+  position:relative;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,250,252,.90)) !important;
+  border:1px solid rgba(203,213,225,.82) !important;
+  border-radius:18px !important;
+  box-shadow:var(--3d-shadow) !important;
+  transform:translateZ(0);
+  transform-style:preserve-3d;
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease !important;
+  overflow:hidden;
+}
+.panel::before{
+  content:"";
+  position:absolute; inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.72),transparent 34%,transparent 68%,rgba(15,118,110,.035));
+}
+.panel::after{
+  content:"";
+  position:absolute; left:18px; right:18px; top:0; height:3px;
+  background:linear-gradient(90deg,var(--3d-teal),var(--3d-teal2),transparent);
+  border-radius:0 0 8px 8px;
+  opacity:.9;
+}
+.panel:hover{
+  transform:translateY(-4px) translateZ(8px);
+  box-shadow:var(--3d-shadow-deep) !important;
+  border-color:rgba(15,118,110,.28) !important;
+}
+.panel > *{position:relative;z-index:1}
+.panel h2,.panel h3{
+  text-shadow:0 1px 0 #fff,0 3px 12px rgba(15,23,42,.08);
+}
+
+input,select,textarea{
+  background:linear-gradient(145deg,#fff,#f7fafc) !important;
+  border:1px solid #d6e0ea !important;
+  border-radius:10px !important;
+  box-shadow:inset 0 2px 5px rgba(15,23,42,.045),0 1px 0 #fff !important;
+  transition:border-color .18s,box-shadow .18s,transform .18s !important;
+}
+input:hover,select:hover,textarea:hover{border-color:#b8c9d8 !important}
+input:focus,select:focus,textarea:focus{
+  transform:translateY(-1px);
+  border-color:var(--3d-teal) !important;
+  box-shadow:0 0 0 4px rgba(20,184,166,.11),inset 0 2px 5px rgba(15,23,42,.035),0 7px 16px rgba(15,23,42,.07) !important;
+}
+#fWoNumber{
+  background:linear-gradient(145deg,#ecfdf9,#dff8f3) !important;
+  border-color:#78cfc4 !important;
+  color:#075e57 !important;
+  font-weight:900 !important;
+  letter-spacing:.04em;
+  box-shadow:inset 0 2px 5px rgba(15,118,110,.08),0 7px 18px rgba(15,118,110,.10) !important;
+}
+
+table{
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+  border:1px solid #dbe4ec !important;
+  border-radius:14px !important;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(15,23,42,.06) !important;
+}
+table thead th{
+  background:linear-gradient(145deg,#17243b,#0d1729) !important;
+  color:#f8fafc !important;
+  text-shadow:0 1px 3px rgba(0,0,0,.35);
+  border-color:rgba(255,255,255,.08) !important;
+}
+table tbody tr{
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+}
+table tbody tr:hover{
+  transform:translateZ(5px);
+  background:#f0fdfa !important;
+  box-shadow:0 6px 16px rgba(15,118,110,.08);
+}
+table td,table th{border-color:#e2e8f0 !important}
+
+#savedList{
+  background:linear-gradient(145deg,#f8fafc,#eef3f7) !important;
+  border:1px solid #dbe4ec !important;
+  border-radius:14px !important;
+  box-shadow:inset 0 1px #fff,0 8px 22px rgba(15,23,42,.05) !important;
+}
+#savedList > *{
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease !important;
+}
+#savedList > *:hover{
+  transform:translateX(5px) translateZ(8px);
+  box-shadow:0 8px 20px rgba(15,23,42,.10) !important;
+}
+
+#documentView{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(20,184,166,.10),transparent 30%),
+    linear-gradient(145deg,#07101f,#0d1729 55%,#12213a) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  border-radius:20px !important;
+  box-shadow:0 28px 70px rgba(2,8,23,.30),inset 0 1px rgba(255,255,255,.08) !important;
+  transform:translateZ(12px);
+}
+#documentView .paper, #documentView .sheet, #documentView .document{
+  box-shadow:0 25px 60px rgba(0,0,0,.28),0 2px 0 rgba(255,255,255,.8) !important;
+  border-radius:4px !important;
+}
+
+#accessStatus,#userBadge{
+  box-shadow:0 5px 15px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.25) !important;
+}
+
+.badge,.pill,.tag{
+  box-shadow:inset 0 1px rgba(255,255,255,.55),0 4px 10px rgba(15,23,42,.08) !important;
+}
+
+@keyframes saRaFloat{
+  0%,100%{transform:translateY(0) rotateX(0deg)}
+  50%{transform:translateY(-2px) rotateX(.5deg)}
+}
+.brand-mark{animation:saRaFloat 4.5s ease-in-out infinite}
+
+@media (max-width:900px){
+  .panel:hover{transform:translateY(-2px) translateZ(3px)}
+  .btn:hover{transform:translateY(-2px)}
+}
+@media print{
+  body{background:#fff !important}
+  body::before{display:none !important}
+  .panel{box-shadow:none !important;transform:none !important}
+  .btn{box-shadow:none !important}
+}
+
+</style>
+
+<style>
+/* Compact image-upload cell: click the blue picture icon/thumbnail to open the device file chooser. */
+.picture-picker:focus-visible{
+  outline:3px solid rgba(59,130,246,.25);
+  outline-offset:2px;
+}
+@media print{
+  .picture-picker{box-shadow:none !important;transform:none !important;}
+}
 </style>
 </head>
 <body>
@@ -350,8 +803,8 @@ table.doc-items td.num{text-align:right;}
           <datalist id="companyList"></datalist>
         </div>
         <div class="field">
-          <label>Work order no.</label>
-          <input id="fWoNumber" placeholder="e.g. OB-2601">
+          <label>Work order no. <span style="font-size:11px;color:#6b7280;font-weight:600">(Auto)</span></label>
+          <input id="fWoNumber" placeholder="2604" readonly>
         </div>
       </div>
       <div class="row2">
@@ -409,7 +862,7 @@ table.doc-items td.num{text-align:right;}
             <th style="width:80px;">Unit price</th>
             <th style="width:90px;">Total price</th>
             <th>Remarks</th>
-            <th class="pic-col">Picture</th>
+            <th class="pic-col">Img</th>
             <th class="rm"></th>
           </tr>
         </thead>
@@ -582,6 +1035,32 @@ function localDateISO(d=new Date()){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
+
+const WO_START_NUMBER = 2604;
+
+/* Automatic continuous Work Order numbering.
+   Uses all work orders already returned by the server and never reuses an
+   archived/previous number. Format is numeric: 2604, 2605, 2606... */
+function extractWoNumber(value){
+  const m = String(value || '').match(/(\d+)\s*$/);
+  return m ? Number(m[1]) : 0;
+}
+function getNextWoNumber(){
+  let max = WO_START_NUMBER - 1;
+  (index || []).forEach(r => {
+    max = Math.max(max, extractWoNumber(r.woNumber));
+  });
+  const configured = Number(settings?.nextNumbers?.global || 0);
+  if (configured > max) max = configured - 1;
+  return String(max + 1);
+}
+function assignNextWoNumber(){
+  if (!state) return;
+  state.woNumber = getNextWoNumber();
+  const el = document.getElementById('fWoNumber');
+  if (el) el.value = state.woNumber;
+}
+
 function formatLiveDateTime(d=new Date()){
   const date=d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
   const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -591,11 +1070,21 @@ function actionDateTime(d=new Date()){ return `${formatLiveDateTime(d)}  ·  Ban
 function updateLiveClock(){ const el=document.getElementById('liveClock'); if(el) el.textContent=`${formatLiveDateTime()}  ·  Bangladesh Time`; }
 setInterval(updateLiveClock,1000);
 
+function nextWorkOrderNumber(){
+  const START = 2604;
+  const used = (index || [])
+    .map(r => String(r.woNumber || "").match(/(\d+)\s*$/))
+    .filter(Boolean)
+    .map(m => Number(m[1]))
+    .filter(Number.isFinite);
+  return String(Math.max(START - 1, ...used) + 1);
+}
+
 function blankOrder(){
   const company = state && state.company ? state.company : (settings.companies[0] || "");
   return {
     company,
-    woNumber: "",
+    woNumber: nextWorkOrderNumber(),
     date: localDateISO(),
     shipmentDate: "",
     subject: "",
@@ -680,6 +1169,7 @@ async function loadAll(){
     const wr=await apiJson('/api/work-orders');
     index=wr.index||[];
     state=blankOrder();
+    assignNextWoNumber();
     renderAll();
     setControlState();
   }catch(e){ console.error(e); if(!document.hidden) alert(e.message||'Unable to load the software.'); }
@@ -914,7 +1404,15 @@ function renderItems(){
       <td><input data-i="${i}" data-f="remarks" value="${escapeAttr(it.remarks)}"></td>
       <td class="pic-col">
         <div class="item-picture">
-          ${it.image ? `<img src="${it.image}" alt="Style picture">` : `<div class="pic-placeholder">No picture</div>`}
+          <button type="button" class="picture-picker ${it.image ? 'has-image' : ''}" data-pick-img="${i}" title="Click to choose a picture">
+            ${it.image
+              ? `<img src="${it.image}" alt="Style picture">`
+              : `<svg class="upload-icon" viewBox="0 0 24 24" aria-hidden="true">
+                   <rect x="3" y="3" width="18" height="18" rx="3" fill="#4a67b7"/>
+                   <circle cx="9" cy="9" r="2" fill="#fff"/>
+                   <path d="M5.5 18l4.5-5 3.2 3.2 2.2-2.4 3.1 4.2H5.5z" fill="#fff"/>
+                 </svg>`}
+          </button>
           <input type="file" accept="image/*" data-img-i="${i}" title="Upload style picture">
           ${it.image ? `<button type="button" class="ghost remove-pic" data-rmpic="${i}">Remove</button>` : ''}
         </div>
@@ -934,6 +1432,14 @@ function renderItems(){
       renderPreview();
     });
   });
+  body.querySelectorAll('.picture-picker[data-pick-img]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.preventDefault();
+      const i = +btn.dataset.pickImg;
+      const input = body.querySelector(`input[type=file][data-img-i="${i}"]`);
+      if(input) input.click();
+    });
+  });
   body.querySelectorAll('input[type=file][data-img-i]').forEach(inp=>{
     inp.addEventListener('change', async e=>{
       const i = +e.target.dataset.imgI;
@@ -944,6 +1450,9 @@ function renderItems(){
         renderItems();
         renderPreview();
       }catch(err){ alert(err.message||'Picture upload failed.'); }
+      finally{
+        e.target.value = '';
+      }
     });
   });
   body.querySelectorAll('[data-rmpic]').forEach(btn=>{
@@ -1219,7 +1728,13 @@ async function saveOrder(){
   try{
     readFormIntoState();
     if (!state.company){ alert("Enter the issuing company name first."); return; }
-    if (!state.woNumber){ alert("Enter a work order number first."); return; }
+    if (!state.woNumber){ state.woNumber = nextWorkOrderNumber(); }
+    // If this is a new order and another editor already used the generated number,
+    // automatically move to the next available number instead of creating a duplicate.
+    if (!currentSavedKey && (index || []).some(r => String(r.woNumber || "") === String(state.woNumber))) {
+      state.woNumber = nextWorkOrderNumber();
+      renderHeaderFields();
+    }
     if (!settings.companies.includes(state.company)) settings.companies.push(state.company);
     settings.companyInfo[state.company] = state.companyInfoDraft;
     delete state.companyInfoDraft;
@@ -1496,5 +2011,38 @@ document.getElementById('fCompany').addEventListener('input', ()=>{
 updateLiveClock();
 loadAll();
 </script>
+
+<script>
+/* ===== SaRa 3D micro-interaction layer ===== */
+(function(){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+
+  function enable3D(){
+    document.querySelectorAll('.panel').forEach(panel=>{
+      if(panel.dataset.tiltReady) return;
+      panel.dataset.tiltReady='1';
+      panel.addEventListener('pointermove', e=>{
+        if(e.pointerType === 'touch') return;
+        const r=panel.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        const ry=Math.max(-1.8,Math.min(1.8,x*3.6));
+        const rx=Math.max(-1.8,Math.min(1.8,-y*3.6));
+        panel.style.transform=`translateY(-4px) translateZ(8px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+      panel.addEventListener('pointerleave',()=>{
+        panel.style.transform='';
+      });
+    });
+  }
+
+  const observer=new MutationObserver(enable3D);
+  observer.observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('load',enable3D);
+  setTimeout(enable3D,300);
+})();
+</script>
+
 </body>
 </html>
