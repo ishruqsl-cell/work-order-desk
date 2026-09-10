@@ -1204,6 +1204,202 @@ body.document-mode{
 }
 
 </style>
+<style>
+
+/* =========================================================
+   SaRa FINAL — TRUE FULL-PAGE WORK ORDER VIEW
+   Front-page controls stay on the front page only.
+   ========================================================= */
+
+/* Dedicated viewer owns the entire viewport */
+body.document-mode{
+  margin:0 !important;
+  padding:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  overflow:hidden !important;
+  background:#07101f !important;
+}
+
+/* Hide the normal application header while viewing a document */
+body.document-mode .topbar{
+  display:none !important;
+}
+
+/* Hide all front-page content while the document viewer is active */
+body.document-mode > .layout,
+body.document-mode .layout{
+  display:none !important;
+}
+
+/* Full-screen viewer */
+body.document-mode #documentView{
+  display:block !important;
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:auto !important;
+  z-index:99999 !important;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(20,184,166,.12),transparent 34%),
+    linear-gradient(145deg,#06101f 0%,#0a1629 52%,#101f35 100%) !important;
+}
+
+/* Viewer toolbar */
+body.document-mode #documentView .document-toolbar{
+  position:sticky !important;
+  top:0 !important;
+  left:0 !important;
+  z-index:100000 !important;
+  width:100% !important;
+  min-height:64px !important;
+  box-sizing:border-box !important;
+  padding:9px 16px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+  background:rgba(5,14,28,.97) !important;
+  border-bottom:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 8px 26px rgba(0,0,0,.28) !important;
+}
+
+/* Strong, unmistakable Back button */
+body.document-mode #docBack{
+  min-height:46px !important;
+  padding:0 22px !important;
+  border-radius:12px !important;
+  color:#fff !important;
+  background:linear-gradient(135deg,#0f766e 0%,#14b8a6 55%,#0ea5e9 100%) !important;
+  border:1px solid rgba(255,255,255,.30) !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  letter-spacing:.01em !important;
+  white-space:nowrap !important;
+  box-shadow:
+    0 4px 0 #075e57,
+    0 10px 22px rgba(20,184,166,.28),
+    inset 0 1px rgba(255,255,255,.50) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.25) !important;
+  cursor:pointer !important;
+}
+body.document-mode #docBack:hover{
+  transform:translateY(-2px) !important;
+  filter:brightness(1.08) !important;
+}
+
+/* Secondary viewer controls */
+body.document-mode #docExcel,
+body.document-mode #docPdf,
+body.document-mode #docPrint{
+  min-height:44px !important;
+  padding:0 16px !important;
+  border-radius:11px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+
+/* Work order area: full available viewer width */
+body.document-mode #documentView .document-paper-wrap{
+  width:100% !important;
+  min-height:calc(100vh - 64px) !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  padding:26px 24px 48px !important;
+  overflow:visible !important;
+}
+
+/* Keep the actual work order as a clean A4 page */
+body.document-mode #documentPaper{
+  flex:0 0 auto !important;
+  width:210mm !important;
+  height:297mm !important;
+  min-height:297mm !important;
+  max-width:none !important;
+  margin:0 auto !important;
+  transform:none !important;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.34),
+    0 2px 0 rgba(255,255,255,.90) !important;
+}
+
+/* Disable expensive 3D transforms while the document is being scrolled */
+body.document-mode #documentView,
+body.document-mode #documentView *{
+  transform-style:flat !important;
+}
+
+/* No horizontal page drift */
+body.document-mode #documentView{
+  overscroll-behavior:contain !important;
+}
+
+/* Print remains A4 and hides the viewer toolbar */
+@media print{
+  body.document-mode #documentView{
+    position:absolute !important;
+    inset:0 !important;
+    width:210mm !important;
+    height:297mm !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    background:#fff !important;
+  }
+  body.document-mode #documentView .document-toolbar{
+    display:none !important;
+  }
+  body.document-mode #documentView .document-paper-wrap{
+    min-height:297mm !important;
+    padding:0 !important;
+  }
+  body.document-mode #documentPaper{
+    width:210mm !important;
+    height:297mm !important;
+    min-height:297mm !important;
+    box-shadow:none !important;
+    border:none !important;
+  }
+}
+
+/* Small screens */
+@media(max-width:700px){
+  body.document-mode #documentView .document-toolbar{
+    min-height:58px !important;
+    padding:7px 8px !important;
+    gap:6px !important;
+    overflow-x:auto !important;
+    justify-content:flex-start !important;
+  }
+  body.document-mode #docBack{
+    min-height:44px !important;
+    padding:0 15px !important;
+    font-size:13px !important;
+  }
+  body.document-mode #docExcel,
+  body.document-mode #docPdf,
+  body.document-mode #docPrint{
+    min-height:42px !important;
+    padding:0 12px !important;
+    font-size:12px !important;
+  }
+  body.document-mode #documentView .document-paper-wrap{
+    padding:14px 8px 30px !important;
+    justify-content:flex-start !important;
+  }
+  body.document-mode #documentPaper{
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+}
+
+</style>
 </head>
 <body>
 
@@ -1401,7 +1597,7 @@ body.document-mode{
 <!-- FULL WORK ORDER VIEW: appears only after Save / View Work Order -->
 <div id="documentView">
   <div class="document-toolbar">
-    <button class="ghost" id="docBack">←  BACK TO FRONT PAGE</button>
+    <button class="ghost" id="docBack">← BACK TO FRONT PAGE</button>
     <button id="docExcel">Download Excel</button>
     <button id="docPdf">Download PDF</button>
     <button class="primary" id="docPrint">Print / PDF</button>
