@@ -1656,9 +1656,14 @@ body:not(.document-mode) .topbar-actions #userBadge{
 
 <aside class="sara-sidebar" aria-label="SaRa navigation">
   <div class="sara-side-brand">
-    <div class="sara-side-logo">S</div>
-    <div class="sara-side-title">Sub-Con Work Order SaRa</div>
-    <div class="sara-side-sub">Work order management</div>
+    <div class="sara-side-brand-row">
+      <div class="sara-side-logo">S</div>
+      <div class="sara-side-brand-text">
+        <div class="sara-side-title">Sub-Con Work Order SaRa</div>
+        <div class="sara-side-sub">Work order management</div>
+      </div>
+    </div>
+    <div class="sara-side-accent-underline"></div>
   </div>
   <nav class="sara-side-nav">
     <button type="button" class="active" data-side-target="saraDashboard" data-sara-view="overview">
@@ -3313,8 +3318,23 @@ body.sara-admin-mode .sara-side-nav .sara-admin-side{
 .sara-side-nav .sara-admin-side .side-ico{background:#e7faf7;color:#0f766e}
 .sara-side-nav .sara-admin-side.active .side-ico{background:rgba(255,255,255,.18);color:#fff}
 
+/* Sidebar must start below the fixed top header, not underneath it. */
+.sara-sidebar{top:82px !important;}
+@media(max-width:900px){.sara-sidebar{top:96px !important;}}
+@media(max-width:520px){.sara-sidebar{top:0 !important;}}
+
 /* Slightly stronger sidebar hierarchy. */
-.sara-side-brand{padding-top:12px !important;}
+.sara-side-brand{padding-top:16px !important;}
+
+/* ===== Bold-banner brand module ===== */
+.sara-side-brand{display:flex !important;flex-direction:column !important;gap:10px !important;}
+.sara-side-brand-row{display:flex;align-items:center;gap:12px;}
+.sara-side-brand .sara-side-logo{margin-bottom:0 !important;}
+.sara-side-accent-underline{height:3px;width:56px;border-radius:2px;background:linear-gradient(135deg,#1748ff,#22d3ee);}
+@media(max-width:850px){
+  .sara-side-brand-row{flex-direction:column;}
+  .sara-side-accent-underline{display:none;}
+}
 .sara-side-title{margin-top:5px !important;}
 .sara-side-sub{margin-top:5px !important;}
 .sara-side-nav{gap:7px !important;}
@@ -3366,5 +3386,69 @@ body.sara-admin-mode .sara-side-nav .sara-admin-side{
   setInterval(syncAdminSide,1000);
 })();
 </script>
+
+<style id="sara-slate-emerald-theme">
+/* ===== "Slate and emerald" theme applied across topbar, sidebar, dashboard, form and past-order list ===== */
+body:not(.document-mode){
+  background:
+    radial-gradient(circle at 8% 8%,rgba(15,118,110,.09),transparent 26%),
+    radial-gradient(circle at 92% 12%,rgba(94,234,212,.09),transparent 24%),
+    linear-gradient(145deg,#eef3f1 0%,#f7faf9 48%,#eef3f1 100%) !important;
+}
+body:not(.document-mode) .topbar{
+  background:linear-gradient(135deg,#16302c 0%,#1c3d37 52%,#0f766e 100%) !important;
+  border-bottom:2px solid #14b8a6 !important;
+}
+body:not(.document-mode) .topbar::after{
+  background:linear-gradient(90deg,#0f766e,#5eead4,#14b8a6,#5eead4,#0f766e) !important;
+}
+body:not(.document-mode) .topbar .brand .mark,
+body:not(.document-mode) .brand .mark{
+  background:linear-gradient(145deg,#0f766e,#14b8a6 60%,#5eead4) !important;
+  box-shadow:0 8px 20px rgba(15,118,110,.38),inset 0 1px rgba(255,255,255,.5) !important;
+}
+body:not(.document-mode) .brand .sub{color:#a8dcd2 !important;}
+body:not(.document-mode) .live-clock,
+body:not(.document-mode) .topbar .live-clock{color:#5eead4 !important;}
+.sara-side-logo{
+  background:linear-gradient(145deg,#0f766e,#14b8a6 55%,#5eead4) !important;
+  box-shadow:0 10px 22px rgba(15,118,110,.28),inset 0 1px rgba(255,255,255,.55) !important;
+}
+.sara-side-nav button:hover{background:#eefaf7 !important;color:#0f766e !important;border-color:#cdeee8 !important;}
+.sara-side-nav button:hover .side-ico{background:#dff5f0 !important;color:#0f766e !important;}
+.sara-side-nav button.active{background:linear-gradient(135deg,#0f766e,#14b8a6) !important;box-shadow:0 8px 18px rgba(15,118,110,.22) !important;}
+.sara-side-nav button.active .side-ico{background:rgba(255,255,255,.18) !important;color:#fff !important;}
+.sara-side-accent-underline{background:linear-gradient(135deg,#0f766e,#14b8a6) !important;}
+.sara-action-card .action-icon{
+  background:linear-gradient(145deg,#0f766e,#14b8a6) !important;
+  box-shadow:0 8px 16px rgba(15,118,110,.22),inset 0 1px rgba(255,255,255,.45) !important;
+}
+body:not(.document-mode) .panel{border-color:#dfe7e4 !important;}
+body:not(.document-mode) .panel h2{border-bottom-color:#cdeee8 !important;}
+.sara-metric{
+  background:linear-gradient(145deg,#ffffff,#f5faf9) !important;
+  border-color:#dfe7e4 !important;
+  border-left:3px solid #0f766e !important;
+}
+.sara-metric::after{background:radial-gradient(circle,rgba(15,118,110,.16),transparent 68%) !important;}
+.sara-metric .metric-icon,
+.sara-metric:nth-child(2) .metric-icon,
+.sara-metric:nth-child(3) .metric-icon,
+.sara-metric:nth-child(4) .metric-icon{
+  background:linear-gradient(145deg,#e1f5ee,#cdeee8) !important;
+  color:#0f766e !important;
+}
+.sara-dashboard-chip::before{background:#0f766e !important;box-shadow:0 0 0 4px rgba(15,118,110,.12) !important;}
+body:not(.document-mode) .items-total b{color:#0f766e !important;}
+.saved-item{border-left:3px solid transparent !important;transition:border-color .15s ease,background .15s ease;}
+.saved-item:hover{border-left-color:#0f766e !important;background:#eafaf6 !important;}
+.saved-item:focus{outline:2px solid #0f766e !important;outline-offset:-2px !important;}
+select:focus,input:focus,textarea:focus{
+  outline:2px solid #0f766e !important;
+  outline-offset:1px !important;
+}
+button.primary{background:#0f766e !important;border-color:#08574f !important;}
+button.primary:hover{background:#08574f !important;}
+</style>
 
 </html>
