@@ -1400,8 +1400,236 @@ body.document-mode #documentView{
 }
 
 </style>
+
+<style id="sara-aesthetic-dashboard">
+/* =========================================================
+   SaRa Aesthetic Dashboard — VISUAL ONLY
+   Keeps existing workflow, IDs, permissions and A4 viewer intact.
+   ========================================================= */
+:root{
+  --dash-blue:#1748ff;
+  --dash-blue2:#2563eb;
+  --dash-cyan:#22d3ee;
+  --dash-navy:#0b1b38;
+  --dash-ink:#172033;
+  --dash-muted:#71809a;
+  --dash-line:#e7ebf3;
+  --dash-bg:#eef2f8;
+}
+body:not(.document-mode){
+  background:
+    radial-gradient(circle at 8% 8%,rgba(37,99,235,.11),transparent 26%),
+    radial-gradient(circle at 92% 12%,rgba(34,211,238,.10),transparent 24%),
+    linear-gradient(145deg,#eef3fa 0%,#f7f9fc 48%,#edf2f8 100%) !important;
+}
+body:not(.document-mode) .topbar{
+  position:relative !important;
+  background:linear-gradient(135deg,#0a1a36 0%,#102d59 52%,#0b2448 100%) !important;
+  border-bottom:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 12px 30px rgba(11,27,56,.18), inset 0 -1px rgba(255,255,255,.06) !important;
+  padding:12px 18px !important;
+  z-index:20;
+}
+body:not(.document-mode) .topbar::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,#2563eb,#22d3ee,#2563eb,transparent);
+  opacity:.85;
+}
+body:not(.document-mode) .brand .mark{
+  width:40px !important;height:40px !important;border-radius:12px !important;
+  background:linear-gradient(145deg,#2563eb,#0ea5e9 60%,#22d3ee) !important;
+  box-shadow:0 7px 18px rgba(37,99,235,.38),inset 0 1px rgba(255,255,255,.5) !important;
+}
+body:not(.document-mode) .brand h1{color:#fff !important;letter-spacing:-.02em}
+body:not(.document-mode) .brand .sub{color:#b9c8df !important}
+body:not(.document-mode) .live-clock{color:#7dd3fc !important}
+body:not(.document-mode) .topbar-actions{gap:8px !important;align-items:center !important}
+body:not(.document-mode) .topbar-actions button{
+  min-height:40px !important;padding:0 15px !important;border-radius:12px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.045)) !important;
+  color:#eaf2ff !important;box-shadow:0 5px 0 rgba(0,0,0,.14),0 8px 18px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.13) !important;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease !important;
+}
+body:not(.document-mode) .topbar-actions button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+body:not(.document-mode) .topbar-actions button:active{transform:translateY(2px)}
+body:not(.document-mode) .topbar-actions #btnSave{
+  background:linear-gradient(135deg,#0ea5a4,#10b981 58%,#22d3ee) !important;
+  border-color:rgba(255,255,255,.26) !important;color:#fff !important;
+  box-shadow:0 5px 0 #08756f,0 11px 24px rgba(16,185,129,.25),inset 0 1px rgba(255,255,255,.42) !important;
+}
+body:not(.document-mode) .topbar-actions #accessStatus{
+  min-height:32px;display:inline-flex;align-items:center;padding:0 11px;border-radius:999px;
+  background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.34);color:#67e8f9 !important;
+  font-size:12px;font-weight:800;letter-spacing:.02em;box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+body:not(.document-mode) .topbar-actions #userBadge{
+  min-height:32px;display:inline-flex;align-items:center;padding:0 11px !important;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:#dbeafe !important;
+  font-weight:700 !important;
+}
+
+.sara-dashboard{
+  width:calc(100% - 30px);max-width:1500px;margin:18px auto 2px;padding:0;
+}
+.sara-dashboard-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:0 2px 12px}
+.sara-dashboard-head h2{margin:0;color:#172033;font-size:23px;letter-spacing:-.03em}
+.sara-dashboard-head p{margin:4px 0 0;color:#71809a;font-size:12px;font-weight:600}
+.sara-dashboard-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.78);border:1px solid #e2e8f2;color:#52627c;font-size:11px;font-weight:800;box-shadow:0 6px 18px rgba(15,23,42,.05)}
+.sara-dashboard-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.10)}
+.sara-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.sara-metric{
+  position:relative;min-height:112px;padding:17px 18px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(246,249,253,.92));
+  border:1px solid rgba(211,220,234,.95);box-shadow:0 12px 28px rgba(15,23,42,.07),0 2px 0 rgba(255,255,255,.9) inset;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.sara-metric:hover{transform:translateY(-3px);border-color:#c8d5eb;box-shadow:0 18px 32px rgba(15,23,42,.10),0 2px 0 #fff inset}
+.sara-metric::after{content:"";position:absolute;width:100px;height:100px;right:-32px;top:-40px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.16),transparent 68%);pointer-events:none}
+.sara-metric .metric-icon{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#eaf0ff,#dce7ff);color:#1748ff;font-size:19px;font-weight:900;box-shadow:0 5px 12px rgba(37,99,235,.12),inset 0 1px #fff;float:left;margin-right:12px}
+.sara-metric:nth-child(2) .metric-icon{background:linear-gradient(145deg,#e7fbf7,#d5f7ee);color:#059669}
+.sara-metric:nth-child(3) .metric-icon{background:linear-gradient(145deg,#e8f7ff,#d8efff);color:#0284c7}
+.sara-metric:nth-child(4) .metric-icon{background:linear-gradient(145deg,#f0ebff,#e6ddff);color:#7c3aed}
+.sara-metric .metric-label{display:block;color:#7a879b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.055em;padding-top:2px}
+.sara-metric .metric-value{display:block;margin-top:4px;color:#172033;font-size:25px;line-height:1;font-weight:900;letter-spacing:-.035em}
+.sara-metric .metric-note{display:block;clear:both;margin-top:12px;color:#8a96a9;font-size:10px;font-weight:600}
+.sara-metric .metric-note strong{color:#52627c}
+
+/* Keep the original form, but make its surrounding cards match the new dashboard. */
+body:not(.document-mode) .layout{max-width:1500px !important;margin:0 auto !important}
+body:not(.document-mode) .panel{
+  border-radius:18px !important;border:1px solid #dfe6f0 !important;
+  box-shadow:0 10px 25px rgba(15,23,42,.055),0 2px 0 rgba(255,255,255,.9) inset !important;
+}
+body:not(.document-mode) .panel h2{color:#1d2a40 !important}
+
+@media(max-width:1050px){.sara-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  .sara-dashboard{width:calc(100% - 18px);margin-top:10px}
+  .sara-dashboard-head{align-items:flex-start;flex-direction:column}
+  .sara-metrics{grid-template-columns:1fr 1fr;gap:9px}
+  .sara-metric{min-height:104px;padding:13px}
+  .sara-metric .metric-value{font-size:21px}
+  body:not(.document-mode) .topbar{padding:10px !important}
+}
+@media(max-width:460px){.sara-metrics{grid-template-columns:1fr}.sara-dashboard-head h2{font-size:20px}}
+</style>
+
+
+<style id="sara-sidebar-aesthetic">
+/* ===== SaRa sidebar navigation — aesthetic only ===== */
+:root{--sara-side-w:226px;--sara-side-blue:#1748ff;--sara-side-navy:#0b1b38;--sara-side-text:#26344a;--sara-side-muted:#8a96a8}
+body:not(.document-mode){padding-left:var(--sara-side-w) !important;box-sizing:border-box;overflow-x:hidden}
+.sara-sidebar{
+  position:fixed;z-index:50;left:0;top:0;bottom:0;width:var(--sara-side-w);padding:18px 12px 16px;
+  box-sizing:border-box;background:rgba(255,255,255,.96);border-right:1px solid #e4eaf3;
+  box-shadow:8px 0 28px rgba(20,42,80,.07);display:flex;flex-direction:column;backdrop-filter:blur(14px);
+}
+.sara-side-brand{padding:7px 10px 18px;border-bottom:1px solid #edf1f6;margin-bottom:14px}
+.sara-side-logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:19px;
+  background:linear-gradient(145deg,#1645ef,#2563eb 55%,#22d3ee);box-shadow:0 10px 22px rgba(37,99,235,.28),inset 0 1px rgba(255,255,255,.55);margin-bottom:11px}
+.sara-side-title{font-size:14px;font-weight:900;color:#172033;letter-spacing:-.02em}
+.sara-side-sub{font-size:10px;color:#8a96a8;font-weight:700;margin-top:3px}
+.sara-side-nav{display:flex;flex-direction:column;gap:5px}
+.sara-side-nav button{
+  width:100%;height:43px;padding:0 12px;border:1px solid transparent!important;border-radius:12px!important;
+  background:transparent!important;color:var(--sara-side-text)!important;box-shadow:none!important;
+  display:flex;align-items:center;gap:11px;text-align:left;font-size:12.5px;font-weight:800;transition:all .16s ease!important;transform:none!important
+}
+.sara-side-nav button .side-ico{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-size:13px;background:#f1f5fb;color:#63728a;flex:0 0 26px}
+.sara-side-nav button:hover{background:#f3f7ff!important;color:#1748ff!important;border-color:#e2eafe!important;transform:translateX(2px)!important}
+.sara-side-nav button:hover .side-ico{background:#e6edff;color:#1748ff}
+.sara-side-nav button.active{background:linear-gradient(135deg,#1748ff,#2563eb)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 8px 18px rgba(37,99,235,.22)!important}
+.sara-side-nav button.active .side-ico{background:rgba(255,255,255,.18);color:#fff}
+.sara-side-nav button .side-arrow{margin-left:auto;font-size:16px;opacity:.5}
+.sara-side-footer{margin-top:auto;padding:12px 10px 3px;border-top:1px solid #edf1f6;color:#9aa5b5;font-size:9.5px;font-weight:700;line-height:1.45}
+body:not(.document-mode) .topbar{margin-left:0!important}
+body:not(.document-mode) .sara-dashboard,body:not(.document-mode) .layout{margin-left:18px!important;margin-right:18px!important;max-width:none!important;width:auto!important}
+body:not(.document-mode) .layout{padding-left:0!important;padding-right:0!important}
+.sara-section-anchor{scroll-margin-top:18px}
+@media(max-width:850px){
+  :root{--sara-side-w:76px}
+  .sara-sidebar{padding:14px 8px}
+  .sara-side-brand{padding:4px 5px 14px;text-align:center}
+  .sara-side-logo{margin:0 auto 8px;width:42px;height:42px;border-radius:13px}
+  .sara-side-title,.sara-side-sub,.sara-side-footer,.sara-side-nav button span:not(.side-ico){display:none}
+  .sara-side-nav button{justify-content:center;padding:0}
+  .sara-side-nav button .side-arrow{display:none}
+  body:not(.document-mode) .sara-dashboard,body:not(.document-mode) .layout{margin-left:12px!important;margin-right:12px!important}
+}
+@media(max-width:520px){
+  :root{--sara-side-w:0px}
+  body:not(.document-mode){padding-left:0!important}
+  .sara-sidebar{position:sticky;top:0;left:auto;bottom:auto;width:100%;height:66px;padding:7px 10px;display:block;border-right:0;border-bottom:1px solid #e4eaf3;box-shadow:0 5px 18px rgba(20,42,80,.08)}
+  .sara-side-brand{display:none}
+  .sara-side-nav{height:52px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .sara-side-nav button{height:52px;justify-content:center;flex-direction:column;gap:2px;font-size:9px}
+  .sara-side-nav button span:not(.side-ico){display:block!important}
+  .sara-side-nav button .side-arrow{display:none}
+  .sara-side-nav button .side-ico{width:24px;height:24px}
+  .sara-side-footer{display:none}
+  body:not(.document-mode) .sara-dashboard,body:not(.document-mode) .layout{margin-left:8px!important;margin-right:8px!important}
+}
+body.document-mode .sara-sidebar{display:none!important}
+
+/* ===== Section navigation: Overview is the landing page ===== */
+body.sara-overview-mode .layout{display:none !important}
+body.sara-overview-mode .topbar-actions #btnNew,
+body.sara-overview-mode .topbar-actions #btnSave,
+body.sara-overview-mode .topbar-actions #btnViewSaved,
+body.sara-overview-mode .topbar-actions #btnDownload,
+body.sara-overview-mode .topbar-actions #btnDownloadPdf,
+body.sara-overview-mode .topbar-actions #btnPrint{display:none !important}
+body.sara-create-mode .sara-dashboard{display:none !important}
+body.sara-past-mode .sara-dashboard{display:none !important}
+body.sara-past-mode .draft-column > .panel:not(#pastWorkOrderSection),
+body.sara-past-mode .preview-column{display:none !important}
+body.sara-past-mode .layout{display:block !important}
+body.sara-create-mode .layout{display:grid !important}
+body.sara-create-mode #pastWorkOrderSection{display:none !important}
+.sara-side-secondary{display:flex !important}
+.sara-dashboard-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.sara-action-card{appearance:none;width:100%;min-height:76px;border:1px solid #dce5f2!important;border-radius:18px!important;background:linear-gradient(145deg,#ffffff,#f4f7fc)!important;color:#172033!important;box-shadow:0 10px 24px rgba(15,23,42,.065),inset 0 1px #fff!important;display:flex;align-items:center;gap:13px;padding:13px 16px!important;text-align:left;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+.sara-action-card:hover{transform:translateY(-3px)!important;border-color:#c8d7f5!important;box-shadow:0 16px 30px rgba(23,72,255,.12),inset 0 1px #fff!important}
+.sara-action-card .action-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#1748ff,#3b82f6);color:#fff;font-size:22px;font-weight:800;box-shadow:0 8px 16px rgba(37,99,235,.22),inset 0 1px rgba(255,255,255,.45)}
+.sara-action-card:nth-child(2) .action-icon{background:linear-gradient(145deg,#0f766e,#14b8a6)}
+.sara-action-card b{display:block;font-size:13px;line-height:1.2}.sara-action-card small{display:block;margin-top:4px;color:#8793a6;font-size:10.5px;font-weight:600}.sara-action-card .action-arrow{margin-left:auto;font-size:22px;color:#8b98ac}
+body.sara-inner-mode .sara-dashboard-actions{display:none}
+@media(max-width:700px){.sara-dashboard-actions{grid-template-columns:1fr}}
+@media(max-width:520px){body.sara-overview-mode .sara-dashboard{margin-top:8px}.sara-action-card{min-height:68px}}
+</style>
+
+
+<style id="sara-dashboard-navigation-cleanup">
+/* Dashboard landing page: navigation lives in the sidebar only. */
+body.sara-overview-mode .sara-dashboard-actions{display:none !important;}
+/* Sidebar navigation remains visible on every view; each item opens its own section. */
+.sara-side-nav{gap:8px !important;}
+.sara-side-nav button.sara-side-secondary{display:flex !important;}
+</style>
 </head>
 <body>
+
+<aside class="sara-sidebar" aria-label="SaRa navigation">
+  <div class="sara-side-brand">
+    <div class="sara-side-logo">S</div>
+    <div class="sara-side-title">FOB Work Order SaRa</div>
+    <div class="sara-side-sub">Work order management</div>
+  </div>
+  <nav class="sara-side-nav">
+    <button type="button" class="active" data-side-target="saraDashboard" data-sara-view="overview">
+      <span class="side-ico">⌂</span><span>Overview</span><span class="side-arrow">›</span>
+    </button>
+    <button type="button" class="sara-side-secondary" data-sara-view="create">
+      <span class="side-ico">＋</span><span>Create Work Order</span><span class="side-arrow">›</span>
+    </button>
+    <button type="button" class="sara-side-secondary" data-sara-view="past">
+      <span class="side-ico">⌕</span><span>Past Work Order</span><span class="side-arrow">›</span>
+    </button>
+  </nav>
+  <div class="sara-side-footer">Use the menu to move between your work-order sections.</div>
+</aside>
+
 
 <div class="topbar">
   <div class="brand">
@@ -1427,7 +1655,56 @@ body.document-mode #documentView{
   </div>
 </div>
 
-<div class="layout">
+<!-- SaRa visual dashboard: data is calculated from existing saved Work Orders only. -->
+<section class="sara-dashboard sara-section-anchor" id="saraDashboard" aria-label="Work order dashboard">
+  <div class="sara-dashboard-head">
+    <div>
+      <h2>Work Order Overview</h2>
+      <p>Live summary from your existing saved work orders</p>
+    </div>
+    <span class="sara-dashboard-chip" id="dashboardDataStatus">Live data</span>
+  </div>
+  <div class="sara-metrics">
+    <article class="sara-metric">
+      <span class="metric-icon">৳</span>
+      <span class="metric-label">Total Expenses</span>
+      <span class="metric-value" id="dashExpenses">৳ 0</span>
+      <span class="metric-note"><strong id="dashOrderCount">0</strong> saved work orders</span>
+    </article>
+    <article class="sara-metric">
+      <span class="metric-icon">⌂</span>
+      <span class="metric-label">Total Companies</span>
+      <span class="metric-value" id="dashSuppliers">0</span>
+      <span class="metric-note">Unique supplier companies</span>
+    </article>
+    <article class="sara-metric">
+      <span class="metric-icon">▦</span>
+      <span class="metric-label">Total Production Qty</span>
+      <span class="metric-value" id="dashQty">0 pcs</span>
+      <span class="metric-note">Total ordered production quantity</span>
+    </article>
+    <article class="sara-metric">
+      <span class="metric-icon">◆</span>
+      <span class="metric-label">Total Styles</span>
+      <span class="metric-value" id="dashStyles">0</span>
+      <span class="metric-note">Unique styles across orders</span>
+    </article>
+  </div>
+  <div class="sara-dashboard-actions" aria-label="Work order shortcuts">
+    <button type="button" class="sara-action-card" data-sara-view="create">
+      <span class="action-icon">＋</span>
+      <span><b>Create Work Order</b><small>Create a new work order</small></span>
+      <span class="action-arrow">›</span>
+    </button>
+    <button type="button" class="sara-action-card" data-sara-view="past">
+      <span class="action-icon">⌕</span>
+      <span><b>Past Work Order</b><small>Search your saved work orders</small></span>
+      <span class="action-arrow">›</span>
+    </button>
+  </div>
+</section>
+
+<div class="layout sara-section-anchor" id="createWorkOrderSection">
 
   <!-- DRAFT / FRONT PAGE -->
   <div class="draft-column">
@@ -1541,7 +1818,7 @@ body.document-mode #documentView{
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel sara-section-anchor" id="pastWorkOrderSection">
       <h2>Saved work orders</h2>
       <div class="search-row">
         <input id="fSearch" placeholder="Search by company, WO no., supplier, or style code">
@@ -2354,7 +2631,7 @@ async function loadOrder(key){
 
 async function deleteOrder(key){
   if (!confirm("Archive this work order? It will disappear from the active list, but all saved versions will remain permanently in the database.")) return;
-  try{ await storeDelete(key); await refreshIndex(); renderSavedList(); }catch(e){ alert(e.message||'Archive failed.'); }
+  try{ await storeDelete(key); await refreshIndex(); renderSavedList(); renderAestheticDashboard(); }catch(e){ alert(e.message||'Archive failed.'); }
 }
 
 function keyFor(company, woNumber){
@@ -2404,6 +2681,7 @@ async function saveOrder(){
     currentSavedKey = keyFor(state.company,state.woNumber);
     await storeSet(currentSavedKey,state);
     await refreshIndex();
+    renderAestheticDashboard();
     renderCompanyList();
     renderSupplierList();
     renderSavedList();
@@ -2576,6 +2854,7 @@ function renderAll(){
   renderSignatures();
   renderPreview();
   renderSavedList();
+  renderAestheticDashboard();
   setControlState();
 }
 
@@ -2701,6 +2980,68 @@ loadAll();
   });
 })();
 </script>
+
+
+<script id="sara-topbar-navigation-js">
+(function(){
+  const route=(id,view)=>{const el=document.getElementById(id); if(el) el.addEventListener('click',e=>{ if(window.saraSetView){e.preventDefault();window.saraSetView(view);} });};
+  route('btnNew','create');
+})();
+</script>
+
+<script>
+/* SaRa aesthetic dashboard metrics — reads existing index data only. */
+function renderAestheticDashboard(){
+  const rows = Array.isArray(index) ? index : [];
+  let expenses = 0, qty = 0;
+  const suppliers = new Set(), styles = new Set();
+  rows.forEach(r=>{
+    expenses += Number(r.total)||0;
+    if(String(r.supplierCompany||'').trim()) suppliers.add(String(r.supplierCompany).trim().toLowerCase());
+    (Array.isArray(r.items)?r.items:[]).forEach(it=>{
+      qty += Number(it.qty)||0;
+      const style=String(it.style||'').trim();
+      if(style) styles.add(style.toLowerCase());
+    });
+  });
+  const money=document.getElementById('dashExpenses');
+  const sup=document.getElementById('dashSuppliers');
+  const q=document.getElementById('dashQty');
+  const st=document.getElementById('dashStyles');
+  const oc=document.getElementById('dashOrderCount');
+  if(money) money.textContent='৳ '+fmt(expenses);
+  if(sup) sup.textContent=fmt(suppliers.size);
+  if(q) q.textContent=fmt(qty)+' pcs';
+  if(st) st.textContent=fmt(styles.size);
+  if(oc) oc.textContent=fmt(rows.length);
+}
+</script>
+
+
+<script id="sara-sidebar-navigation-js">
+(function(){
+  const sideButtons=[...document.querySelectorAll('.sara-side-nav button')];
+  const body=document.body;
+  const validViews=['overview','create','past'];
+  function setView(view){
+    if(!validViews.includes(view)) view='overview';
+    body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode');
+    body.classList.add('sara-'+view+'-mode');
+    if(view!=='overview') body.classList.add('sara-inner-mode');
+    sideButtons.forEach(b=>b.classList.toggle('active',b.dataset.saraView===view));
+    if(view==='past') renderSavedList();
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+  }
+  window.saraSetView=setView;
+  sideButtons.forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.saraView||'overview')));
+  document.querySelectorAll('[data-sara-view]').forEach(btn=>{
+    if(btn.closest('.sara-side-nav')) return;
+    btn.addEventListener('click',()=>setView(btn.dataset.saraView));
+  });
+  setView('overview');
+})();
+</script>
+
 </body>
 
 <style id="sara-eye-catching-terms">
