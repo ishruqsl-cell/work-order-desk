@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FOB Work Order SaRa</title>
+<title>Sub-Con Work Order SaRa</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -1607,13 +1607,57 @@ body.sara-overview-mode .sara-dashboard-actions{display:none !important;}
 .sara-side-nav{gap:8px !important;}
 .sara-side-nav button.sara-side-secondary{display:flex !important;}
 </style>
+
+<style id="sara-final-header-polish">
+/* Final visual polish: compact top-positioned brand + clearer account controls. */
+body:not(.document-mode) .topbar{
+  top:0 !important;
+  min-height:78px !important;
+  height:78px !important;
+  padding:9px 24px !important;
+  align-items:flex-start !important;
+}
+body:not(.document-mode) .brand{
+  align-items:center !important;
+  gap:11px !important;
+  height:60px !important;
+}
+body:not(.document-mode) .brand > div:last-child{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+}
+body:not(.document-mode) .brand h1{
+  margin:0 !important;
+  line-height:1.15 !important;
+  font-size:20px !important;
+}
+body:not(.document-mode) .brand .sub{margin-top:3px !important}
+body:not(.document-mode) .live-clock{margin-top:2px !important}
+body:not(.document-mode) .topbar-actions{
+  margin-top:5px !important;
+  align-items:center !important;
+}
+body:not(.document-mode) .topbar-actions #accessStatus{
+  min-width:max-content !important;
+}
+body:not(.document-mode) .topbar-actions #userBadge{
+  min-width:48px !important;
+  justify-content:center !important;
+}
+@media(max-width:900px){
+  body:not(.document-mode) .topbar{height:auto !important;min-height:82px !important;padding:10px 14px !important;align-items:center !important}
+  body:not(.document-mode) .brand{height:auto !important}
+  body:not(.document-mode) .topbar-actions{margin-top:0 !important}
+}
+</style>
 </head>
 <body>
 
 <aside class="sara-sidebar" aria-label="SaRa navigation">
   <div class="sara-side-brand">
     <div class="sara-side-logo">S</div>
-    <div class="sara-side-title">FOB Work Order SaRa</div>
+    <div class="sara-side-title">Sub-Con Work Order SaRa</div>
     <div class="sara-side-sub">Work order management</div>
   </div>
   <nav class="sara-side-nav">
@@ -1635,7 +1679,7 @@ body.sara-overview-mode .sara-dashboard-actions{display:none !important;}
   <div class="brand">
     <span class="mark"></span>
     <div>
-      <h1>FOB Work Order SaRa</h1>
+      <h1>Sub-Con Work Order SaRa</h1>
       <div class="sub">Draft, save, view, and export work orders</div>
       <div class="live-clock" id="liveClock">Loading date &amp; time…</div>
     </div>
@@ -1650,7 +1694,7 @@ body.sara-overview-mode .sara-dashboard-actions{display:none !important;}
     <span id="accessStatus">Viewer</span>
     <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
     <button class="ghost" id="btnLogin">Editor Login</button>
-    <button class="ghost" id="btnAdmin">Admin</button>
+    <button class="ghost" id="btnAdmin">User Management</button>
     <button class="ghost" id="btnLogout" style="display:none">Logout</button>
   </div>
 </div>
@@ -2041,7 +2085,7 @@ function setControlState(){
   document.getElementById('btnLogin').style.display=edit?'none':'inline-block';
   document.getElementById('btnLogout').style.display=edit?'inline-block':'none';
   document.getElementById('btnAdmin').style.display=isAdmin()?'inline-block':'none';
-  document.getElementById('accessStatus').textContent=edit?(isAdmin()?'Admin':'Editor'):'Viewer';
+  document.getElementById('accessStatus').textContent=edit?(isAdmin()?'Administrator':'Editor'):'Viewer';
   document.getElementById('userBadge').textContent=currentUser ? (currentUser.username||'') : '';
 }
 
