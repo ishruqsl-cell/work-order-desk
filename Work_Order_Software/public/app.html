@@ -1664,6 +1664,9 @@ body:not(.document-mode) .topbar-actions #userBadge{
     <button type="button" class="active" data-side-target="saraDashboard" data-sara-view="overview">
       <span class="side-ico">⌂</span><span>Overview</span><span class="side-arrow">›</span>
     </button>
+    <button type="button" class="sara-admin-side" id="sideAdministration" data-sara-view="administration" style="display:none">
+      <span class="side-ico">⚙</span><span>Administration</span><span class="side-arrow">›</span>
+    </button>
     <button type="button" class="sara-side-secondary" data-sara-view="create">
       <span class="side-ico">＋</span><span>Create Work Order</span><span class="side-arrow">›</span>
     </button>
@@ -3069,7 +3072,7 @@ function renderAestheticDashboard(){
   const validViews=['overview','create','past'];
   function setView(view){
     if(!validViews.includes(view)) view='overview';
-    body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode');
+    body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode','sara-admin-mode','sara-admin-active');
     body.classList.add('sara-'+view+'-mode');
     if(view!=='overview') body.classList.add('sara-inner-mode');
     sideButtons.forEach(b=>b.classList.toggle('active',b.dataset.saraView===view));
@@ -3223,5 +3226,145 @@ function renderAestheticDashboard(){
   }
 }
 </style>
+
+
+<style id="sara-final-layout-polish-v2">
+/* ===== Final aesthetic/layout polish requested ===== */
+:root{--sara-side-w:226px}
+
+/* Make the header truly start at the very top: remove the unwanted light strip. */
+body:not(.document-mode){padding-top:82px !important;}
+body:not(.document-mode) .topbar{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  height:82px !important;
+  min-height:82px !important;
+  margin:0 !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  background:linear-gradient(135deg,#071b3a 0%,#0b2d5c 52%,#063d67 100%) !important;
+  border-bottom:2px solid #1e8bd2 !important;
+  box-shadow:0 10px 28px rgba(7,27,58,.28), inset 0 -1px rgba(255,255,255,.08) !important;
+  z-index:99999 !important;
+}
+body:not(.document-mode) .topbar::after{
+  height:3px !important;
+  bottom:-1px !important;
+  background:linear-gradient(90deg,#1748ff,#22d3ee,#14b8a6,#22d3ee,#1748ff) !important;
+  opacity:1 !important;
+}
+
+/* Brand/heading sits neatly in the blue header, immediately to the right of sidebar. */
+body:not(.document-mode) .topbar .brand{
+  position:absolute !important;
+  left:20px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  height:auto !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  z-index:2 !important;
+}
+body:not(.document-mode) .topbar .brand .mark{
+  width:42px !important;height:42px !important;border-radius:13px !important;
+  flex:0 0 42px !important;
+  background:linear-gradient(145deg,#2563eb,#0ea5e9 60%,#22d3ee) !important;
+  box-shadow:0 8px 20px rgba(37,99,235,.38),inset 0 1px rgba(255,255,255,.5) !important;
+}
+body:not(.document-mode) .topbar .brand h1{
+  margin:0 !important;color:#fff !important;font-size:19px !important;font-weight:900 !important;
+  line-height:1.12 !important;letter-spacing:-.025em !important;
+}
+body:not(.document-mode) .topbar .brand .sub{
+  margin-top:3px !important;color:#bcd0ea !important;font-size:10.5px !important;font-weight:600 !important;
+}
+body:not(.document-mode) .topbar .live-clock{
+  margin-top:2px !important;color:#6edcff !important;font-size:10px !important;font-weight:700 !important;
+}
+
+/* Keep controls in a clean right-aligned row. */
+body:not(.document-mode) .topbar-actions{
+  position:absolute !important;right:18px !important;top:50% !important;transform:translateY(-50%) !important;
+  margin:0 !important;display:flex !important;align-items:center !important;gap:8px !important;z-index:3 !important;
+}
+body:not(.document-mode) .topbar-actions #btnAdmin{display:none !important;}
+
+/* Administration is a dedicated sidebar menu directly below Overview. */
+.sara-side-nav .sara-admin-side{
+  display:none !important;
+  order:0 !important;
+}
+body.sara-admin-active .sara-side-nav .sara-admin-side,
+body.sara-admin-mode .sara-side-nav .sara-admin-side{
+  display:flex !important;
+}
+.sara-side-nav .sara-admin-side.active{
+  background:linear-gradient(135deg,#0f766e,#14b8a6) !important;
+  box-shadow:0 8px 18px rgba(20,184,166,.22) !important;
+}
+.sara-side-nav .sara-admin-side:not(.active){
+  margin-top:1px !important;
+}
+.sara-side-nav .sara-admin-side .side-ico{background:#e7faf7;color:#0f766e}
+.sara-side-nav .sara-admin-side.active .side-ico{background:rgba(255,255,255,.18);color:#fff}
+
+/* Slightly stronger sidebar hierarchy. */
+.sara-side-brand{padding-top:12px !important;}
+.sara-side-title{margin-top:5px !important;}
+.sara-side-sub{margin-top:5px !important;}
+.sara-side-nav{gap:7px !important;}
+
+@media(max-width:900px){
+  body:not(.document-mode){padding-top:96px !important}
+  body:not(.document-mode) .topbar{height:96px !important;min-height:96px !important}
+  body:not(.document-mode) .topbar .brand{left:14px !important}
+  body:not(.document-mode) .topbar-actions{right:10px !important}
+}
+@media(max-width:520px){
+  body:not(.document-mode){padding-top:112px !important}
+  body:not(.document-mode) .topbar{height:112px !important;min-height:112px !important}
+  body:not(.document-mode) .topbar .brand{left:12px !important;top:42px !important;transform:none !important}
+  body:not(.document-mode) .topbar-actions{left:10px !important;right:10px !important;top:auto !important;bottom:8px !important;transform:none !important;overflow-x:auto !important;justify-content:flex-start !important}
+}
+</style>
+
+<script id="sara-administration-sidebar-js">
+(function(){
+  const adminSide=document.getElementById('sideAdministration');
+  if(!adminSide) return;
+  function syncAdminSide(){
+    try{
+      const show=typeof isAdmin==='function' && isAdmin();
+      adminSide.style.display=show?'flex':'none';
+      document.body.classList.toggle('sara-admin-active', !!show);
+    }catch(e){
+      adminSide.style.display='none';
+      document.body.classList.remove('sara-admin-active');
+    }
+  }
+  function openAdministration(e){
+    e.preventDefault(); e.stopPropagation();
+    document.body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode');
+    document.body.classList.add('sara-admin-mode','sara-inner-mode','sara-admin-active');
+    document.querySelectorAll('.sara-side-nav button').forEach(b=>b.classList.remove('active'));
+    adminSide.classList.add('active');
+    if(typeof openAdmin==='function') openAdmin();
+    else if(document.getElementById('adminOverlay')) document.getElementById('adminOverlay').classList.add('open');
+  }
+  adminSide.addEventListener('click',openAdministration);
+  const originalUpdate=window.updateAuthUI;
+  if(typeof originalUpdate==='function'){
+    window.updateAuthUI=function(){ originalUpdate.apply(this,arguments); syncAdminSide(); };
+  }
+  syncAdminSide();
+  setTimeout(syncAdminSide,250);
+  setInterval(syncAdminSide,1000);
+})();
+</script>
 
 </html>
