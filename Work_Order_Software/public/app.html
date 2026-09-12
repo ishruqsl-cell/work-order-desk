@@ -2702,4 +2702,141 @@ loadAll();
 })();
 </script>
 </body>
+
+<style id="sara-eye-catching-terms">
+/* ===== Eye-catching, easy-to-read Terms & Conditions ===== */
+.form-section:has(#fTerms) h2,
+#fTerms {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.form-section:has(#fTerms) h2 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: .2px;
+}
+
+#fTerms {
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+  min-height: 230px !important;
+  padding: 16px 18px !important;
+  border-radius: 14px !important;
+  border: 2px solid rgba(0, 137, 123, .45) !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(38, 198, 218, .16), transparent 34%),
+    linear-gradient(145deg, #ffffff 0%, #f1fffc 52%, #e7f8ff 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 5px 0 rgba(0, 77, 64, .10),
+    0 12px 28px rgba(0, 105, 92, .16) !important;
+  color: #12343b !important;
+  resize: vertical;
+}
+
+#fTerms:focus {
+  outline: none !important;
+  border-color: #00897b !important;
+  box-shadow:
+    0 0 0 4px rgba(0, 137, 123, .12),
+    0 6px 0 rgba(0, 77, 64, .10),
+    0 15px 32px rgba(0, 105, 92, .20) !important;
+}
+
+#fTerms::placeholder {
+  color: #718a90;
+  font-weight: 400;
+}
+
+/* ===== Larger Terms in Work Order document / print view ===== */
+.doc-terms-title {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  letter-spacing: .2px;
+}
+
+.doc-terms {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  line-height: 1.48 !important;
+}
+
+/* Keep print readable and clean */
+@media print {
+  #fTerms {
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  .doc-terms-title {
+    font-size: 12px !important;
+  }
+  .doc-terms {
+    font-size: 11px !important;
+    line-height: 1.42 !important;
+  }
+}
+</style>
+
+
+<style id="sara-signature-adjustment">
+/* ===== Signature Area: clearer, balanced and easier to read ===== */
+.doc-signatures {
+  margin-top: 12px !important;
+  gap: 8px !important;
+}
+
+.doc-signatures table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 7px 6px !important;
+}
+
+.doc-signatures td {
+  height: 46px !important;
+  padding: 7px 9px !important;
+  vertical-align: bottom !important;
+  border: 1px solid #b8cfd0 !important;
+  border-radius: 7px !important;
+  background: linear-gradient(145deg, #ffffff, #eefaf8) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 77, 64, .08),
+    0 7px 14px rgba(0, 105, 92, .08) !important;
+  font-size: 9.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+}
+
+.doc-signatures td:first-child {
+  border-left: 3px solid #00897b !important;
+}
+
+.doc-signatures .signature-name,
+.doc-signatures .sig-name {
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+.doc-signatures .signature-role,
+.doc-signatures .sig-role {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+@media print {
+  .doc-signatures table {
+    border-spacing: 5px 4px !important;
+  }
+  .doc-signatures td {
+    box-shadow: none !important;
+    background: #fff !important;
+    height: 43px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </html>
