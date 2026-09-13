@@ -1699,9 +1699,9 @@ body:not(.document-mode) .topbar-actions #userBadge{
     <button id="btnDownload">Download Excel</button>
     <button id="btnDownloadPdf">Download PDF</button>
     <button id="btnPrint">Print / PDF</button>
-    <span id="accessStatus">Viewer</span>
+    <span id="accessStatus">Locked</span>
     <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
-    <button class="ghost" id="btnLogin">Editor Login</button>
+    <button class="ghost" id="btnLogin" style="display:none">Editor Login</button>
     <button class="ghost" id="btnAdmin">User Management</button>
     <button class="ghost" id="btnLogout" style="display:none">Logout</button>
   </div>
@@ -1892,14 +1892,13 @@ body:not(.document-mode) .topbar-actions #userBadge{
 <!-- LOGIN -->
 <div class="access-overlay" id="loginOverlay">
   <div class="access-box">
-    <h2>Editor Login</h2>
-    <p>Viewers can browse and export work orders. Login is required to create, edit, save, or archive work orders.</p>
+    <h2>Sign in</h2>
+    <p>Login is required to use Sub-Con Work Order SaRa. Enter your username and password to continue.</p>
     <div class="field"><label>Username</label><input id="loginUsername" autocomplete="username" placeholder="Enter username"></div>
     <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password"></div>
     <div class="access-error" id="loginError"></div>
     <div class="access-actions">
-      <button class="ghost" id="loginCancel">Cancel</button>
-      <button class="primary" id="loginSubmit">Login</button>
+      <button class="primary" id="loginSubmit" style="width:100%;">Login</button>
     </div>
   </div>
 </div>
@@ -2108,37 +2107,56 @@ async function refreshMe(){
 async function loadAll(){
   try{
     await refreshMe();
-    const sr=await apiJson('/api/settings');
-    if(sr.settings){
-      const s=sr.settings;
-      settings=Object.assign(settings,s,{
-        companies:s.companies||settings.companies,
-        suppliers:s.suppliers||settings.suppliers,
-        companyInfo:s.companyInfo||settings.companyInfo,
-        fixedTeam:s.fixedTeam||settings.fixedTeam,
-        categoryLeaders:s.categoryLeaders||settings.categoryLeaders,
-        assistantMerchandisers:s.assistantMerchandisers||settings.assistantMerchandisers,
-        nextNumbers:s.nextNumbers||settings.nextNumbers
-      });
-    }
-    // Load supplier memory from settings plus all previous work orders, including archived ones.
-    if (isEditor()) {
-      try {
-        const spr=await apiJson('/api/suppliers');
-        if (Array.isArray(spr.suppliers)) {
-          const byName=new Map((settings.suppliers||[]).map(s=>[String(s.company||'').trim().toLowerCase(),s]));
-          spr.suppliers.forEach(s=>byName.set(String(s.company||'').trim().toLowerCase(),s));
-          settings.suppliers=Array.from(byName.values()).filter(s=>String(s.company||'').trim());
-        }
-      } catch(e) { console.warn('Supplier directory unavailable:', e.message); }
-    }
-    const wr=await apiJson('/api/work-orders');
-    index=wr.index||[];
-    state=blankOrder();
-    assignNextWoNumber();
-    renderAll();
-    setControlState();
+    if(!currentUser){ showLoginGate(); return; }
+    await loadAppData();
   }catch(e){ console.error(e); if(!document.hidden) alert(e.message||'Unable to load the software.'); }
+}
+
+async function loadAppData(){
+  const sr=await apiJson('/api/settings');
+  if(sr.settings){
+    const s=sr.settings;
+    settings=Object.assign(settings,s,{
+      companies:s.companies||settings.companies,
+      suppliers:s.suppliers||settings.suppliers,
+      companyInfo:s.companyInfo||settings.companyInfo,
+      fixedTeam:s.fixedTeam||settings.fixedTeam,
+      categoryLeaders:s.categoryLeaders||settings.categoryLeaders,
+      assistantMerchandisers:s.assistantMerchandisers||settings.assistantMerchandisers,
+      nextNumbers:s.nextNumbers||settings.nextNumbers
+    });
+  }
+  // Load supplier memory from settings plus all previous work orders, including archived ones.
+  if (isEditor()) {
+    try {
+      const spr=await apiJson('/api/suppliers');
+      if (Array.isArray(spr.suppliers)) {
+        const byName=new Map((settings.suppliers||[]).map(s=>[String(s.company||'').trim().toLowerCase(),s]));
+        spr.suppliers.forEach(s=>byName.set(String(s.company||'').trim().toLowerCase(),s));
+        settings.suppliers=Array.from(byName.values()).filter(s=>String(s.company||'').trim());
+      }
+    } catch(e) { console.warn('Supplier directory unavailable:', e.message); }
+  }
+  const wr=await apiJson('/api/work-orders');
+  index=wr.index||[];
+  state=blankOrder();
+  assignNextWoNumber();
+  renderAll();
+  setControlState();
+  hideLoginGate();
+}
+
+function showLoginGate(){
+  document.body.classList.add('sara-locked');
+  const overlay=document.getElementById('loginOverlay');
+  overlay.classList.add('open');
+  const cancelBtn=document.getElementById('loginCancel');
+  if(cancelBtn) cancelBtn.style.display='none';
+  setTimeout(()=>{ const u=document.getElementById('loginUsername'); if(u) u.focus(); },50);
+}
+function hideLoginGate(){
+  document.body.classList.remove('sara-locked');
+  document.getElementById('loginOverlay').classList.remove('open');
 }
 
 async function login(){
@@ -2153,10 +2171,8 @@ async function login(){
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Login failed.');
     currentUser=d.user||null;
-    document.getElementById('loginOverlay').classList.remove('open');
     document.getElementById('loginPassword').value='';
-    setControlState();
-    renderAll();
+    await loadAppData();
   }catch(e){err.textContent=e.message;}
   finally{btn.disabled=false;}
 }
@@ -2164,8 +2180,7 @@ async function login(){
 async function logout(){
   try{ await fetch('/api/logout',{method:'POST',credentials:'same-origin'}); }catch(_){ }
   currentUser=null;
-  setControlState();
-  renderAll();
+  showLoginGate();
 }
 
 async function openAdmin(){
@@ -2847,6 +2862,7 @@ async function downloadExcel(){
     ws.pageSetup.horizontalDpi=300;
     ws.pageSetup.verticalDpi=300;
     ws.pageSetup.printArea=`A1:H${r}`;
+    ws.printOptions = ws.printOptions || {};
     ws.printOptions.horizontalCentered=true;
     ws.headerFooter.oddFooter.centeredText='Page &P of &N';
     const safeCompany=(state.company||'Company').replace(/[^\w\-]+/g,'_');const safeWo=(state.woNumber||'draft').replace(/[^\w\-]+/g,'_');
@@ -2964,7 +2980,6 @@ function closePreview(){
 }
 
 document.getElementById('btnLogin').addEventListener('click', ()=>{ document.getElementById('loginOverlay').classList.add('open'); document.getElementById('loginUsername').focus(); });
-document.getElementById('loginCancel').addEventListener('click', ()=>document.getElementById('loginOverlay').classList.remove('open'));
 document.getElementById('loginSubmit').addEventListener('click', login);
 document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 document.getElementById('btnLogout').addEventListener('click', logout);
