@@ -1699,6 +1699,7 @@ body:not(.document-mode) .topbar-actions #userBadge{
     <button id="btnDownload">Download Excel</button>
     <button id="btnDownloadPdf">Download PDF</button>
     <button id="btnPrint">Print / PDF</button>
+    <button class="ghost" id="btnFollowUp" title="Follow-up reminders" style="position:relative;">🔔 Follow-ups <span id="followUpBadgeCount" style="display:inline-block;min-width:16px;padding:0 4px;border-radius:9px;background:#0f766e;color:#fff;font-size:11px;font-weight:700;margin-left:4px;">0</span></button>
     <span id="accessStatus">Locked</span>
     <span id="userBadge" style="font-size:12px;color:var(--ink-soft);padding:0 4px"></span>
     <button class="ghost" id="btnLogin" style="display:none">Editor Login</button>
@@ -1899,6 +1900,19 @@ body:not(.document-mode) .topbar-actions #userBadge{
     <div class="access-error" id="loginError"></div>
     <div class="access-actions">
       <button class="primary" id="loginSubmit" style="width:100%;">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOLLOW-UP REMINDERS -->
+<div class="access-overlay" id="followUpOverlay">
+  <div class="access-box" style="max-width:560px;">
+    <h2>Follow-up reminders</h2>
+    <p>Flagged work orders due for a check-in with the factory, grouped by merchandiser and factory.</p>
+    <div id="followUpList" style="max-height:380px;overflow:auto;margin:10px 0;"></div>
+    <div class="access-actions">
+      <button class="ghost" id="followUpCloseBtn">Close</button>
+      <button class="primary" id="followUpDismissAllBtn">Dismiss all shown (remind in 2 days)</button>
     </div>
   </div>
 </div>
@@ -2144,6 +2158,7 @@ async function loadAppData(){
   renderAll();
   setControlState();
   hideLoginGate();
+  setTimeout(()=>checkFollowUpReminders(true), 700);
 }
 
 function showLoginGate(){
@@ -2231,6 +2246,149 @@ async function storeSet(key,val){
 }
 async function storeDelete(key){ await apiJson('/api/work-orders/'+encodeURIComponent(key),{method:'DELETE'}); }
 async function refreshIndex(){ const r=await apiJson('/api/work-orders'); index=r.index||[]; }
+
+/* ===== Follow-up reminder module =====
+   Flag any saved work order for follow-up. Every 2 days since it was flagged
+   (or since it was last dismissed), it becomes "due" and surfaces in the
+   badge + popup, grouped by assigned merchandiser and factory. */
+const FOLLOWUP_INTERVAL_MS = 2*24*60*60*1000;
+
+function getMerchandiserName(order){
+  const sigs = order.signatures||[];
+  const am = sigs.find(s=>s.role==='assistantMerchandiser' && s.name) ||
+             sigs.find(s=>s.role==='fixed' && /assistant merchandiser/i.test(s.designation||'') && s.name);
+  return (am && am.name) || 'Unassigned merchandiser';
+}
+function getFlaggedOrders(){ return (index||[]).filter(r=>r.followUp && r.followUp.flagged); }
+function followUpDueAt(order){
+  const last = order.followUp && (order.followUp.lastRemindedAt || order.followUp.flaggedAt);
+  return last ? new Date(last).getTime()+FOLLOWUP_INTERVAL_MS : 0;
+}
+function isFollowUpDue(order){ return followUpDueAt(order) <= Date.now(); }
+function getDueFollowUps(){ return getFlaggedOrders().filter(isFollowUpDue); }
+
+function renderFollowUpBadge(){
+  const btn=document.getElementById('btnFollowUp');
+  const countEl=document.getElementById('followUpBadgeCount');
+  if(!btn||!countEl) return;
+  const flagged=getFlaggedOrders();
+  const due=getDueFollowUps();
+  countEl.textContent = flagged.length;
+  countEl.style.background = due.length ? '#c0392b' : '#0f766e';
+  btn.title = flagged.length ? `${flagged.length} flagged · ${due.length} due now` : 'No work orders flagged for follow-up';
+}
+
+function groupFollowUps(list){
+  const groups={};
+  list.forEach(r=>{
+    const m=getMerchandiserName(r), f=r.supplierCompany||'Unknown factory';
+    (groups[m]=groups[m]||{})[f]=(groups[m][f]||[]);
+    groups[m][f].push(r);
+  });
+  return groups;
+}
+
+function renderFollowUpPopup(list){
+  const wrap=document.getElementById('followUpList');
+  if(!list.length){ wrap.innerHTML='<div class="empty-note">No work orders are currently flagged for follow-up.</div>'; return; }
+  const groups=groupFollowUps(list);
+  wrap.innerHTML = Object.keys(groups).map(m=>`
+    <div style="margin-bottom:14px;">
+      <div style="font-weight:700;margin-bottom:6px;">${escapeHtml(m)}</div>
+      ${Object.keys(groups[m]).map(f=>`
+        <div style="margin-left:6px;margin-bottom:10px;">
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:4px;">${escapeHtml(f)}</div>
+          ${groups[m][f].map(r=>{
+            const styles=(r.items||[]).map(it=>it.style).filter(Boolean).join(', ')||'(no styles listed)';
+            const due=isFollowUpDue(r);
+            const status=due?'<span style="color:#c0392b;font-weight:700;">Due now</span>':`Next check-in ${new Date(followUpDueAt(r)).toLocaleDateString()}`;
+            return `<div class="saved-item" style="cursor:default;">
+              <div class="meta">
+                <b>${escapeHtml(r.woNumber)||'(no number)'}</b>
+                <span>Styles: ${escapeHtml(styles)}</span>
+                <span>${status}</span>
+              </div>
+              <div class="saved-actions">
+                <button class="small" data-followup-dismiss="${r.key}">Remind in 2 days</button>
+                <button class="small primary" data-followup-done="${r.key}">Mark complete</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  wrap.querySelectorAll('[data-followup-dismiss]').forEach(b=>b.addEventListener('click', ()=>dismissFollowUp(b.dataset.followupDismiss)));
+  wrap.querySelectorAll('[data-followup-done]').forEach(b=>b.addEventListener('click', ()=>completeFollowUp(b.dataset.followupDone)));
+}
+
+function openFollowUpPopup(list){
+  renderFollowUpPopup(list || getFlaggedOrders());
+  document.getElementById('followUpOverlay').classList.add('open');
+}
+function closeFollowUpPopup(){ document.getElementById('followUpOverlay').classList.remove('open'); }
+
+function checkFollowUpReminders(autoPopup){
+  renderFollowUpBadge();
+  const due=getDueFollowUps();
+  if(autoPopup && due.length){ openFollowUpPopup(due); }
+}
+
+async function toggleFollowUpFlag(key){
+  try{
+    const rec = await storeGet(key);
+    if(!rec) return;
+    rec.followUp = (rec.followUp && rec.followUp.flagged)
+      ? {flagged:false}
+      : {flagged:true, flaggedAt:new Date().toISOString(), lastRemindedAt:null};
+    await storeSet(key, rec);
+    await refreshIndex();
+    renderSavedList();
+    renderFollowUpBadge();
+    showToast(rec.followUp.flagged ? 'Flagged for follow-up.' : 'Follow-up flag removed.', false);
+  }catch(e){ showToast(e.message||'Could not update follow-up flag.', true); }
+}
+async function dismissFollowUp(key){
+  try{
+    const rec = await storeGet(key);
+    if(!rec || !rec.followUp) return;
+    rec.followUp.lastRemindedAt = new Date().toISOString();
+    await storeSet(key, rec);
+    await refreshIndex();
+    renderSavedList();
+    renderFollowUpBadge();
+    openFollowUpPopup(getDueFollowUps().length?getDueFollowUps():getFlaggedOrders());
+  }catch(e){ showToast(e.message||'Could not update reminder.', true); }
+}
+async function completeFollowUp(key){
+  try{
+    const rec = await storeGet(key);
+    if(!rec) return;
+    rec.followUp = {flagged:false};
+    await storeSet(key, rec);
+    await refreshIndex();
+    renderSavedList();
+    renderFollowUpBadge();
+    openFollowUpPopup(getDueFollowUps().length?getDueFollowUps():getFlaggedOrders());
+  }catch(e){ showToast(e.message||'Could not update follow-up.', true); }
+}
+async function dismissAllShown(){
+  const due=getDueFollowUps();
+  for(const r of due){
+    try{
+      const rec=await storeGet(r.key);
+      if(rec && rec.followUp){ rec.followUp.lastRemindedAt=new Date().toISOString(); await storeSet(r.key, rec); }
+    }catch(e){ console.warn('Could not dismiss', r.key, e.message); }
+  }
+  await refreshIndex();
+  renderSavedList();
+  renderFollowUpBadge();
+  closeFollowUpPopup();
+}
+document.getElementById('btnFollowUp').addEventListener('click', ()=>openFollowUpPopup(getFlaggedOrders()));
+document.getElementById('followUpCloseBtn').addEventListener('click', closeFollowUpPopup);
+document.getElementById('followUpDismissAllBtn').addEventListener('click', dismissAllShown);
+
 
 function fmt(n){
   n = Number(n)||0;
@@ -2663,20 +2821,24 @@ function renderSavedList(){
     list.innerHTML = `<div class="empty-note">${q? 'No archived work orders match that search.' : 'No saved work orders yet. Fill the form and hit Save.'}</div>`;
     return;
   }
-  list.innerHTML = rows.map(({r, styles, matchedStyles})=>`
+  list.innerHTML = rows.map(({r, styles, matchedStyles})=>{
+    const flagged = !!(r.followUp && r.followUp.flagged);
+    return `
     <div class="saved-item" data-open-row="${r.key}" role="button" tabindex="0" title="Open work order">
       <div class="meta">
-        <b>${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
+        <b>${flagged?'🔔 ':''}${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
         <span>${escapeHtml(r.company)} · ${escapeHtml(r.date||'')} · BDT ${fmt(r.total)}</span>
         ${matchedStyles.length ? `<span>Matched style: ${matchedStyles.map(escapeHtml).join(', ')}</span>` : (styles.length ? `<span>Styles: ${styles.slice(0,4).map(escapeHtml).join(', ')}${styles.length>4?'…':''}</span>` : '')}
       </div>
       <div class="saved-actions">
+        <button class="small ${flagged?'primary':''}" data-flag="${r.key}">${flagged?'Flagged ✓':'Flag for follow-up'}</button>
         <button class="small primary" data-preview="${r.key}">View Work Order</button>
         <button class="small" data-load="${r.key}">Open</button>
         <button class="small danger" data-del="${r.key}">Delete</button>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
+  list.querySelectorAll('[data-flag]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); toggleFollowUpFlag(e.target.dataset.flag);}));
   list.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); previewOrder(e.target.dataset.preview);}));
   list.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); loadOrder(e.target.dataset.load);}));
   list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); deleteOrder(e.target.dataset.del);}));
