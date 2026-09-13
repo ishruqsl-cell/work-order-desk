@@ -1587,6 +1587,16 @@ body.sara-past-mode .preview-column{display:none !important}
 body.sara-past-mode .layout{display:block !important}
 body.sara-create-mode .layout{display:grid !important}
 body.sara-create-mode #pastWorkOrderSection{display:none !important}
+#followUpsSection{display:none;}
+body.sara-followups-mode .sara-dashboard{display:none !important}
+body.sara-followups-mode .layout{display:none !important}
+body.sara-followups-mode #followUpsSection{display:block !important}
+body.sara-followups-mode .topbar-actions #btnNew,
+body.sara-followups-mode .topbar-actions #btnSave,
+body.sara-followups-mode .topbar-actions #btnViewSaved,
+body.sara-followups-mode .topbar-actions #btnDownload,
+body.sara-followups-mode .topbar-actions #btnDownloadPdf,
+body.sara-followups-mode .topbar-actions #btnPrint{display:none !important}
 .sara-side-secondary{display:flex !important}
 .sara-dashboard-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
 .sara-action-card{appearance:none;width:100%;min-height:76px;border:1px solid #dce5f2!important;border-radius:18px!important;background:linear-gradient(145deg,#ffffff,#f4f7fc)!important;color:#172033!important;box-shadow:0 10px 24px rgba(15,23,42,.065),inset 0 1px #fff!important;display:flex;align-items:center;gap:13px;padding:13px 16px!important;text-align:left;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
@@ -1888,6 +1898,13 @@ body:not(.document-mode) .topbar-actions #userBadge{
   </div>
 
 </div>
+
+<!-- FOLLOW-UPS PAGE: merchandiser-wise view of flagged work orders -->
+<section class="panel sara-section-anchor" id="followUpsSection" aria-label="Follow-ups">
+  <h2>Follow-ups</h2>
+  <p style="color:var(--ink-soft);font-size:13px;margin:-6px 0 14px;">Work orders you've flagged for follow-up, grouped by merchandiser and factory.</p>
+  <div id="followUpsPageList"></div>
+</section>
 
 
 <!-- LOGIN -->
@@ -2385,9 +2402,60 @@ async function dismissAllShown(){
   renderFollowUpBadge();
   closeFollowUpPopup();
 }
-document.getElementById('btnFollowUp').addEventListener('click', ()=>openFollowUpPopup(getFlaggedOrders()));
+document.getElementById('btnFollowUp').addEventListener('click', ()=>{ if(window.saraSetView) window.saraSetView('followups'); });
 document.getElementById('followUpCloseBtn').addEventListener('click', closeFollowUpPopup);
 document.getElementById('followUpDismissAllBtn').addEventListener('click', dismissAllShown);
+
+function renderFollowUpsPage(){
+  const wrap=document.getElementById('followUpsPageList');
+  if(!wrap) return;
+  const list=getFlaggedOrders();
+  if(!list.length){ wrap.innerHTML='<div class="empty-note">No work orders are currently flagged for follow-up. Flag one from the Past Work Order list.</div>'; return; }
+  const groups=groupFollowUps(list);
+  wrap.innerHTML = Object.keys(groups).map(m=>`
+    <div style="margin-bottom:18px;">
+      <div style="font-weight:700;font-size:15px;margin-bottom:8px;">${escapeHtml(m)}</div>
+      ${Object.keys(groups[m]).map(f=>`
+        <div style="margin-left:8px;margin-bottom:12px;">
+          <div style="font-size:12.5px;color:var(--ink-soft);font-weight:700;margin-bottom:6px;">${escapeHtml(f)}</div>
+          ${groups[m][f].map(r=>{
+            const styles=(r.items||[]).map(it=>it.style).filter(Boolean).join(', ')||'(no styles listed)';
+            const due=isFollowUpDue(r);
+            const status=due?'<span style="color:#c0392b;font-weight:700;">Due now</span>':`Next check-in ${new Date(followUpDueAt(r)).toLocaleDateString()}`;
+            return `<div class="saved-item" style="cursor:default;">
+              <div class="meta">
+                <b>${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
+                <span>Styles: ${escapeHtml(styles)}</span>
+                <span>${status}</span>
+              </div>
+              <div class="saved-actions">
+                <button class="small" data-page-remind="${r.key}">Remind in 2 days</button>
+                <button class="small danger" data-page-cancel="${r.key}">Cancel Flag</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  wrap.querySelectorAll('[data-page-remind]').forEach(b=>b.addEventListener('click', async ()=>{ await dismissFollowUpSilent(b.dataset.pageRemind); renderFollowUpsPage(); }));
+  wrap.querySelectorAll('[data-page-cancel]').forEach(b=>b.addEventListener('click', async ()=>{ await completeFollowUpSilent(b.dataset.pageCancel); renderFollowUpsPage(); }));
+}
+async function dismissFollowUpSilent(key){
+  try{
+    const rec=await storeGet(key);
+    if(rec && rec.followUp){ rec.followUp.lastRemindedAt=new Date().toISOString(); await storeSet(key, rec); }
+    await refreshIndex(); renderSavedList(); renderFollowUpBadge();
+  }catch(e){ showToast(e.message||'Could not update reminder.', true); }
+}
+async function completeFollowUpSilent(key){
+  try{
+    const rec=await storeGet(key);
+    if(rec){ rec.followUp={flagged:false}; await storeSet(key, rec); }
+    await refreshIndex(); renderSavedList(); renderFollowUpBadge();
+    showToast('Follow-up flag removed.', false);
+  }catch(e){ showToast(e.message||'Could not update follow-up.', true); }
+}
 
 
 function fmt(n){
@@ -3290,14 +3358,15 @@ function renderAestheticDashboard(){
 (function(){
   const sideButtons=[...document.querySelectorAll('.sara-side-nav button')];
   const body=document.body;
-  const validViews=['overview','create','past'];
+  const validViews=['overview','create','past','followups'];
   function setView(view){
     if(!validViews.includes(view)) view='overview';
-    body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode','sara-admin-mode','sara-admin-active');
+    body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-followups-mode','sara-inner-mode','sara-admin-mode','sara-admin-active');
     body.classList.add('sara-'+view+'-mode');
     if(view!=='overview') body.classList.add('sara-inner-mode');
     sideButtons.forEach(b=>b.classList.toggle('active',b.dataset.saraView===view));
     if(view==='past') renderSavedList();
+    if(view==='followups') renderFollowUpsPage();
     window.scrollTo({top:0,left:0,behavior:'auto'});
   }
   window.saraSetView=setView;
@@ -3585,7 +3654,7 @@ body.sara-admin-mode .sara-side-nav .sara-admin-side{
   }
   function openAdministration(e){
     e.preventDefault(); e.stopPropagation();
-    document.body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-inner-mode');
+    document.body.classList.remove('sara-overview-mode','sara-create-mode','sara-past-mode','sara-followups-mode','sara-inner-mode');
     document.body.classList.add('sara-admin-mode','sara-inner-mode','sara-admin-active');
     document.querySelectorAll('.sara-side-nav button').forEach(b=>b.classList.remove('active'));
     adminSide.classList.add('active');
