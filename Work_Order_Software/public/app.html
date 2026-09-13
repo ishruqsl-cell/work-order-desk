@@ -2889,23 +2889,34 @@ function renderSavedList(){
     list.innerHTML = `<div class="empty-note">${q? 'No archived work orders match that search.' : 'No saved work orders yet. Fill the form and hit Save.'}</div>`;
     return;
   }
-  list.innerHTML = rows.map(({r, styles, matchedStyles})=>{
-    const flagged = !!(r.followUp && r.followUp.flagged);
-    return `
-    <div class="saved-item" data-open-row="${r.key}" role="button" tabindex="0" title="Open work order">
-      <div class="meta">
-        <b>${flagged?'🔔 ':''}${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
-        <span>${escapeHtml(r.company)} · ${escapeHtml(r.date||'')} · BDT ${fmt(r.total)}</span>
-        ${matchedStyles.length ? `<span>Matched style: ${matchedStyles.map(escapeHtml).join(', ')}</span>` : (styles.length ? `<span>Styles: ${styles.slice(0,4).map(escapeHtml).join(', ')}${styles.length>4?'…':''}</span>` : '')}
-      </div>
-      <div class="saved-actions">
-        <button class="small ${flagged?'primary':''}" data-flag="${r.key}">${flagged?'Flagged ✓':'Flag for follow-up'}</button>
-        <button class="small primary" data-preview="${r.key}">View Work Order</button>
-        <button class="small" data-load="${r.key}">Open</button>
-        <button class="small danger" data-del="${r.key}">Delete</button>
-      </div>
+  const groups={};
+  rows.forEach(row=>{
+    const m=getMerchandiserName(row.r);
+    (groups[m]=groups[m]||[]).push(row);
+  });
+  const merchNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+  list.innerHTML = merchNames.map(m=>`
+    <div class="saved-merch-group" style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:13px;padding:8px 10px;background:var(--paper-edge,#f3f7f5);border-radius:8px;margin-bottom:6px;">${escapeHtml(m)} <span style="font-weight:400;color:var(--ink-soft);">(${groups[m].length})</span></div>
+      ${groups[m].map(({r, styles, matchedStyles})=>{
+        const flagged = !!(r.followUp && r.followUp.flagged);
+        return `
+        <div class="saved-item ${flagged?'flagged':''}" data-open-row="${r.key}" role="button" tabindex="0" title="Open work order">
+          <div class="meta">
+            <b>${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')} ${flagged?'<span class="followup-marked-badge">🔔 Marked for follow-up</span>':''}</b>
+            <span>${escapeHtml(r.company)} · ${escapeHtml(r.date||'')} · BDT ${fmt(r.total)}</span>
+            ${matchedStyles.length ? `<span>Matched style: ${matchedStyles.map(escapeHtml).join(', ')}</span>` : (styles.length ? `<span>Styles: ${styles.slice(0,4).map(escapeHtml).join(', ')}${styles.length>4?'…':''}</span>` : '')}
+          </div>
+          <div class="saved-actions">
+            <button class="small ${flagged?'primary':''}" data-flag="${r.key}">${flagged?'Flagged ✓':'Flag for follow-up'}</button>
+            <button class="small primary" data-preview="${r.key}">View Work Order</button>
+            <button class="small" data-load="${r.key}">Open</button>
+            <button class="small danger" data-del="${r.key}">Delete</button>
+          </div>
+        </div>
+      `;}).join('')}
     </div>
-  `;}).join('');
+  `).join('');
   list.querySelectorAll('[data-flag]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); toggleFollowUpFlag(e.target.dataset.flag);}));
   list.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); previewOrder(e.target.dataset.preview);}));
   list.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); loadOrder(e.target.dataset.load);}));
@@ -3728,6 +3739,8 @@ body:not(.document-mode) .items-total b{color:#0f766e !important;}
 .saved-item{border-left:3px solid transparent !important;transition:border-color .15s ease,background .15s ease;}
 .saved-item:hover{border-left-color:#0f766e !important;background:#eafaf6 !important;}
 .saved-item:focus{outline:2px solid #0f766e !important;outline-offset:-2px !important;}
+.saved-item.flagged{background:#eafaf6 !important;border-left:3px solid #0f766e !important;}
+.followup-marked-badge{display:inline-block;font-size:11px;font-weight:700;color:#08574f;background:#cdeee8;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;}
 select:focus,input:focus,textarea:focus{
   outline:2px solid #0f766e !important;
   outline-offset:1px !important;
