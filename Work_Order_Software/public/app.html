@@ -2355,14 +2355,26 @@ async function toggleFollowUpFlag(key){
   try{
     const rec = await storeGet(key);
     if(!rec) return;
-    rec.followUp = (rec.followUp && rec.followUp.flagged)
+    const newFollowUp = (rec.followUp && rec.followUp.flagged)
       ? {flagged:false}
       : {flagged:true, flaggedAt:new Date().toISOString(), lastRemindedAt:null};
+    rec.followUp = newFollowUp;
     await storeSet(key, rec);
-    await refreshIndex();
+    // Show the change immediately without waiting on the server round-trip.
+    const localRow = index.find(x=>x.key===key);
+    if(localRow) localRow.followUp = newFollowUp;
     renderSavedList();
     renderFollowUpBadge();
-    showToast(rec.followUp.flagged ? 'Flagged for follow-up.' : 'Follow-up flag removed.', false);
+    await refreshIndex();
+    const confirmedRow = index.find(x=>x.key===key);
+    const persisted = !!(confirmedRow && confirmedRow.followUp && confirmedRow.followUp.flagged) === !!newFollowUp.flagged;
+    renderSavedList();
+    renderFollowUpBadge();
+    if(!persisted){
+      showToast('The server did not save this follow-up flag — it will revert on refresh. This needs a backend update to store the "followUp" field.', true);
+    }else{
+      showToast(newFollowUp.flagged ? 'Flagged for follow-up.' : 'Follow-up flag removed.', false);
+    }
   }catch(e){ showToast(e.message||'Could not update follow-up flag.', true); }
 }
 async function dismissFollowUp(key){
@@ -2419,15 +2431,27 @@ function renderFollowUpsPage(){
         <div style="margin-left:8px;margin-bottom:12px;">
           <div style="font-size:12.5px;color:var(--ink-soft);font-weight:700;margin-bottom:6px;">${escapeHtml(f)}</div>
           ${groups[m][f].map(r=>{
-            const styles=(r.items||[]).map(it=>it.style).filter(Boolean).join(', ')||'(no styles listed)';
             const due=isFollowUpDue(r);
             const status=due?'<span style="color:#c0392b;font-weight:700;">Due now</span>':`Next check-in ${new Date(followUpDueAt(r)).toLocaleDateString()}`;
-            return `<div class="saved-item" style="cursor:default;">
-              <div class="meta">
+            const itemRows=(r.items||[]).filter(it=>it.style||it.itemName||it.qty).map(it=>`
+              <tr>
+                <td style="padding:4px 8px;border-bottom:1px solid #edf1f5;">${escapeHtml(it.style||'—')}</td>
+                <td style="padding:4px 8px;border-bottom:1px solid #edf1f5;">${escapeHtml(it.itemName||'—')}</td>
+                <td style="padding:4px 8px;border-bottom:1px solid #edf1f5;text-align:right;">${escapeHtml(String(it.qty||'—'))}</td>
+              </tr>`).join('') || `<tr><td colspan="3" style="padding:4px 8px;color:var(--ink-soft);">No items listed</td></tr>`;
+            return `<div class="saved-item" style="cursor:default;flex-direction:column;align-items:stretch;">
+              <div class="meta" style="margin-bottom:8px;">
                 <b>${escapeHtml(r.woNumber)||'(no number)'} — ${escapeHtml(r.supplierCompany||'')}</b>
-                <span>Styles: ${escapeHtml(styles)}</span>
                 <span>${status}</span>
               </div>
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:8px;">
+                <thead><tr>
+                  <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dfe7e4;">Style</th>
+                  <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dfe7e4;">Category / item</th>
+                  <th style="text-align:right;padding:4px 8px;border-bottom:2px solid #dfe7e4;">Qty</th>
+                </tr></thead>
+                <tbody>${itemRows}</tbody>
+              </table>
               <div class="saved-actions">
                 <button class="small" data-page-remind="${r.key}">Remind in 2 days</button>
                 <button class="small danger" data-page-cancel="${r.key}">Cancel Flag</button>
@@ -2919,9 +2943,9 @@ function renderSavedList(){
   `).join('');
   list.querySelectorAll('[data-flag]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); toggleFollowUpFlag(e.target.dataset.flag);}));
   list.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); previewOrder(e.target.dataset.preview);}));
-  list.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); loadOrder(e.target.dataset.load);}));
+  list.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); loadOrder(e.target.dataset.load).then(()=>{ if(window.saraSetView) window.saraSetView('create'); });}));
   list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', e=>{e.stopPropagation(); deleteOrder(e.target.dataset.del);}));
-  list.querySelectorAll('[data-open-row]').forEach(row=>{ row.addEventListener('click',e=>{if(!e.target.closest('button'))loadOrder(row.dataset.openRow);}); row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();loadOrder(row.dataset.openRow);}}); });
+  list.querySelectorAll('[data-open-row]').forEach(row=>{ row.addEventListener('click',e=>{if(!e.target.closest('button')){loadOrder(row.dataset.openRow).then(()=>{ if(window.saraSetView) window.saraSetView('create'); });}}); row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();loadOrder(row.dataset.openRow).then(()=>{ if(window.saraSetView) window.saraSetView('create'); });}}); });
 }
 
 async function loadOrder(key){
