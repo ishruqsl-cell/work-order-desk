@@ -3551,7 +3551,7 @@ function renderAestheticDashboard(){
       <div>
         <div class="gm-kicker">Material Readiness</div>
         <h2>Materials Tracking</h2>
-        <p>Track only the expected in-house dates for fabric and accessories against each Work Order.</p>
+        <p>Follow up material readiness <strong>style by style</strong> from every saved Work Order.</p>
       </div>
       <div class="gm-actions">
         <button class="gm-btn" type="button" id="gmBackBtn">← Back</button>
@@ -3559,20 +3559,23 @@ function renderAestheticDashboard(){
       </div>
     </div>
     <div class="gm-stats">
-      <div class="gm-stat"><div class="n" id="gmTotal">0</div><div class="l">Work Orders</div></div>
+      <div class="gm-stat"><div class="n" id="gmTotal">0</div><div class="l">Styles to Follow Up</div></div>
       <div class="gm-stat"><div class="n" id="gmReady">0</div><div class="l">Both Dates Set</div></div>
       <div class="gm-stat"><div class="n" id="gmAttention">0</div><div class="l">Attention</div></div>
       <div class="gm-stat"><div class="n" id="gmReceived">0</div><div class="l">Fully Received</div></div>
     </div>
     <div class="gm-card">
       <div class="gm-toolbar">
-        <strong style="font-size:13px;color:#10243a">Material In-house Schedule</strong>
-        <input id="gmSearch" class="gm-search" type="search" placeholder="Search Work Order or supplier…">
+        <div>
+          <strong style="font-size:13px;color:#10243a">Style-by-Style Material In-house Schedule</strong>
+          <div style="font-size:10px;color:#718096;margin-top:4px">Each saved Work Order style has its own fabric and accessories follow-up.</div>
+        </div>
+        <input id="gmSearch" class="gm-search" type="search" placeholder="Search WO, style, item or supplier…">
       </div>
       <div class="gm-table-wrap">
         <table class="gm-table">
-          <thead><tr><th>Work Order</th><th>Supplier</th><th>Approx. Fabric In-house</th><th>Fabric Status</th><th>Approx. Accessories In-house</th><th>Accessories Status</th><th>Overall</th><th>Actions</th></tr></thead>
-          <tbody id="gmRows"><tr><td colspan="8" class="gm-empty">Loading materials schedule…</td></tr></tbody>
+          <thead><tr><th>Work Order</th><th>Style</th><th>Item</th><th>Order Qty</th><th>Supplier</th><th>Approx. Fabric In-house</th><th>Fabric Status</th><th>Approx. Accessories In-house</th><th>Accessories Status</th><th>Overall</th><th>Actions</th></tr></thead>
+          <tbody id="gmRows"><tr><td colspan="11" class="gm-empty">Loading style schedule…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -3581,15 +3584,16 @@ function renderAestheticDashboard(){
 
 <div class="gm-form" id="gmForm">
   <div class="gm-form-card">
-    <h3>Material In-house Plan</h3>
-    <p>Only enter the approximate expected dates. When material arrives, use “Mark Received” and the system records today's date automatically.</p>
+    <h3>Style Material In-house Plan</h3>
+    <p>Choose a saved Work Order and its style. The fabric and accessories dates are tracked independently for that style.</p>
     <div class="gm-grid">
       <div class="gm-field full"><label>Work Order</label><select id="gmWo"></select></div>
+      <div class="gm-field full"><label>Style</label><select id="gmStyle"></select></div>
       <div class="gm-field"><label>Approx. Fabric In-house</label><input id="gmFabricDate" type="date"></div>
       <div class="gm-field"><label>Approx. Accessories In-house</label><input id="gmAccDate" type="date"></div>
     </div>
-    <div class="gm-note">No quantity, stock, consumption, roll count or inventory entry is required in this module.</div>
-    <div class="gm-form-actions"><button class="gm-btn" type="button" id="gmCancelBtn">Cancel</button><button class="gm-btn primary" type="button" id="gmSaveBtn">Save Schedule</button></div>
+    <div class="gm-note">No quantity, stock, consumption, roll count or inventory entry is required here. Quantity and style information are taken directly from the saved Work Order.</div>
+    <div class="gm-form-actions"><button class="gm-btn" type="button" id="gmCancelBtn">Cancel</button><button class="gm-btn primary" type="button" id="gmSaveBtn">Save Style Schedule</button></div>
   </div>
 </div>
 
@@ -3600,6 +3604,7 @@ function renderAestheticDashboard(){
   const form=document.getElementById('gmForm');
   const rowsEl=document.getElementById('gmRows');
   const woEl=document.getElementById('gmWo');
+  const styleEl=document.getElementById('gmStyle');
   const searchEl=document.getElementById('gmSearch');
   let orders=[], records=[];
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -3614,25 +3619,89 @@ function renderAestheticDashboard(){
     if(d<=2) return '<span class="gm-status yellow">● Due soon</span>';
     return '<span class="gm-status green">● Upcoming</span>';
   }
-  function recFor(key){return records.find(r=>r.record_key===key)?.data_json||null;}
+  function stylesOf(o){
+    const items=Array.isArray(o?.items)?o.items:[];
+    return items.map((it,i)=>({
+      index:i,
+      style:String(it?.style||it?.styleName||it?.styleNo||'').trim() || `Style ${i+1}`,
+      item:String(it?.itemName||it?.item||it?.description||'').trim() || '—',
+      qty:Number(it?.qty)||0
+    }));
+  }
+  function refFor(woKey,idx){return `${woKey}@@STYLE@@${idx}`;}
+  function parseRef(ref){
+    const token='@@STYLE@@', at=String(ref||'').lastIndexOf(token);
+    if(at<0) return {woKey:String(ref||''),idx:0};
+    return {woKey:String(ref).slice(0,at),idx:Math.max(0,Number(String(ref).slice(at+token.length))||0)};
+  }
+  function recExact(ref){return records.find(r=>String(r.record_key)===String(ref))?.data_json||null;}
+  function recFor(o,idx){
+    const ref=refFor(o.key,idx);
+    const exact=recExact(ref);
+    if(exact) return exact;
+    // Preserve existing legacy records for a Work Order only when it contains one style.
+    const styles=stylesOf(o);
+    if(styles.length===1) return recExact(o.key)||null;
+    return null;
+  }
+  function styleRows(){
+    const out=[];
+    orders.forEach(o=>stylesOf(o).forEach(st=>out.push({order:o,style:st,ref:refFor(o.key,st.index)})));
+    return out;
+  }
   function render(){
     const q=(searchEl.value||'').toLowerCase().trim();
-    const list=orders.filter(o=>!q||[o.woNumber,o.company,o.supplierCompany].some(v=>String(v||'').toLowerCase().includes(q)));
+    const all=styleRows();
+    const list=all.filter(x=>!q||[
+      x.order.woNumber,x.order.company,x.order.supplierCompany,x.order.buyer,
+      x.style.style,x.style.item
+    ].some(v=>String(v||'').toLowerCase().includes(q)));
     let both=0,attention=0,received=0;
-    list.forEach(o=>{const r=recFor(o.key)||{}; if(r.fabricDate&&r.accessoriesDate)both++; if((r.fabricReceived||r.accessoriesReceived))attention++; if(r.fabricReceived&&r.accessoriesReceived)received++;});
-    document.getElementById('gmTotal').textContent=orders.length;
+    all.forEach(x=>{
+      const r=recFor(x.order,x.style.index)||{};
+      if(r.fabricDate&&r.accessoriesDate) both++;
+      if((r.fabricDate&&days(r.fabricDate)<0&&!r.fabricReceived)||(r.accessoriesDate&&days(r.accessoriesDate)<0&&!r.accessoriesReceived)) attention++;
+      if(r.fabricReceived&&r.accessoriesReceived) received++;
+    });
+    document.getElementById('gmTotal').textContent=all.length;
     document.getElementById('gmReady').textContent=both;
     document.getElementById('gmAttention').textContent=attention;
     document.getElementById('gmReceived').textContent=received;
-    if(!list.length){rowsEl.innerHTML='<tr><td colspan="8" class="gm-empty">No Work Orders found.</td></tr>';return;}
-    rowsEl.innerHTML=list.map(o=>{
-      const r=recFor(o.key)||{};
-      const overall=r.fabricReceived&&r.accessoriesReceived?'green':((r.fabricDate&&days(r.fabricDate)<0&&!r.fabricReceived)||(r.accessoriesDate&&days(r.accessoriesDate)<0&&!r.accessoriesReceived)?'red':(r.fabricDate||r.accessoriesDate)?'yellow':'gray');
+    if(!list.length){rowsEl.innerHTML='<tr><td colspan="11" class="gm-empty">No saved Work Order styles found.</td></tr>';return;}
+    rowsEl.innerHTML=list.map(x=>{
+      const o=x.order, st=x.style, r=recFor(o,st.index)||{};
+      const overdue=(r.fabricDate&&days(r.fabricDate)<0&&!r.fabricReceived)||(r.accessoriesDate&&days(r.accessoriesDate)<0&&!r.accessoriesReceived);
+      const overall=r.fabricReceived&&r.accessoriesReceived?'green':(overdue?'red':(r.fabricDate||r.accessoriesDate)?'yellow':'gray');
       const label=overall==='green'?'Complete':overall==='red'?'Attention':overall==='yellow'?'Planned':'Not Set';
-      return `<tr><td><span class="gm-wo">${esc(o.woNumber||o.key)}</span></td><td><span class="gm-supplier">${esc(o.supplierCompany||o.company||'—')}</span></td><td class="gm-date">${fmtDate(r.fabricDate)}</td><td>${status(r.fabricDate,r.fabricReceived)}</td><td class="gm-date">${fmtDate(r.accessoriesDate)}</td><td>${status(r.accessoriesDate,r.accessoriesReceived)}</td><td><span class="gm-status ${overall}">● ${label}</span></td><td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${esc(o.key)}">Edit</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${esc(o.key)}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${esc(o.key)}">Accessories ✓</button>`:''}</div></td></tr>`;
+      const ref=esc(x.ref);
+      return `<tr>
+        <td><span class="gm-wo">${esc(o.woNumber||o.key)}</span></td>
+        <td><strong style="color:#102a43">${esc(st.style)}</strong></td>
+        <td>${esc(st.item)}</td>
+        <td>${st.qty?st.qty.toLocaleString()+' pcs':'—'}</td>
+        <td><span class="gm-supplier">${esc(o.supplierCompany||o.company||'—')}</span></td>
+        <td class="gm-date">${fmtDate(r.fabricDate)}</td>
+        <td>${status(r.fabricDate,r.fabricReceived)}</td>
+        <td class="gm-date">${fmtDate(r.accessoriesDate)}</td>
+        <td>${status(r.accessoriesDate,r.accessoriesReceived)}</td>
+        <td><span class="gm-status ${overall}">● ${label}</span></td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${ref}">Edit</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${ref}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${ref}">Accessories ✓</button>`:''}</div></td>
+      </tr>`;
     }).join('');
     rowsEl.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openForm(b.dataset.edit)));
     rowsEl.querySelectorAll('[data-recv]').forEach(b=>b.addEventListener('click',()=>markReceived(b.dataset.key,b.dataset.recv)));
+  }
+  function populateWorkOrders(selectedKey){
+    woEl.innerHTML=orders.map(o=>`<option value="${esc(o.key)}">${esc(o.woNumber||o.key)} — ${esc(o.supplierCompany||o.company||'')}</option>`).join('');
+    if(selectedKey) woEl.value=selectedKey;
+    syncStyles();
+  }
+  function syncStyles(selectedIndex){
+    const o=orders.find(x=>String(x.key)===String(woEl.value));
+    const styles=stylesOf(o);
+    styleEl.innerHTML=styles.map(st=>`<option value="${st.index}">${esc(st.style)}${st.item&&st.item!=='—'?' — '+esc(st.item):''}</option>`).join('');
+    if(styles.length) styleEl.value=String(selectedIndex??styles[0].index);
+    if(!styles.length) styleEl.innerHTML='<option value="">No styles in this Work Order</option>';
   }
   async function load(){
     try{
@@ -3640,40 +3709,57 @@ function renderAestheticDashboard(){
       if(!woRes.ok) throw new Error('Could not load Work Orders.');
       const w=await woRes.json(); orders=Array.isArray(w.index)?w.index:[];
       if(matRes.ok){const m=await matRes.json();records=Array.isArray(m.records)?m.records:[];} else records=[];
-      woEl.innerHTML=orders.map(o=>`<option value="${esc(o.key)}">${esc(o.woNumber||o.key)} — ${esc(o.supplierCompany||o.company||'')}</option>`).join('');
+      populateWorkOrders();
       render();
-    }catch(e){rowsEl.innerHTML=`<tr><td colspan="8" class="gm-empty">${esc(e.message||'Unable to load materials data.')}</td></tr>`;}
+    }catch(e){rowsEl.innerHTML=`<tr><td colspan="11" class="gm-empty">${esc(e.message||'Unable to load materials data.')}</td></tr>`;}
   }
-  function openForm(key){
-    if(!orders.length){if(window.showToast)showToast('No Work Orders are available yet.',true);return;}
-    woEl.value=key||orders[0].key;
-    const r=recFor(woEl.value)||{};
+  function openForm(ref){
+    if(!orders.length){if(window.showToast)showToast('No saved Work Orders are available yet.',true);return;}
+    let woKey=orders[0].key, idx=0;
+    if(ref){const parsed=parseRef(ref);woKey=parsed.woKey;idx=parsed.idx;}
+    const o=orders.find(x=>String(x.key)===String(woKey))||orders[0];
+    woEl.value=o.key;
+    syncStyles(idx);
+    const r=recFor(o,Number(styleEl.value)||0)||{};
     document.getElementById('gmFabricDate').value=r.fabricDate||'';
     document.getElementById('gmAccDate').value=r.accessoriesDate||'';
     form.classList.add('open');
   }
   function closeForm(){form.classList.remove('open');}
   async function save(){
-    const key=woEl.value, fabric=document.getElementById('gmFabricDate').value, acc=document.getElementById('gmAccDate').value;
-    if(!key){if(window.showToast)showToast('Select a Work Order.',true);return;}
-    const old=recFor(key)||{};
-    const data={recordKey:key,data:{workOrderKey:key,fabricDate:fabric,accessoriesDate:acc,fabricReceived:!!old.fabricReceived,fabricReceivedDate:old.fabricReceivedDate||'',accessoriesReceived:!!old.accessoriesReceived,accessoriesReceivedDate:old.accessoriesReceivedDate||''}};
+    const o=orders.find(x=>String(x.key)===String(woEl.value));
+    const idx=Number(styleEl.value);
+    if(!o||!stylesOf(o)[idx]){if(window.showToast)showToast('Select a saved Work Order style.',true);return;}
+    const st=stylesOf(o)[idx], key=refFor(o.key,idx);
+    const fabric=document.getElementById('gmFabricDate').value, acc=document.getElementById('gmAccDate').value;
+    const old=recFor(o,idx)||{};
+    const data={recordKey:key,data:{workOrderKey:o.key,styleIndex:idx,styleName:st.style,itemName:st.item,qty:st.qty,fabricDate:fabric,accessoriesDate:acc,fabricReceived:!!old.fabricReceived,fabricReceivedDate:old.fabricReceivedDate||'',accessoriesReceived:!!old.accessoriesReceived,accessoriesReceivedDate:old.accessoriesReceivedDate||''}};
     const btn=document.getElementById('gmSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
-    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Save failed.'); closeForm(); if(window.showToast)showToast('Material schedule saved.',false); await load();}
-    catch(e){if(window.showToast)showToast(e.message||'Could not save.',true);} finally{btn.disabled=false;btn.textContent='Save Schedule';}
+    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Save failed.'); closeForm(); if(window.showToast)showToast(`Material schedule saved for ${st.style}.`,false); await load();}
+    catch(e){if(window.showToast)showToast(e.message||'Could not save.',true);} finally{btn.disabled=false;btn.textContent='Save Style Schedule';}
   }
   async function markReceived(key,type){
-    const r=recFor(key)||{}; if(!r.fabricDate&&!r.accessoriesDate){if(window.showToast)showToast('Set the expected date first.',true);return;}
-    r.workOrderKey=key;
+    const parsed=parseRef(key), o=orders.find(x=>String(x.key)===String(parsed.woKey));
+    if(!o)return;
+    const idx=parsed.idx, r=recFor(o,idx)||{};
+    if(!r.fabricDate&&!r.accessoriesDate){if(window.showToast)showToast('Set the expected date first.',true);return;}
+    r.workOrderKey=o.key; r.styleIndex=idx; r.styleName=stylesOf(o)[idx]?.style||r.styleName||'';
     if(type==='fabric'){r.fabricReceived=true;r.fabricReceivedDate=today();}
     if(type==='accessories'){r.accessoriesReceived=true;r.accessoriesReceivedDate=today();}
-    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recordKey:key,data:r})}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Update failed.'); await load();}
+    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recordKey:refFor(o.key,idx),data:r})}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Update failed.'); await load();}
     catch(e){if(window.showToast)showToast(e.message||'Could not update receipt status.',true);}
   }
   document.getElementById('gmNewBtn').addEventListener('click',()=>openForm());
   document.getElementById('gmCancelBtn').addEventListener('click',closeForm);
   document.getElementById('gmSaveBtn').addEventListener('click',save);
   document.getElementById('gmBackBtn').addEventListener('click',()=>{module.classList.remove('open'); if(window.saraSetView)window.saraSetView('overview');});
+  woEl.addEventListener('change',()=>syncStyles());
+  styleEl.addEventListener('change',()=>{
+    const o=orders.find(x=>String(x.key)===String(woEl.value));
+    const r=o?recFor(o,Number(styleEl.value)||0)||{}:{};
+    document.getElementById('gmFabricDate').value=r.fabricDate||'';
+    document.getElementById('gmAccDate').value=r.accessoriesDate||'';
+  });
   searchEl.addEventListener('input',render);
   window.garmentosMaterials={open:function(){module.classList.add('open');load();},hide:function(){module.classList.remove('open');closeForm();},close:closeForm,refresh:load};
 })();
@@ -3718,6 +3804,60 @@ function renderAestheticDashboard(){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<style id="ishruq-materials-top-bugfix-v4">
+/* Materials Tracking must begin below the fixed OS header.
+   The previous module used inset:0, which allowed its heading/actions
+   to slide underneath the topbar. */
+body:not(.document-mode) #gosMaterialsModule{
+  top:var(--gos-header-final,78px)!important;
+  right:0!important;
+  bottom:0!important;
+  left:var(--gos-shell-final,260px)!important;
+  width:auto!important;
+  height:auto!important;
+  box-sizing:border-box!important;
+  padding:24px 28px 42px!important;
+  z-index:99998!important;
+}
+body:not(.document-mode) #gosMaterialsModule .gm-head{
+  padding-top:2px!important;
+}
+/* Keep the module's Back / Add buttons fully inside the visible workspace. */
+body:not(.document-mode) #gosMaterialsModule .gm-actions{
+  position:relative!important;
+  z-index:3!important;
+}
+@media(max-width:1200px){
+  body:not(.document-mode) #gosMaterialsModule{
+    left:var(--gos-shell-final,230px)!important;
+    padding:22px 20px 36px!important;
+  }
+}
+@media(max-width:800px){
+  body:not(.document-mode) #gosMaterialsModule{
+    top:var(--gos-header-final,76px)!important;
+    left:0!important;
+    right:0!important;
+    padding:18px 14px 32px!important;
+  }
+}
+</style>
+<style id="ishruq-materials-style-followup-v5">
+/* Style-by-style follow-up presentation */
+#gosMaterialsModule .gm-table{min-width:1380px}
+#gosMaterialsModule .gm-table th:nth-child(2){min-width:105px}
+#gosMaterialsModule .gm-table th:nth-child(3){min-width:130px}
+#gosMaterialsModule .gm-table th:nth-child(5){min-width:150px}
+#gosMaterialsModule .gm-table td:nth-child(2){font-weight:800}
+#gosMaterialsModule .gm-toolbar>div{min-width:0}
+#gosMaterialsModule .gm-toolbar{align-items:flex-start}
+#gosMaterialsModule .gm-search{margin-top:0}
+@media(max-width:760px){
+  #gosMaterialsModule .gm-toolbar{flex-direction:column}
+  #gosMaterialsModule .gm-search{max-width:none}
+}
+</style>
 </body>
 
 <style id="sara-eye-catching-terms">
