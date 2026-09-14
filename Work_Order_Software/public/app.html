@@ -3700,7 +3700,7 @@ function renderAestheticDashboard(){
         <td class="gm-date">${fmtDate(r.accessoriesDate)}</td>
         <td>${status(r.accessoriesDate,r.accessoriesReceived)}</td>
         <td><span class="gm-status ${overall}">● ${label}</span></td>
-        <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${ref}">Edit</button><button class="gm-mini inhouse" data-inhouse="${ref}">All In-house</button><button class="gm-mini danger" data-remove="${ref}">Remove</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${ref}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${ref}">Accessories ✓</button>`:''}</div></td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${ref}">Edit</button><button class="gm-mini inhouse" data-inhouse="${ref}">All Materials In-house</button><button class="gm-mini danger" data-remove="${ref}">Remove</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${ref}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${ref}">Accessories ✓</button>`:''}</div></td>
       </tr>`;
     }).join('');
     rowsEl.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openForm(b.dataset.edit)));
@@ -3712,26 +3712,61 @@ function renderAestheticDashboard(){
     const parsed=parseRef(ref); const o=orders.find(x=>String(x.key)===String(parsed.woKey));
     const st=o?stylesOf(o)[parsed.idx]:null;
     if(!st)return;
-    if(!confirm(`Remove ${st.style} from Materials Tracking?\n\nThis will NOT delete the style or Work Order. It will only hide this style from this module.`))return;
-    const hidden=hiddenStyles(); hidden.add(ref); saveHidden(hidden); render();
-    if(window.showToast)showToast(`${st.style} removed from Materials Tracking.`,false);
+    if(!confirm(`Remove ${st.style} from Materials Tracking?\n\nThis is a FOB/skip-materials option. It will NOT delete the style or Work Order. It will mark Materials Tracking as skipped for this style and move it to the next process.`))return;
+    advanceToNextProcess(ref,'skipped');
+  }
+  async function advanceToNextProcess(ref, mode){
+    const parsed=parseRef(ref), o=orders.find(x=>String(x.key)===String(parsed.woKey));
+    if(!o)return;
+    const st=stylesOf(o)[parsed.idx]; if(!st)return;
+    const old=recFor(o,parsed.idx)||{};
+    const key=refFor(o.key,parsed.idx);
+    const data={
+      ...old,
+      workOrderKey:o.key,
+      styleIndex:parsed.idx,
+      styleName:st.style,
+      itemName:st.item,
+      qty:st.qty,
+      materialDecision:mode,
+      materialDecisionDate:today(),
+      fabricReceived:mode==='all_inhouse'?true:!!old.fabricReceived,
+      accessoriesReceived:mode==='all_inhouse'?true:!!old.accessoriesReceived,
+      fabricReceivedDate:mode==='all_inhouse'?(old.fabricReceivedDate||today()):old.fabricReceivedDate||'',
+      accessoriesReceivedDate:mode==='all_inhouse'?(old.accessoriesReceivedDate||today()):old.accessoriesReceivedDate||''
+    };
+    try{
+      const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recordKey:key,data})});
+      const out=await res.json(); if(!res.ok)throw new Error(out.error||'Could not update material status.');
+      const hidden=hiddenStyles(); hidden.add(key); saveHidden(hidden);
+      closeDetail();
+      await load();
+      if(window.showToast)showToast(mode==='all_inhouse'?`${st.style}: all materials confirmed in-house. Moving to Production Tracking.`:`${st.style}: materials follow-up skipped. Moving to Production Tracking.`,false);
+      setTimeout(()=>{
+        const nav=document.querySelector('[data-gos-action="production"]');
+        if(nav)nav.click();
+      },180);
+    }catch(e){if(window.showToast)showToast(e.message||'Could not move to the next process.',true);}
   }
   function showAllInhouse(ref){
     const parsed=parseRef(ref), o=orders.find(x=>String(x.key)===String(parsed.woKey));
     if(!o)return; const st=stylesOf(o)[parsed.idx]; if(!st)return; const r=recFor(o,parsed.idx)||{};
-    const overall=r.fabricReceived&&r.accessoriesReceived?'Fully Received':((r.fabricDate||r.accessoriesDate)?'In-house Plan Set':'Not Set');
-    document.getElementById('gmDetailTitle').textContent=`All In-house — ${st.style}`;
+    document.getElementById('gmDetailTitle').textContent=`All Materials In-house — ${st.style}`;
     document.getElementById('gmDetailSubtitle').textContent=`WO ${o.woNumber||o.key} · ${o.supplierCompany||o.company||'Supplier not set'} · ${st.item||'Item not set'}`;
     document.getElementById('gmDetailGrid').innerHTML=`
       <div class="gm-detail-box"><div class="k">Work Order</div><div class="v">${esc(o.woNumber||o.key)}</div></div>
       <div class="gm-detail-box"><div class="k">Style</div><div class="v">${esc(st.style)}</div></div>
       <div class="gm-detail-box"><div class="k">Order Quantity</div><div class="v">${st.qty?st.qty.toLocaleString()+' pcs':'—'}</div></div>
-      <div class="gm-detail-box"><div class="k">Overall</div><div class="v">${esc(overall)}</div></div>
-      <div class="gm-detail-box"><div class="k">Fabric In-house Date</div><div class="v">${esc(fmtDate(r.fabricDate))}</div></div>
-      <div class="gm-detail-box"><div class="k">Fabric Status</div><div class="v">${r.fabricReceived?'✓ Received':'Not Received'}</div></div>
-      <div class="gm-detail-box"><div class="k">Accessories In-house Date</div><div class="v">${esc(fmtDate(r.accessoriesDate))}</div></div>
-      <div class="gm-detail-box"><div class="k">Accessories Status</div><div class="v">${r.accessoriesReceived?'✓ Received':'Not Received'}</div></div>`;
+      <div class="gm-detail-box"><div class="k">Current Overall</div><div class="v">${r.fabricReceived&&r.accessoriesReceived?'Fully Received':'Pending'}</div></div>
+      <div class="gm-detail-box"><div class="k">Fabric</div><div class="v">${r.fabricReceived?'✓ Already Received':'Will be confirmed In-house'}</div></div>
+      <div class="gm-detail-box"><div class="k">Accessories</div><div class="v">${r.accessoriesReceived?'✓ Already Received':'Will be confirmed In-house'}</div></div>`;
+    const foot=document.querySelector('#gmDetailModal .gm-detail-foot');
+    if(foot)foot.innerHTML='<strong>Next process:</strong> Confirming this option marks both Fabric and Accessories as In-house and sends this style to <strong>Production Tracking</strong>.';
+    const actions=document.querySelector('#gmDetailModal .gm-detail-actions');
+    if(actions)actions.innerHTML=`<button type="button" class="gm-mini" id="gmDetailClose2">Cancel</button><button type="button" class="gm-mini inhouse" id="gmConfirmAllInhouse">✓ Confirm All Materials In-house &amp; Next Process</button>`;
     const modal=document.getElementById('gmDetailModal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+    document.getElementById('gmDetailClose2').onclick=closeDetail;
+    document.getElementById('gmConfirmAllInhouse').onclick=()=>advanceToNextProcess(ref,'all_inhouse');
   }
   function closeDetail(){const modal=document.getElementById('gmDetailModal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');}
 
@@ -3904,6 +3939,12 @@ body:not(.document-mode) #gosMaterialsModule .gm-actions{
   #gosMaterialsModule .gm-toolbar{flex-direction:column}
   #gosMaterialsModule .gm-search{max-width:none}
 }
+</style>
+<style id="ishruq-materials-process-actions-v6">
+#gosMaterialsModule .gm-mini.inhouse{font-weight:900}
+#gosMaterialsModule .gm-mini.danger{font-weight:900}
+#gmDetailModal .gm-detail-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:18px}
+#gmDetailModal .gm-detail-actions .inhouse{padding:10px 14px}
 </style>
 </body>
 
