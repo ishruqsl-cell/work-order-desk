@@ -3483,7 +3483,7 @@ function renderAestheticDashboard(){
     }
     async function openModule(action){
       if(action==='materials' && window.garmentosMaterials){hideAll();setActive(action);window.garmentosMaterials.open();return;}
-      if(action==='overview'||action==='workorders'){hideAll();setActive('overview');if(window.saraSetView)window.saraSetView('overview');return;}
+      if(action==='overview'||action==='workorders'){hideAll();setActive('overview');document.body.classList.remove('sara-create-mode','sara-past-mode','sara-inner-mode');if(window.saraSetView)window.saraSetView('overview');return;}
       if(action==='create'){hideAll();setActive('workorders');if(window.saraSetView)window.saraSetView('create');return;}
       if(action==='past'){hideAll();setActive('workorders');if(window.saraSetView)window.saraSetView('past');return;}
       if(action==='administration'){hideAll();if(typeof openAdmin==='function')openAdmin();return;}
@@ -3540,8 +3540,9 @@ function renderAestheticDashboard(){
 .gm-stat .n{font-size:25px;font-weight:900;color:#10243a}.gm-stat .l{font-size:10px;font-weight:800;color:#718096;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
 .gm-card{background:rgba(255,255,255,.96);border:1px solid #dbe5e8;border-radius:18px;box-shadow:0 14px 36px rgba(8,21,37,.07);overflow:hidden}
 .gm-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 18px;border-bottom:1px solid #e4ecef}.gm-search{max-width:360px;width:100%;border:1px solid #d5e1e5;border-radius:10px;padding:10px 12px;font-size:12px;outline:none}.gm-search:focus{border-color:#14b8a6;box-shadow:0 0 0 3px rgba(20,184,166,.1)}
-.gm-table-wrap{overflow:auto}.gm-table{width:100%;border-collapse:collapse;min-width:1050px}.gm-table th{background:#f7fafb;color:#718096;font-size:9px;text-transform:uppercase;letter-spacing:.09em;text-align:left;padding:12px 14px;border-bottom:1px solid #e1eaed}.gm-table td{padding:13px 14px;border-bottom:1px solid #edf2f4;color:#26384b;font-size:11px;vertical-align:middle}.gm-table tr:last-child td{border-bottom:0}.gm-wo{font-weight:900;color:#0f766e}.gm-supplier{font-weight:700}.gm-date{font-weight:800}.gm-status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:9px;font-weight:900;white-space:nowrap}.gm-status.green{background:#e8f8f3;color:#087a62}.gm-status.yellow{background:#fff7df;color:#9a6a00}.gm-status.red{background:#feeceb;color:#b42318}.gm-status.gray{background:#eef2f4;color:#687888}.gm-mini{border:1px solid #d7e3e7;background:#fff;border-radius:8px;padding:7px 9px;font-size:9px;font-weight:800;cursor:pointer}.gm-mini:hover{background:#f3f8f8}.gm-empty{padding:45px;text-align:center;color:#718096;font-size:12px}
+.gm-table-wrap{overflow:auto}.gm-table{width:100%;border-collapse:collapse;min-width:1050px}.gm-table th{background:#f7fafb;color:#718096;font-size:9px;text-transform:uppercase;letter-spacing:.09em;text-align:left;padding:12px 14px;border-bottom:1px solid #e1eaed}.gm-table td{padding:13px 14px;border-bottom:1px solid #edf2f4;color:#26384b;font-size:11px;vertical-align:middle}.gm-table tr:last-child td{border-bottom:0}.gm-wo{font-weight:900;color:#0f766e}.gm-supplier{font-weight:700}.gm-date{font-weight:800}.gm-status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:9px;font-weight:900;white-space:nowrap}.gm-status.green{background:#e8f8f3;color:#087a62}.gm-status.yellow{background:#fff7df;color:#9a6a00}.gm-status.red{background:#feeceb;color:#b42318}.gm-status.gray{background:#eef2f4;color:#687888}.gm-mini{border:1px solid #d7e3e7;background:#fff;border-radius:8px;padding:7px 9px;font-size:9px;font-weight:800;cursor:pointer}.gm-mini:hover{background:#f3f8f8}.gm-mini.danger{border-color:#f0c8c4;color:#b42318;background:#fffafa}.gm-mini.danger:hover{background:#fff0ee}.gm-mini.inhouse{border-color:#bfe7df;color:#087a62;background:#f2fbf9}.gm-mini.inhouse:hover{background:#e4f7f2}.gm-empty{padding:45px;text-align:center;color:#718096;font-size:12px}
 .gm-form{display:none;position:fixed;inset:0 0 0 var(--gos-shell-w);z-index:100000;background:rgba(7,18,31,.56);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:22px}.gm-form.open{display:flex}.gm-form-card{width:min(620px,100%);background:#fff;border-radius:20px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.25)}.gm-form-card h3{margin:0;color:#10243a;font-size:20px}.gm-form-card p{margin:6px 0 18px;color:#718096;font-size:11px}.gm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.gm-field label{display:block;font-size:9px;font-weight:900;color:#60758a;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.gm-field input,.gm-field select{width:100%;box-sizing:border-box;border:1px solid #d5e1e5;border-radius:10px;padding:11px 12px;font-size:12px;color:#152235;background:#fbfdfe}.gm-field.full{grid-column:1/-1}.gm-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.gm-note{margin-top:12px;background:#f3f8f8;border:1px solid #dcebea;border-radius:10px;padding:10px 12px;color:#526777;font-size:10px;line-height:1.5}
+.gm-detail-modal{display:none;position:fixed;inset:0 0 0 var(--gos-shell-w);z-index:100001;background:rgba(7,18,31,.58);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:22px}.gm-detail-modal.open{display:flex}.gm-detail-card{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border:1px solid #dbe5e8;border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.28);padding:24px}.gm-detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;border-bottom:1px solid #e7eef0;padding-bottom:15px;margin-bottom:16px}.gm-detail-head h3{margin:0;color:#10243a;font-size:20px}.gm-detail-head p{margin:5px 0 0;color:#718096;font-size:11px}.gm-detail-close{border:1px solid #d6e3e7;background:#fff;border-radius:9px;padding:7px 10px;font-weight:900;cursor:pointer}.gm-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.gm-detail-box{border:1px solid #e1eaed;border-radius:12px;padding:14px;background:#fbfdfe}.gm-detail-box .k{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#718096;font-weight:900}.gm-detail-box .v{margin-top:6px;font-size:13px;font-weight:900;color:#10243a}.gm-detail-foot{margin-top:16px;padding:12px;border-radius:12px;background:#f3f8f8;color:#526777;font-size:11px;line-height:1.5}@media(max-width:760px){.gm-detail-modal{inset:0}.gm-detail-grid{grid-template-columns:1fr}}
 @media(max-width:760px){#gosMaterialsModule{inset:0;padding:20px 14px 32px}.gm-head{align-items:flex-start;flex-direction:column}.gm-head h2{font-size:25px}.gm-stats{grid-template-columns:1fr 1fr}.gm-form{inset:0}.gm-grid{grid-template-columns:1fr}.gm-field.full{grid-column:auto}}
 </style>
 
@@ -3597,6 +3598,17 @@ function renderAestheticDashboard(){
   </div>
 </div>
 
+<div class="gm-detail-modal" id="gmDetailModal" aria-hidden="true">
+  <div class="gm-detail-card" role="dialog" aria-modal="true" aria-labelledby="gmDetailTitle">
+    <div class="gm-detail-head">
+      <div><h3 id="gmDetailTitle">All In-house Details</h3><p id="gmDetailSubtitle">Style material readiness</p></div>
+      <button class="gm-detail-close" type="button" id="gmDetailClose">✕ Close</button>
+    </div>
+    <div class="gm-detail-grid" id="gmDetailGrid"></div>
+    <div class="gm-detail-foot">This panel shows the complete in-house follow-up for this saved Work Order style. Removing a style only hides it from Materials Tracking; it does not delete the style or Work Order itself.</div>
+  </div>
+</div>
+
 <script id="ishruq-materials-module-js">
 (function(){
   const module=document.getElementById('gosMaterialsModule');
@@ -3607,6 +3619,9 @@ function renderAestheticDashboard(){
   const styleEl=document.getElementById('gmStyle');
   const searchEl=document.getElementById('gmSearch');
   let orders=[], records=[];
+  const hiddenKey='ishruq_material_hidden_styles_v1';
+  const hiddenStyles=()=>{try{return new Set(JSON.parse(localStorage.getItem(hiddenKey)||'[]'))}catch(e){return new Set()}};
+  const saveHidden=set=>localStorage.setItem(hiddenKey,JSON.stringify([...set]));
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const fmtDate=v=>{if(!v)return '—'; const d=new Date(v+'T00:00:00'); return isNaN(d)?v:d.toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'});};
   const today=()=>new Date().toISOString().slice(0,10);
@@ -3645,8 +3660,8 @@ function renderAestheticDashboard(){
     return null;
   }
   function styleRows(){
-    const out=[];
-    orders.forEach(o=>stylesOf(o).forEach(st=>out.push({order:o,style:st,ref:refFor(o.key,st.index)})));
+    const out=[]; const hidden=hiddenStyles();
+    orders.forEach(o=>stylesOf(o).forEach(st=>{const ref=refFor(o.key,st.index); if(!hidden.has(ref)) out.push({order:o,style:st,ref})}));
     return out;
   }
   function render(){
@@ -3685,12 +3700,41 @@ function renderAestheticDashboard(){
         <td class="gm-date">${fmtDate(r.accessoriesDate)}</td>
         <td>${status(r.accessoriesDate,r.accessoriesReceived)}</td>
         <td><span class="gm-status ${overall}">● ${label}</span></td>
-        <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${ref}">Edit</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${ref}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${ref}">Accessories ✓</button>`:''}</div></td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${ref}">Edit</button><button class="gm-mini inhouse" data-inhouse="${ref}">All In-house</button><button class="gm-mini danger" data-remove="${ref}">Remove</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${ref}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${ref}">Accessories ✓</button>`:''}</div></td>
       </tr>`;
     }).join('');
     rowsEl.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openForm(b.dataset.edit)));
     rowsEl.querySelectorAll('[data-recv]').forEach(b=>b.addEventListener('click',()=>markReceived(b.dataset.key,b.dataset.recv)));
+    rowsEl.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>removeStyle(b.dataset.remove)));
+    rowsEl.querySelectorAll('[data-inhouse]').forEach(b=>b.addEventListener('click',()=>showAllInhouse(b.dataset.inhouse)));
   }
+  function removeStyle(ref){
+    const parsed=parseRef(ref); const o=orders.find(x=>String(x.key)===String(parsed.woKey));
+    const st=o?stylesOf(o)[parsed.idx]:null;
+    if(!st)return;
+    if(!confirm(`Remove ${st.style} from Materials Tracking?\n\nThis will NOT delete the style or Work Order. It will only hide this style from this module.`))return;
+    const hidden=hiddenStyles(); hidden.add(ref); saveHidden(hidden); render();
+    if(window.showToast)showToast(`${st.style} removed from Materials Tracking.`,false);
+  }
+  function showAllInhouse(ref){
+    const parsed=parseRef(ref), o=orders.find(x=>String(x.key)===String(parsed.woKey));
+    if(!o)return; const st=stylesOf(o)[parsed.idx]; if(!st)return; const r=recFor(o,parsed.idx)||{};
+    const overall=r.fabricReceived&&r.accessoriesReceived?'Fully Received':((r.fabricDate||r.accessoriesDate)?'In-house Plan Set':'Not Set');
+    document.getElementById('gmDetailTitle').textContent=`All In-house — ${st.style}`;
+    document.getElementById('gmDetailSubtitle').textContent=`WO ${o.woNumber||o.key} · ${o.supplierCompany||o.company||'Supplier not set'} · ${st.item||'Item not set'}`;
+    document.getElementById('gmDetailGrid').innerHTML=`
+      <div class="gm-detail-box"><div class="k">Work Order</div><div class="v">${esc(o.woNumber||o.key)}</div></div>
+      <div class="gm-detail-box"><div class="k">Style</div><div class="v">${esc(st.style)}</div></div>
+      <div class="gm-detail-box"><div class="k">Order Quantity</div><div class="v">${st.qty?st.qty.toLocaleString()+' pcs':'—'}</div></div>
+      <div class="gm-detail-box"><div class="k">Overall</div><div class="v">${esc(overall)}</div></div>
+      <div class="gm-detail-box"><div class="k">Fabric In-house Date</div><div class="v">${esc(fmtDate(r.fabricDate))}</div></div>
+      <div class="gm-detail-box"><div class="k">Fabric Status</div><div class="v">${r.fabricReceived?'✓ Received':'Not Received'}</div></div>
+      <div class="gm-detail-box"><div class="k">Accessories In-house Date</div><div class="v">${esc(fmtDate(r.accessoriesDate))}</div></div>
+      <div class="gm-detail-box"><div class="k">Accessories Status</div><div class="v">${r.accessoriesReceived?'✓ Received':'Not Received'}</div></div>`;
+    const modal=document.getElementById('gmDetailModal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+  }
+  function closeDetail(){const modal=document.getElementById('gmDetailModal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');}
+
   function populateWorkOrders(selectedKey){
     woEl.innerHTML=orders.map(o=>`<option value="${esc(o.key)}">${esc(o.woNumber||o.key)} — ${esc(o.supplierCompany||o.company||'')}</option>`).join('');
     if(selectedKey) woEl.value=selectedKey;
@@ -3761,6 +3805,9 @@ function renderAestheticDashboard(){
     document.getElementById('gmAccDate').value=r.accessoriesDate||'';
   });
   searchEl.addEventListener('input',render);
+  document.getElementById('gmDetailClose').addEventListener('click',closeDetail);
+  document.getElementById('gmDetailModal').addEventListener('click',e=>{if(e.target.id==='gmDetailModal')closeDetail();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
   window.garmentosMaterials={open:function(){module.classList.add('open');load();},hide:function(){module.classList.remove('open');closeForm();},close:closeForm,refresh:load};
 })();
 </script>
