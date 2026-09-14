@@ -4336,4 +4336,185 @@ body:not(.document-mode) #documentView{
 }
 </style>
 
+
+<style id="sara-document-view-final-fix">
+/* =========================================================
+   FINAL MICRO-BUG FIXES — DOCUMENT VIEW
+   The OS sidebar was still visible in document mode, so it
+   covered the first toolbar control (BACK). Keep the viewer
+   completely independent from the front-page shell.
+   ========================================================= */
+body.document-mode{
+  margin:0!important;
+  padding:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  overflow:hidden!important;
+  background:#07101f!important;
+}
+
+/* Never show the OS shell while a work order is open. */
+body.document-mode .sara-gos-sidebar,
+body.document-mode .sara-sidebar,
+body.document-mode .topbar{
+  display:none!important;
+}
+
+/* Full-screen work-order viewer. */
+body.document-mode #documentView{
+  display:block!important;
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-sizing:border-box!important;
+  overflow:auto!important;
+  z-index:2147483000!important;
+  background:
+    radial-gradient(circle at 50% -12%,rgba(20,184,166,.13),transparent 34%),
+    linear-gradient(145deg,#06101f 0%,#091629 52%,#102039 100%)!important;
+}
+
+/* Back is always the first, visible navigation action. */
+body.document-mode #documentView .document-toolbar{
+  position:sticky!important;
+  top:0!important;
+  left:0!important;
+  width:100%!important;
+  min-height:70px!important;
+  padding:11px 18px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  z-index:2147483001!important;
+  background:rgba(5,14,28,.98)!important;
+  border-bottom:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 8px 25px rgba(0,0,0,.30)!important;
+}
+
+body.document-mode #docBack{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  flex:0 0 auto!important;
+  order:-1!important;
+  min-width:205px!important;
+  min-height:48px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 20px!important;
+  border-radius:12px!important;
+  color:#fff!important;
+  background:linear-gradient(135deg,#0f766e,#14b8a6 58%,#0ea5e9)!important;
+  border:1px solid rgba(255,255,255,.30)!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  box-shadow:0 4px 0 #075e57,0 10px 24px rgba(20,184,166,.30),inset 0 1px rgba(255,255,255,.50)!important;
+  z-index:2147483002!important;
+}
+
+body.document-mode #docBack:hover{
+  transform:translateY(-2px)!important;
+  filter:brightness(1.08)!important;
+}
+
+body.document-mode #docExcel,
+body.document-mode #docPdf,
+body.document-mode #docPrint{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+  min-height:46px!important;
+  padding:0 16px!important;
+  border-radius:11px!important;
+  white-space:nowrap!important;
+  font-weight:800!important;
+}
+
+body.document-mode #documentView .document-paper-wrap{
+  width:100%!important;
+  min-height:calc(100vh - 70px)!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+  padding:24px 24px 48px!important;
+  overflow:visible!important;
+}
+
+body.document-mode #documentPaper{
+  position:relative!important;
+  z-index:1!important;
+  margin:0 auto!important;
+  transform:none!important;
+}
+
+/* Escape key remains a second safe way back. */
+body.document-mode #docBack:focus{
+  outline:3px solid rgba(94,234,212,.45)!important;
+  outline-offset:2px!important;
+}
+
+@media(max-width:800px){
+  body.document-mode #documentView .document-toolbar{
+    min-height:62px!important;
+    padding:8px 10px!important;
+    gap:7px!important;
+  }
+  body.document-mode #docBack{
+    min-width:180px!important;
+    min-height:44px!important;
+    padding:0 14px!important;
+    font-size:13px!important;
+  }
+  body.document-mode #docExcel,
+  body.document-mode #docPdf,
+  body.document-mode #docPrint{
+    min-height:42px!important;
+    padding:0 11px!important;
+    font-size:11px!important;
+  }
+  body.document-mode #documentView .document-paper-wrap{
+    justify-content:flex-start!important;
+    padding:14px 8px 30px!important;
+  }
+}
+
+@media print{
+  body.document-mode .sara-gos-sidebar,
+  body.document-mode .topbar,
+  body.document-mode #documentView .document-toolbar{
+    display:none!important;
+  }
+  body.document-mode #documentView{
+    position:absolute!important;
+    inset:0!important;
+    width:210mm!important;
+    height:297mm!important;
+    background:#fff!important;
+    overflow:hidden!important;
+  }
+  body.document-mode #documentView .document-paper-wrap{
+    min-height:297mm!important;
+    padding:0!important;
+  }
+}
+</style>
+
 </html>
