@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sub-Con Work Order SaRa</title>
+<title>Ishruq Garments OS — Work Order Management</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -1661,44 +1661,58 @@ body:not(.document-mode) .topbar-actions #userBadge{
   body:not(.document-mode) .topbar-actions{margin-top:0 !important}
 }
 </style>
+
+<style id="garmentos-workorder-integration">
+:root{--gos-navy:#081525;--gos-navy2:#10243a;--gos-teal:#0f766e;--gos-mint:#14b8a6;--gos-sky:#0ea5e9;--gos-bg:#eef4f5;--gos-line:#dbe5e8;--gos-text:#152235;--gos-muted:#64748b}
+body{background:radial-gradient(circle at 10% 0%,rgba(20,184,166,.10),transparent 25%),linear-gradient(145deg,#f7fafb,#eaf1f3)!important;padding-top:0!important;padding-left:255px!important;min-height:100vh}
+.sara-gos-sidebar{position:fixed;left:0;top:0;bottom:0;width:255px;z-index:100000;padding:20px 14px;background:linear-gradient(180deg,var(--gos-navy),#0d2034);color:#dbeafe;display:flex;flex-direction:column;box-shadow:10px 0 30px rgba(8,21,37,.16)}
+.gos-logo{display:flex;align-items:center;gap:11px;padding:0 10px 22px}.gos-logo-mark{width:43px;height:43px;border-radius:14px;background:linear-gradient(145deg,var(--gos-teal),var(--gos-mint),var(--gos-sky));display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px;box-shadow:0 9px 22px rgba(20,184,166,.25)}.gos-logo strong{display:block;color:#fff;font-size:15px}.gos-logo span{display:block;font-size:10px;color:#8fa5bb;margin-top:2px}
+.gos-nav-label{font-size:9px;letter-spacing:.14em;color:#7890a8;padding:10px 11px 6px}.gos-nav{display:flex;flex-direction:column}.gos-nav button{width:100%;border:0!important;background:transparent!important;color:#b9c9d8!important;text-align:left;padding:10px 12px!important;border-radius:10px!important;margin:2px 0!important;font-weight:600!important;display:flex;align-items:center;gap:11px;box-shadow:none!important}.gos-nav button:hover,.gos-nav button.active{background:linear-gradient(135deg,#0f766e,#129c8f)!important;color:#fff!important;box-shadow:0 7px 18px rgba(15,118,110,.20)!important}.gos-nav button span{width:24px;text-align:center;font-size:15px}.gos-nav button b{font-size:11px}.gos-side-spacer{flex:1}.gos-admin-card{border-top:1px solid rgba(255,255,255,.08);padding:12px 10px 8px}.gos-admin-title{font-size:8px;letter-spacing:.13em;color:#7890a8;margin-bottom:6px}.gos-admin-card button{width:100%;border:0;background:rgba(255,255,255,.06);color:#dbeafe;border-radius:9px;padding:9px;text-align:left;font-size:10px;font-weight:700}.gos-admin-card button:hover{background:rgba(20,184,166,.20)}.gos-side-footer{padding:12px 10px 2px;font-size:10px;line-height:1.5;color:#8fa5bb}.gos-side-footer span{color:#617990}
+.topbar{position:sticky!important;top:0!important;z-index:99990!important;margin:0!important;width:100%!important;height:72px!important;padding:0 25px!important;background:rgba(255,255,255,.92)!important;color:var(--gos-text)!important;border-bottom:1px solid var(--gos-line)!important;box-shadow:0 8px 24px rgba(8,21,37,.08)!important;backdrop-filter:blur(10px)!important}.topbar .brand h1{font-family:IBM Plex Sans,sans-serif!important;color:var(--gos-text)!important;font-size:18px!important}.topbar .brand .sub{color:var(--gos-muted)!important}.topbar .brand .mark{width:38px!important;height:38px!important;border-radius:12px!important;background:linear-gradient(145deg,var(--gos-teal),var(--gos-mint),var(--gos-sky))!important;box-shadow:0 7px 18px rgba(20,184,166,.22)!important}.topbar-actions{gap:7px!important}.topbar-actions button{border:1px solid var(--gos-line)!important;background:#fff!important;color:#334155!important;border-radius:9px!important;padding:8px 11px!important;box-shadow:0 4px 12px rgba(8,21,37,.05)!important}.topbar-actions button.primary{background:linear-gradient(135deg,var(--gos-teal),var(--gos-mint))!important;border-color:var(--gos-teal)!important;color:#fff!important}.topbar-actions button:hover{transform:translateY(-1px)!important;background:#f7fbfb!important;color:#152235!important}.topbar-actions button.primary:hover{color:#fff!important;background:linear-gradient(135deg,#0b625b,#10a892)!important}.topbar #accessStatus{background:#e7f7f4!important;color:#0f766e!important;border:1px solid #bde6df!important}.topbar #userBadge{background:#f4f8f9!important;color:#526575!important}
+.layout{padding:20px 26px 40px!important;max-width:none!important;margin:0!important}.sara-dashboard{margin:22px 26px 0!important;max-width:none!important}.sara-dashboard-head{background:linear-gradient(135deg,#0a1828,#12324a 55%,#0f766e)!important;border-radius:18px!important;color:#fff!important;box-shadow:0 14px 35px rgba(8,21,37,.13)!important}.sara-metric,.sara-action-card,.panel{box-shadow:0 9px 24px rgba(8,21,37,.07)!important}.panel{border-radius:16px!important}.panel:hover{transform:translateY(-2px)!important}.sara-section-anchor{scroll-margin-top:85px}
+body.sara-overview-mode #createWorkOrderSection{display:none!important}body.sara-create-mode #saraDashboard,body.sara-past-mode #saraDashboard,body.sara-followups-mode #saraDashboard{display:none!important}
+#documentView{left:255px!important;top:72px!important;z-index:99980!important;border-radius:0!important}
+@media(max-width:760px){body{padding-left:0!important}.sara-gos-sidebar{transform:translateX(-100%);transition:.2s}.sara-gos-sidebar.open{transform:translateX(0)}.topbar{height:auto!important;min-height:76px!important;padding:10px 12px!important}.topbar-actions{width:100%!important}.layout{padding:15px!important}.sara-dashboard{margin:15px 15px 0!important}#documentView{left:0!important;top:76px!important}.gos-nav button{padding:11px 12px!important}}
+</style>
 </head>
 <body>
 
-<aside class="sara-sidebar" aria-label="SaRa navigation">
-  <div class="sara-side-brand">
-    <div class="sara-side-brand-row">
-      <div class="sara-side-logo">S</div>
-      <div class="sara-side-brand-text">
-        <div class="sara-side-title">Sub-Con Work Order SaRa</div>
-        <div class="sara-side-sub">Work order management</div>
-      </div>
-    </div>
-    <div class="sara-side-accent-underline"></div>
+<aside class="sara-gos-sidebar" aria-label="Ishruq Garments OS navigation">
+  <div class="gos-logo">
+    <div class="gos-logo-mark">S</div>
+    <div><strong>Ishruq Garments OS</strong><span>Operations Platform</span></div>
   </div>
-  <nav class="sara-side-nav">
-    <button type="button" class="active" data-side-target="saraDashboard" data-sara-view="overview">
-      <span class="side-ico">⌂</span><span>Overview</span><span class="side-arrow">›</span>
-    </button>
-    <button type="button" class="sara-admin-side" id="sideAdministration" data-sara-view="administration" style="display:none">
-      <span class="side-ico">⚙</span><span>Administration</span><span class="side-arrow">›</span>
-    </button>
-    <button type="button" class="sara-side-secondary" data-sara-view="create">
-      <span class="side-ico">＋</span><span>Create Work Order</span><span class="side-arrow">›</span>
-    </button>
-    <button type="button" class="sara-side-secondary" data-sara-view="past">
-      <span class="side-ico">⌕</span><span>Past Work Order</span><span class="side-arrow">›</span>
-    </button>
+  <div class="gos-nav-label">CORE OPERATIONS</div>
+  <nav class="gos-nav">
+    <button type="button" class="active" data-gos-action="overview"><span>⌂</span><b>Overview</b></button>
+    <button type="button" data-gos-action="workorders"><span>▣</span><b>Work Orders</b></button>
+    <button type="button" data-gos-action="suppliers"><span>🏭</span><b>Supplier Database</b></button>
+    <button type="button" data-gos-action="materials"><span>▦</span><b>Materials Tracking</b></button>
+    <button type="button" data-gos-action="production"><span>⚙</span><b>Production Tracking</b></button>
+    <button type="button" data-gos-action="qc"><span>✓</span><b>QC / QA</b></button>
   </nav>
-  <div class="sara-side-footer">Use the menu to move between your work-order sections.</div>
+  <div class="gos-nav-label">PLANNING &amp; MANAGEMENT</div>
+  <nav class="gos-nav">
+    <button type="button" data-gos-action="costing"><span>৳</span><b>Costing</b></button>
+    <button type="button" data-gos-action="samples"><span>✦</span><b>Samples</b></button>
+    <button type="button" data-gos-action="shipment"><span>↗</span><b>Shipment</b></button>
+    <button type="button" data-gos-action="reports"><span>▥</span><b>Reports</b></button>
+    <button type="button" data-gos-action="ai"><span>✧</span><b>AI Assistant</b></button>
+  </nav>
+  <div class="gos-side-spacer"></div>
+  <div class="gos-admin-card" id="gosAdminCard" style="display:none">
+    <div class="gos-admin-title">ADMINISTRATION</div>
+    <button type="button" id="gosAdminBtn"><span>⚙</span> User Management</button>
+  </div>
+  <div class="gos-side-footer">Ishruq Lifestyle<br><span>Garment Operations System</span></div>
 </aside>
-
 
 <div class="topbar">
   <div class="brand">
     <span class="mark"></span>
     <div>
-      <h1>Sub-Con Work Order SaRa</h1>
-      <div class="sub">Draft, save, view, and export work orders</div>
+      <h1>Work Order Management</h1>
+      <div class="sub">Create, track, save and export FOB work orders</div>
       <div class="live-clock" id="liveClock">Loading date &amp; time…</div>
     </div>
   </div>
@@ -3414,6 +3428,34 @@ function renderAestheticDashboard(){
 })();
 </script>
 
+
+<script id="garmentos-workorder-navigation">
+(function(){
+  const map={
+    overview:()=>{window.saraSetView&&window.saraSetView('overview')},
+    workorders:()=>{window.saraSetView&&window.saraSetView('overview');setTimeout(()=>window.scrollTo({top:document.getElementById('saraDashboard')?.offsetTop||0,behavior:'auto'}),0)},
+    create:()=>{window.saraSetView&&window.saraSetView('create')},
+    past:()=>{window.saraSetView&&window.saraSetView('past')},
+    administration:()=>window.openAdmin&&window.openAdmin()
+  };
+  document.querySelectorAll('[data-gos-action]').forEach(btn=>btn.addEventListener('click',()=>{
+    const action=btn.dataset.gosAction;
+    document.querySelectorAll('.gos-nav button').forEach(b=>b.classList.toggle('active',b===btn));
+    if(map[action]) map[action]();
+    else {
+      const labels={suppliers:'Supplier Database',materials:'Materials Tracking',production:'Production Tracking',qc:'QC / QA',costing:'Costing',samples:'Samples',shipment:'Shipment',reports:'Reports',ai:'AI Assistant'};
+      if(labels[action]&&window.showToast) showToast(labels[action]+' module is connected to the GarmentOS shell and will be enabled in the next module phase.');
+    }
+  }));
+  const adminBtn=document.getElementById('gosAdminBtn');
+  if(adminBtn) adminBtn.addEventListener('click',()=>window.openAdmin&&window.openAdmin());
+  const adminCard=document.getElementById('gosAdminCard');
+  const originalSetControlState=window.setControlState;
+  if(typeof originalSetControlState==='function'){
+    window.setControlState=function(){originalSetControlState.apply(this,arguments);if(adminCard) adminCard.style.display=(typeof isAdmin==='function'&&isAdmin())?'block':'none';};
+  }
+})();
+</script>
 </body>
 
 <style id="sara-eye-catching-terms">
@@ -3773,4 +3815,9 @@ button.primary{background:#0f766e !important;border-color:#08574f !important;}
 button.primary:hover{background:#08574f !important;}
 </style>
 
+
+<style id="garmentos-final-overrides">
+body.sara-locked .sara-gos-sidebar{filter:saturate(.85)}
+@media print{body{padding-left:0!important}.sara-gos-sidebar,.topbar{display:none!important}.layout{padding:0!important}.sara-dashboard{display:none!important}#documentView{left:0!important;top:0!important}}
+</style>
 </html>
