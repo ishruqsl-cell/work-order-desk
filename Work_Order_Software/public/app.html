@@ -4087,4 +4087,253 @@ body.sara-locked .sara-gos-sidebar{filter:saturate(.85)}
 body:not(.document-mode) .topbar .brand{padding-left:4px!important}
 body:not(.document-mode) .topbar .brand .mark{flex:0 0 40px!important}
 </style>
+
+<style id="ishruq-layout-bugfix-v3">
+/* ==========================================================
+   Ishruq Garments OS — FINAL SHELL / AESTHETIC BUG FIX
+   Fixes the late CSS override that made the topbar span behind
+   the sidebar and caused controls/content to be obscured.
+   ========================================================== */
+:root{
+  --gos-shell-final:260px;
+  --gos-header-final:78px;
+}
+
+html,body{
+  width:100%;
+  min-width:0;
+  overflow-x:hidden!important;
+}
+
+/* Desktop: reserve real space for the OS sidebar. */
+body:not(.document-mode){
+  margin:0!important;
+  padding:var(--gos-header-final) 0 36px var(--gos-shell-final)!important;
+  background:
+    radial-gradient(circle at 8% 4%,rgba(20,184,166,.10),transparent 28%),
+    linear-gradient(145deg,#f3f8f7 0%,#f8fbfb 52%,#edf4f3 100%)!important;
+  color:#102a43!important;
+  box-sizing:border-box!important;
+}
+
+/* Sidebar is a true fixed navigation rail, never covering workspace content. */
+body:not(.document-mode) .sara-gos-sidebar{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:var(--gos-shell-final)!important;
+  height:100vh!important;
+  margin:0!important;
+  z-index:100000!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+  border-right:1px solid rgba(255,255,255,.10)!important;
+  background:linear-gradient(180deg,#071a2a 0%,#0a2233 55%,#0b2938 100%)!important;
+  box-shadow:10px 0 28px rgba(3,18,30,.16)!important;
+}
+
+/* Header occupies only the workspace to the right of the sidebar. */
+body:not(.document-mode) .topbar{
+  position:fixed!important;
+  left:var(--gos-shell-final)!important;
+  right:0!important;
+  top:0!important;
+  width:auto!important;
+  height:var(--gos-header-final)!important;
+  min-height:var(--gos-header-final)!important;
+  margin:0!important;
+  padding:0 20px!important;
+  box-sizing:border-box!important;
+  z-index:99999!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+  background:linear-gradient(135deg,#16302c 0%,#1c3d37 52%,#0f766e 100%)!important;
+  border-bottom:2px solid #14b8a6!important;
+  box-shadow:0 8px 22px rgba(6,42,43,.18)!important;
+}
+
+body:not(.document-mode) .topbar::after{
+  height:2px!important;
+  bottom:-1px!important;
+  background:linear-gradient(90deg,transparent,#14b8a6,#5eead4,#14b8a6,transparent)!important;
+  opacity:1!important;
+}
+
+/* Header brand stays in normal flex flow — never overlays controls. */
+body:not(.document-mode) .topbar .brand{
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:11px!important;
+  flex:1 1 auto!important;
+  min-width:240px!important;
+  max-width:430px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  z-index:1!important;
+}
+body:not(.document-mode) .topbar .brand .mark{
+  width:42px!important;
+  height:42px!important;
+  flex:0 0 42px!important;
+  border-radius:12px!important;
+}
+body:not(.document-mode) .topbar .brand h1{
+  margin:0!important;
+  color:#fff!important;
+  font-size:18px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+body:not(.document-mode) .topbar .brand .sub{
+  margin-top:3px!important;
+  color:#bfe6df!important;
+  font-size:10px!important;
+  white-space:nowrap!important;
+}
+body:not(.document-mode) .topbar .live-clock{display:none!important}
+
+/* Controls remain visible and scroll horizontally only if the viewport is genuinely narrow. */
+body:not(.document-mode) .topbar-actions{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  flex:0 1 auto!important;
+  min-width:0!important;
+  max-width:calc(100% - 430px)!important;
+  margin:0!important;
+  padding:2px 0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+  z-index:2!important;
+}
+body:not(.document-mode) .topbar-actions::-webkit-scrollbar{display:none!important}
+body:not(.document-mode) .topbar-actions button,
+body:not(.document-mode) .topbar-actions #accessStatus,
+body:not(.document-mode) .topbar-actions #userBadge{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+body:not(.document-mode) .topbar-actions button{
+  height:38px!important;
+  padding:0 12px!important;
+  border-radius:9px!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+}
+body:not(.document-mode) .topbar-actions #accessStatus,
+body:not(.document-mode) .topbar-actions #userBadge{
+  padding:7px 10px!important;
+  font-size:10px!important;
+}
+
+/* Main dashboard/workspace uses every pixel available beside the sidebar. */
+body:not(.document-mode) .sara-dashboard,
+body:not(.document-mode) .layout,
+body:not(.document-mode) #createWorkOrderSection{
+  width:auto!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+body:not(.document-mode) .sara-dashboard{
+  margin:20px 18px 0!important;
+}
+body:not(.document-mode) .layout{
+  margin:0!important;
+  padding:18px 18px 36px!important;
+}
+
+/* Make the overview easier to scan. */
+body:not(.document-mode) .sara-dashboard-head{
+  min-height:82px!important;
+  padding:18px 20px!important;
+  border-radius:15px!important;
+}
+body:not(.document-mode) .sara-dashboard-head h2{
+  font-size:21px!important;
+  line-height:1.2!important;
+}
+body:not(.document-mode) .sara-dashboard-head p{
+  font-size:10.5px!important;
+}
+body:not(.document-mode) .sara-metrics{
+  gap:12px!important;
+  margin-top:12px!important;
+}
+body:not(.document-mode) .sara-metric{
+  min-width:0!important;
+  padding:15px 16px!important;
+}
+body:not(.document-mode) .ishruq-dashboard-orders{
+  margin-top:14px!important;
+}
+
+/* The document viewer follows the same workspace boundary. */
+body:not(.document-mode) #documentView{
+  left:var(--gos-shell-final)!important;
+  top:var(--gos-header-final)!important;
+}
+
+/* Tablet: reduce rail and compact controls before switching to mobile. */
+@media(max-width:1200px){
+  :root{--gos-shell-final:230px}
+  body:not(.document-mode) .topbar{padding:0 14px!important}
+  body:not(.document-mode) .topbar .brand{max-width:330px;min-width:190px}
+  body:not(.document-mode) .topbar-actions{max-width:calc(100% - 330px)!important}
+  body:not(.document-mode) .topbar-actions button{padding:0 9px!important;font-size:10px!important}
+}
+
+/* Mobile: sidebar becomes a drawer and the header gets the full width. */
+@media(max-width:800px){
+  :root{--gos-shell-final:0px;--gos-header-final:76px}
+  body:not(.document-mode){padding:var(--gos-header-final) 0 20px 0!important}
+  body:not(.document-mode) .sara-gos-sidebar{
+    width:255px!important;
+    transform:translateX(-100%)!important;
+    transition:transform .2s ease!important;
+  }
+  body:not(.document-mode) .sara-gos-sidebar.open{transform:translateX(0)!important}
+  body:not(.document-mode) .topbar{
+    left:0!important;
+    width:100%!important;
+    height:var(--gos-header-final)!important;
+    min-height:var(--gos-header-final)!important;
+    padding:0 12px!important;
+  }
+  body:not(.document-mode) .topbar .brand{min-width:0;max-width:45%}
+  body:not(.document-mode) .topbar .brand h1{font-size:15px!important}
+  body:not(.document-mode) .topbar .brand .sub{display:none!important}
+  body:not(.document-mode) .topbar-actions{max-width:55%!important;gap:5px!important}
+  body:not(.document-mode) .topbar-actions button{height:34px!important;padding:0 8px!important;font-size:9px!important}
+  body:not(.document-mode) .sara-dashboard{margin:12px 10px 0!important}
+  body:not(.document-mode) .layout{padding:12px 10px 24px!important}
+  body:not(.document-mode) #documentView{left:0!important;top:76px!important}
+}
+
+@media print{
+  body:not(.document-mode){padding:0!important}
+  body:not(.document-mode) .topbar,
+  body:not(.document-mode) .sara-gos-sidebar{display:none!important}
+}
+</style>
+
 </html>
