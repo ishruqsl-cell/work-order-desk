@@ -1574,12 +1574,13 @@ body.document-mode .sara-sidebar{display:none!important}
 
 /* ===== Section navigation: Overview is the landing page ===== */
 body.sara-overview-mode .layout{display:none !important}
+/* Work Orders overview keeps the full creation/action toolbar available. */
 body.sara-overview-mode .topbar-actions #btnNew,
 body.sara-overview-mode .topbar-actions #btnSave,
 body.sara-overview-mode .topbar-actions #btnViewSaved,
 body.sara-overview-mode .topbar-actions #btnDownload,
 body.sara-overview-mode .topbar-actions #btnDownloadPdf,
-body.sara-overview-mode .topbar-actions #btnPrint{display:none !important}
+body.sara-overview-mode .topbar-actions #btnPrint{display:inline-flex !important}
 body.sara-create-mode .sara-dashboard{display:none !important}
 body.sara-past-mode .sara-dashboard{display:none !important}
 body.sara-past-mode .draft-column > .panel:not(#pastWorkOrderSection),
@@ -1612,7 +1613,7 @@ body.sara-inner-mode .sara-dashboard-actions{display:none}
 
 <style id="sara-dashboard-navigation-cleanup">
 /* Dashboard landing page: navigation lives in the sidebar only. */
-body.sara-overview-mode .sara-dashboard-actions{display:none !important;}
+body.sara-overview-mode .sara-dashboard-actions{display:grid !important;}
 /* Sidebar navigation remains visible on every view; each item opens its own section. */
 .sara-side-nav{gap:8px !important;}
 .sara-side-nav button.sara-side-secondary{display:flex !important;}
@@ -1819,6 +1820,24 @@ body:not(.document-mode) .sara-dashboard{margin-top:22px!important}
   body:not(.document-mode) .topbar .brand{height:48px!important}
   body:not(.document-mode) .topbar-actions{max-width:none!important;width:100%!important;margin-top:7px!important;overflow-x:auto!important;justify-content:flex-start!important}
 }
+</style>
+
+<style id="ishruq-final-layout-module-fix">
+/* Final workspace alignment: nothing from the Work Order header may sit under the OS sidebar. */
+:root{--gos-shell-w:252px;--gos-header-h:82px}
+body:not(.document-mode){padding-left:var(--gos-shell-w)!important;padding-top:var(--gos-header-h)!important;box-sizing:border-box!important}
+body:not(.document-mode) .sara-gos-sidebar{width:var(--gos-shell-w)!important;left:0!important;z-index:100000!important}
+body:not(.document-mode) .topbar{left:var(--gos-shell-w)!important;right:0!important;width:auto!important;z-index:100001!important;padding-left:22px!important;box-sizing:border-box!important}
+body:not(.document-mode) .topbar .brand{margin-left:4px!important;min-width:0!important;flex:1 1 auto!important}
+body:not(.document-mode) .topbar .brand h1{display:block!important;visibility:visible!important;position:static!important}
+body:not(.document-mode) .sara-dashboard,body:not(.document-mode) .layout,body:not(.document-mode) #followUpsSection{box-sizing:border-box!important}
+body:not(.document-mode) .sara-dashboard{margin-left:18px!important;margin-right:18px!important;width:auto!important;max-width:none!important}
+body:not(.document-mode) .layout{margin-left:18px!important;margin-right:18px!important;width:auto!important;max-width:none!important}
+#ishruqModuleWorkspace{display:none;position:fixed;left:var(--gos-shell-w);right:0;top:var(--gos-header-h);bottom:0;z-index:99970;background:linear-gradient(145deg,#f5fafb,#edf4f5);overflow:auto;padding:24px 26px 40px}
+#ishruqModuleWorkspace.open{display:block}
+.imw-shell{max-width:1500px;margin:0 auto}.imw-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}.imw-kicker{font-size:10px;font-weight:900;letter-spacing:.16em;color:#0f766e;text-transform:uppercase}.imw-head h2{margin:5px 0 0;color:#10243a;font-size:28px;line-height:1.1}.imw-head p{margin:7px 0 0;color:#64748b;font-size:12px}.imw-actions{display:flex;gap:8px}.imw-btn{border:1px solid #cddde1;background:#fff;color:#173047;border-radius:10px;padding:10px 14px;font-size:11px;font-weight:800;cursor:pointer}.imw-btn.primary{background:linear-gradient(135deg,#0f766e,#14b8a6);border-color:#0f766e;color:#fff}.imw-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}.imw-stat,.imw-card{background:rgba(255,255,255,.96);border:1px solid #d9e5e8;border-radius:16px;box-shadow:0 10px 28px rgba(8,21,37,.07)}.imw-stat{padding:15px 17px}.imw-stat .v{font-size:25px;font-weight:900;color:#10243a}.imw-stat .l{font-size:9px;color:#718096;text-transform:uppercase;letter-spacing:.09em;font-weight:800;margin-top:4px}.imw-card{overflow:hidden}.imw-card-head{padding:14px 17px;border-bottom:1px solid #e5ecef;display:flex;justify-content:space-between;align-items:center}.imw-card-head strong{font-size:13px;color:#173047}.imw-table{width:100%;border-collapse:collapse}.imw-table th{background:#f7fafb;color:#718096;font-size:9px;text-transform:uppercase;letter-spacing:.08em;text-align:left;padding:11px 14px}.imw-table td{padding:12px 14px;border-top:1px solid #edf2f4;font-size:11px;color:#334155}.imw-empty{padding:45px 20px;text-align:center;color:#718096;font-size:12px}.imw-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e6f8f4;color:#0f766e;font-size:9px;font-weight:900}.imw-note{margin-top:14px;padding:12px 14px;background:#f0f8fa;border:1px solid #d8eaee;border-radius:11px;color:#516575;font-size:11px}
+@media(max-width:900px){.imw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#ishruqModuleWorkspace{left:0;padding:18px}.imw-head{align-items:flex-start;flex-direction:column}}
+@media(max-width:760px){:root{--gos-shell-w:0px;--gos-header-h:76px}body:not(.document-mode){padding-left:0!important;padding-top:76px!important}.imw-grid{grid-template-columns:1fr}.imw-head h2{font-size:23px}}
 </style>
 </head>
 <body>
@@ -3577,33 +3596,59 @@ function renderAestheticDashboard(){
 
 <script id="garmentos-workorder-navigation">
 (function(){
-  const map={
-    overview:()=>{window.saraSetView&&window.saraSetView('overview')},
-    workorders:()=>{window.saraSetView&&window.saraSetView('overview');setTimeout(()=>window.scrollTo({top:document.getElementById('saraDashboard')?.offsetTop||0,behavior:'auto'}),0)},
-    create:()=>{window.saraSetView&&window.saraSetView('create')},
-    past:()=>{window.saraSetView&&window.saraSetView('past')},
-    administration:()=>window.openAdmin&&window.openAdmin()
-  };
-  document.querySelectorAll('[data-gos-action]').forEach(btn=>btn.addEventListener('click',()=>{
-    const action=btn.dataset.gosAction;
-    if(action!=='materials' && window.garmentosMaterials) window.garmentosMaterials.hide();
-    document.querySelectorAll('.gos-nav button').forEach(b=>b.classList.toggle('active',b===btn));
-    if(action==='materials' && window.garmentosMaterials){ window.garmentosMaterials.open(); return; }
-    if(map[action]) map[action]();
-    else {
-      const labels={suppliers:'Supplier Database',materials:'Materials Tracking',production:'Production Tracking',qc:'QC / QA',costing:'Costing',samples:'Samples',shipment:'Shipment',reports:'Reports',ai:'AI Assistant'};
-      if(labels[action]&&window.showToast) showToast(labels[action]+' module is connected to the GarmentOS shell and will be enabled in the next module phase.');
-    }
-  }));
-  const adminBtn=document.getElementById('gosAdminBtn');
-  if(adminBtn) adminBtn.addEventListener('click',()=>window.openAdmin&&window.openAdmin());
-  const adminCard=document.getElementById('gosAdminCard');
-  const originalSetControlState=window.setControlState;
-  if(typeof originalSetControlState==='function'){
-    window.setControlState=function(){originalSetControlState.apply(this,arguments);if(adminCard) adminCard.style.display=(typeof isAdmin==='function'&&isAdmin())?'block':'none';};
-  }
+ const modules={
+  suppliers:{title:'Supplier Database',desc:'Manage supplier and factory information used by your Work Orders.',kicker:'Core Operations',endpoint:'/api/suppliers',note:'Supplier records are loaded from the existing supplier database. Work Orders continue to use the existing supplier functionality.'},
+  production:{title:'Production Tracking',desc:'Track production progress against each Work Order.',kicker:'Core Operations',endpoint:'/api/modules/production',note:'Production tracking is connected to the existing module-record API. We will use Work Order quantities as the source for progress calculations.'},
+  qc:{title:'QC / QA',desc:'Record quality inspections and quality status for Work Orders.',kicker:'Core Operations',endpoint:'/api/modules/qc',note:'QC/QA records are maintained separately and can be linked to a Work Order.'},
+  costing:{title:'Costing',desc:'Track costing information associated with Work Orders.',kicker:'Planning & Management',endpoint:'/api/modules/costing',note:'Costing records are stored through the existing module-record API.'},
+  samples:{title:'Samples',desc:'Track sample development, submission and approval.',kicker:'Planning & Management',endpoint:'/api/modules/samples',note:'Sample records are stored through the existing module-record API.'},
+  shipment:{title:'Shipment',desc:'Track shipment status and dispatch information for Work Orders.',kicker:'Planning & Management',endpoint:'/api/modules/shipment',note:'Shipment records are stored through the existing module-record API.'},
+  reports:{title:'Reports',desc:'Review operational summaries generated from saved Work Order data.',kicker:'Insights',endpoint:'/api/reports',note:'Reports use live saved Work Order information. No separate duplicate data entry is required.'},
+  ai:{title:'AI Assistant',desc:'Ask questions about your garment operations and saved Work Orders.',kicker:'Insights',endpoint:null,note:'AI Assistant is connected to the application layer. Use it for operational questions once the relevant data is available.'}
+ };
+ const workspace=document.getElementById('ishruqModuleWorkspace');
+ const title=document.getElementById('imwTitle'),desc=document.getElementById('imwDesc'),kicker=document.getElementById('imwKicker'),table=document.getElementById('imwTable'),stats=document.getElementById('imwStats'),note=document.getElementById('imwNote'),live=document.getElementById('imwLive');
+ let current='';
+ function hideAll(){if(window.garmentosMaterials) window.garmentosMaterials.hide(); workspace.classList.remove('open');}
+ function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+ function rowsFrom(data){if(Array.isArray(data)) return data; if(data&&Array.isArray(data.rows)) return data.rows; if(data&&Array.isArray(data.records)) return data.records; return [];}
+ async function openModule(action){
+  if(action==='materials' && window.garmentosMaterials){hideAll();window.garmentosMaterials.open();return;}
+  if(action==='overview'||action==='workorders'){hideAll();window.saraSetView&&window.saraSetView('overview');return;}
+  if(action==='create'){hideAll();window.saraSetView&&window.saraSetView('create');return;}
+  if(action==='past'){hideAll();window.saraSetView&&window.saraSetView('past');return;}
+  if(action==='administration'){hideAll();window.openAdmin&&window.openAdmin();return;}
+  const m=modules[action]; if(!m)return;
+  if(window.garmentosMaterials) window.garmentosMaterials.hide();
+  current=action; workspace.classList.add('open');
+  title.textContent=m.title;desc.textContent=m.desc;kicker.textContent=m.kicker;note.textContent=m.note;table.innerHTML='<div class="imw-empty">Loading live data…</div>';stats.innerHTML='';live.textContent='Live data';
+  document.querySelectorAll('.gos-nav button').forEach(b=>b.classList.toggle('active',b.dataset.gosAction===action));
+  if(action==='ai'){stats.innerHTML='<div class="imw-stat"><div class="v">AI</div><div class="l">Assistant</div></div><div class="imw-stat"><div class="v">Live</div><div class="l">Connected</div></div><div class="imw-stat"><div class="v">WO</div><div class="l">Context</div></div><div class="imw-stat"><div class="v">∞</div><div class="l">Questions</div></div>';table.innerHTML='<div class="imw-empty"><strong>AI Assistant</strong><br><br>Ask questions about Work Orders, suppliers, production, materials, QC, costing or shipment.</div>';return;}
+  try{
+   const r=await fetch(m.endpoint,{credentials:'include'}); if(!r.ok) throw new Error('Unable to load live data'); const data=await r.json(); const rows=rowsFrom(data); render(action,rows);
+  }catch(e){live.textContent='Connection check';table.innerHTML='<div class="imw-empty">No live records could be loaded right now.<br><br>'+esc(e.message)+'</div>';renderStats(action,[]);}
+ }
+ function renderStats(action,rows){stats.innerHTML='<div class="imw-stat"><div class="v">'+rows.length+'</div><div class="l">Records</div></div><div class="imw-stat"><div class="v">Live</div><div class="l">Database</div></div><div class="imw-stat"><div class="v">WO</div><div class="l">Connected</div></div><div class="imw-stat"><div class="v">✓</div><div class="l">Module Ready</div></div>';}
+ function render(action,rows){renderStats(action,rows);if(!rows.length){table.innerHTML='<div class="imw-empty">No records have been entered yet.</div>';return;} const sample=rows.slice(0,50); const keys=[...new Set(sample.flatMap(r=>Object.keys(r.data||r).slice(0,5)))].slice(0,5); let h='<table class="imw-table"><thead><tr>';keys.forEach(k=>h+='<th>'+esc(k.replace(/_/g,' '))+'</th>');h+='</tr></thead><tbody>';sample.forEach(r=>{const d=r.data||r;h+='<tr>';keys.forEach(k=>h+='<td>'+esc(typeof d[k]==='object'?JSON.stringify(d[k]):d[k])+'</td>');h+='</tr>';});h+='</tbody></table>';table.innerHTML=h;}
+ document.querySelectorAll('[data-gos-action]').forEach(btn=>btn.addEventListener('click',()=>openModule(btn.dataset.gosAction)));
+ document.getElementById('imwBack').addEventListener('click',()=>{hideAll();document.querySelectorAll('.gos-nav button').forEach(b=>b.classList.toggle('active',b.dataset.gosAction==='overview'));window.saraSetView&&window.saraSetView('overview');});
+ document.getElementById('imwRefresh').addEventListener('click',()=>current&&openModule(current));
 })();
 </script>
+
+
+<!-- Ishruq Garments OS: native module workspace -->
+<section id="ishruqModuleWorkspace" aria-live="polite">
+ <div class="imw-shell">
+  <div class="imw-head">
+   <div><div class="imw-kicker" id="imwKicker">Operations</div><h2 id="imwTitle">Module</h2><p id="imwDesc">Manage operational information connected to your Work Orders.</p></div>
+   <div class="imw-actions"><button class="imw-btn" id="imwBack">← Back to Overview</button><button class="imw-btn primary" id="imwRefresh">↻ Refresh</button></div>
+  </div>
+  <div class="imw-grid" id="imwStats"></div>
+  <div class="imw-card"><div class="imw-card-head"><strong id="imwTableTitle">Records</strong><span class="imw-badge" id="imwLive">Live data</span></div><div id="imwTable"></div></div>
+  <div class="imw-note" id="imwNote"></div>
+ </div>
+</section>
 
 <!-- Ishruq Garments OS: Materials Tracking module -->
 <style id="ishruq-materials-module-css">
@@ -4125,5 +4170,12 @@ button.primary:hover{background:#08574f !important;}
 <style id="garmentos-final-overrides">
 body.sara-locked .sara-gos-sidebar{filter:saturate(.85)}
 @media print{body{padding-left:0!important}.sara-gos-sidebar,.topbar{display:none!important}.layout{padding:0!important}.sara-dashboard{display:none!important}#documentView{left:0!important;top:0!important}}
+</style>
+
+<style id="ishruq-no-module-toast-fix">
+/* Module navigation uses full workspaces instead of blue toast messages. */
+#ishruqModuleWorkspace.open~#gosMaterialsModule{display:none!important}
+body:not(.document-mode) .topbar .brand{padding-left:4px!important}
+body:not(.document-mode) .topbar .brand .mark{flex:0 0 40px!important}
 </style>
 </html>
