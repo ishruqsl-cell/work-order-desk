@@ -30,6 +30,15 @@ const pool = new Pool({
   max: Number(process.env.DB_POOL_MAX || 10),
 });
 
+// Without this handler, a dropped/idle database connection (very common on
+// free-tier hosting, where the DB or this server can go to sleep) crashes
+// the entire Node process instead of just failing the one request that was
+// affected. This is what was causing random 500 errors across different
+// buttons/modules and the server needing to restart itself repeatedly.
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle database client:', err);
+});
+
 const now = () => new Date().toISOString();
 
 function text(value, max = 1000) {
