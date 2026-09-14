@@ -1674,12 +1674,158 @@ body.sara-overview-mode #createWorkOrderSection{display:none!important}body.sara
 #documentView{left:255px!important;top:72px!important;z-index:99980!important;border-radius:0!important}
 @media(max-width:760px){body{padding-left:0!important}.sara-gos-sidebar{transform:translateX(-100%);transition:.2s}.sara-gos-sidebar.open{transform:translateX(0)}.topbar{height:auto!important;min-height:76px!important;padding:10px 12px!important}.topbar-actions{width:100%!important}.layout{padding:15px!important}.sara-dashboard{margin:15px 15px 0!important}#documentView{left:0!important;top:76px!important}.gos-nav button{padding:11px 12px!important}}
 </style>
+
+<style id="ishruq-perfect-shell-fix">
+/* ===== Ishruq Garments OS — definitive shell alignment ===== */
+:root{--gos-shell-w:252px;--gos-header-h:76px}
+html,body{min-height:100%;overflow-x:hidden}
+body:not(.document-mode){
+  padding-left:var(--gos-shell-w)!important;
+  padding-top:var(--gos-header-h)!important;
+  background:linear-gradient(145deg,#eef5f3 0%,#f7faf9 48%,#edf4f2 100%)!important;
+}
+body:not(.document-mode) .sara-gos-sidebar{
+  position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:var(--gos-shell-w)!important;
+  height:100vh!important;padding:16px 14px 14px!important;z-index:100000!important;
+  background:linear-gradient(180deg,#071a2a 0%,#0a2233 48%,#0b2938 100%)!important;
+  border-right:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:12px 0 34px rgba(3,18,30,.20)!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+}
+.gos-logo{display:flex!important;align-items:center!important;gap:11px!important;padding:0 8px 17px!important;margin-bottom:10px!important;border-bottom:1px solid rgba(255,255,255,.09)!important}
+.gos-logo-mark{width:43px!important;height:43px!important;flex:0 0 43px!important;border-radius:13px!important;display:grid!important;place-items:center!important;font-size:20px!important;font-weight:900!important;color:#fff!important;background:linear-gradient(145deg,#14b8a6,#22d3ee)!important;box-shadow:0 9px 20px rgba(20,184,166,.28),inset 0 1px rgba(255,255,255,.38)!important}
+.gos-logo strong{display:block!important;color:#f4fbfa!important;font-size:14px!important;line-height:1.15!important;letter-spacing:-.02em!important;white-space:nowrap!important}
+.gos-logo span{display:block!important;margin-top:4px!important;color:#8ea9b8!important;font-size:9px!important;font-weight:600!important;letter-spacing:.02em!important}
+.gos-nav-label{padding:11px 10px 6px!important;color:#7894a5!important;font-size:9px!important;font-weight:800!important;letter-spacing:.14em!important}
+.gos-nav{gap:3px!important}
+.gos-nav button{height:40px!important;padding:0 10px!important;margin:1px 0!important;border:1px solid transparent!important;border-radius:11px!important;background:transparent!important;color:#b9cbd5!important;font-size:11.5px!important;font-weight:700!important;box-shadow:none!important;transition:.16s ease!important}
+.gos-nav button:hover{background:rgba(255,255,255,.07)!important;color:#fff!important;transform:translateX(2px)!important}
+.gos-nav button.active{background:linear-gradient(135deg,#0f766e,#14b8a6)!important;color:#fff!important;box-shadow:0 8px 20px rgba(20,184,166,.22)!important}
+.gos-nav button span{width:27px!important;height:27px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:rgba(255,255,255,.065)!important;color:#86a8b8!important;font-size:14px!important;flex:0 0 27px!important}
+.gos-nav button.active span{background:rgba(255,255,255,.17)!important;color:#fff!important}
+.gos-nav button b{font-size:11.5px!important;white-space:nowrap!important}
+.gos-side-spacer{min-height:18px!important;flex:1!important}
+.gos-admin-card{padding:12px 7px 9px!important;border-top:1px solid rgba(255,255,255,.09)!important}
+.gos-admin-title{font-size:8px!important;letter-spacing:.14em!important;color:#7894a5!important;margin-bottom:7px!important}
+.gos-admin-card button{height:38px!important;padding:0 10px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:10px!important;background:rgba(255,255,255,.055)!important;color:#d8e8ee!important;font-size:10.5px!important;font-weight:700!important}
+.gos-admin-card button:hover{background:rgba(20,184,166,.18)!important;color:#fff!important}
+.gos-side-footer{padding:10px 8px 2px!important;color:#87a1af!important;font-size:9px!important;line-height:1.45!important;border-top:0!important}
+.gos-side-footer span{color:#5f7c8c!important}
+body:not(.document-mode) .topbar{
+  position:fixed!important;left:var(--gos-shell-w)!important;right:0!important;top:0!important;width:auto!important;height:var(--gos-header-h)!important;min-height:var(--gos-header-h)!important;
+  margin:0!important;padding:0 18px!important;z-index:99990!important;display:flex!important;align-items:center!important;
+  background:linear-gradient(135deg,#123b35 0%,#185047 55%,#0f766e 100%)!important;
+  border-bottom:2px solid #14b8a6!important;box-shadow:0 10px 26px rgba(7,37,34,.22)!important;
+}
+body:not(.document-mode) .topbar .brand{position:static!important;transform:none!important;height:auto!important;display:flex!important;align-items:center!important;gap:11px!important;min-width:0!important}
+body:not(.document-mode) .topbar .brand .mark{width:40px!important;height:40px!important;flex:0 0 40px!important;border-radius:12px!important;background:linear-gradient(145deg,#14b8a6,#22d3ee)!important}
+body:not(.document-mode) .topbar .brand h1{font-size:17px!important;line-height:1.12!important;color:#fff!important;white-space:nowrap!important}
+body:not(.document-mode) .topbar .brand .sub{font-size:10px!important;color:#b5ddd6!important;white-space:nowrap!important}
+body:not(.document-mode) .topbar .live-clock{font-size:9.5px!important;color:#5eead4!important;white-space:nowrap!important}
+body:not(.document-mode) .topbar-actions{position:static!important;transform:none!important;margin-left:auto!important;display:flex!important;align-items:center!important;gap:7px!important;min-width:0!important;flex-wrap:nowrap!important}
+body:not(.document-mode) .topbar-actions button{min-height:38px!important;padding:0 12px!important;border-radius:11px!important;font-size:10.5px!important;white-space:nowrap!important}
+body:not(.document-mode) .topbar-actions #accessStatus{min-height:30px!important;font-size:10px!important}
+body:not(.document-mode) .topbar-actions #userBadge{font-size:10px!important;max-width:100px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+body:not(.document-mode) .sara-dashboard,body:not(.document-mode) .layout{margin-left:18px!important;margin-right:18px!important;max-width:none!important;width:auto!important}
+body:not(.document-mode) .sara-dashboard{margin-top:18px!important}
+@media(max-width:1050px){
+  :root{--gos-shell-w:220px}
+  body:not(.document-mode) .topbar-actions #btnDownload,body:not(.document-mode) .topbar-actions #btnDownloadPdf,body:not(.document-mode) .topbar-actions #btnPrint{display:none!important}
+}
+@media(max-width:760px){
+  :root{--gos-shell-w:0px;--gos-header-h:76px}
+  body:not(.document-mode){padding-left:0!important;padding-top:76px!important}
+  body:not(.document-mode) .sara-gos-sidebar{width:252px!important;transform:translateX(-100%);transition:transform .2s ease}
+  body:not(.document-mode) .sara-gos-sidebar.open{transform:translateX(0)}
+  body:not(.document-mode) .topbar{left:0!important;width:100%!important;padding:0 12px!important}
+  body:not(.document-mode) .topbar .brand .sub,body:not(.document-mode) .topbar .live-clock{display:none!important}
+  body:not(.document-mode) .topbar .brand h1{font-size:15px!important}
+  body:not(.document-mode) .topbar-actions{gap:5px!important;overflow-x:auto!important}
+  body:not(.document-mode) .topbar-actions button{padding:0 9px!important}
+}
+</style>
+
+<style id="ishruq-definitive-header-fix">
+/* Definitive shell/header fix: header occupies only the workspace to the right of the OS sidebar. */
+:root{--gos-shell-w:252px;--gos-header-h:82px}
+html,body{overflow-x:hidden!important}
+body:not(.document-mode){padding-left:var(--gos-shell-w)!important;padding-top:var(--gos-header-h)!important}
+body:not(.document-mode) .sara-gos-sidebar{left:0!important;top:0!important;bottom:0!important;width:var(--gos-shell-w)!important;height:100vh!important}
+body:not(.document-mode) .topbar{
+  position:fixed!important;
+  left:var(--gos-shell-w)!important;
+  right:0!important;
+  top:0!important;
+  width:auto!important;
+  height:var(--gos-header-h)!important;
+  min-height:var(--gos-header-h)!important;
+  margin:0!important;
+  padding:0 24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  flex-wrap:nowrap!important;
+  z-index:99999!important;
+  overflow:hidden!important;
+}
+body:not(.document-mode) .topbar .brand{
+  position:static!important;
+  left:auto!important;top:auto!important;transform:none!important;
+  display:flex!important;align-items:center!important;gap:12px!important;
+  min-width:0!important;flex:1 1 auto!important;
+  z-index:auto!important;
+}
+body:not(.document-mode) .topbar .brand>div{min-width:0!important}
+body:not(.document-mode) .topbar .brand h1{
+  white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;
+  font-size:19px!important;line-height:1.12!important;margin:0!important;
+}
+body:not(.document-mode) .topbar .brand .sub,
+body:not(.document-mode) .topbar .live-clock{white-space:nowrap!important}
+body:not(.document-mode) .topbar-actions{
+  position:static!important;right:auto!important;top:auto!important;transform:none!important;
+  flex:0 0 auto!important;display:flex!important;align-items:center!important;
+  justify-content:flex-end!important;gap:8px!important;margin:0!important;
+  max-width:58%!important;overflow-x:auto!important;overflow-y:hidden!important;
+  scrollbar-width:none!important;z-index:auto!important;
+}
+body:not(.document-mode) .topbar-actions::-webkit-scrollbar{display:none}
+body:not(.document-mode) .topbar-actions button,
+body:not(.document-mode) .topbar-actions #accessStatus,
+body:not(.document-mode) .topbar-actions #userBadge{flex:0 0 auto!important;white-space:nowrap!important}
+body:not(.document-mode) .layout,
+body:not(.document-mode) .sara-dashboard{margin-left:0!important;margin-right:0!important}
+body:not(.document-mode) .sara-dashboard{margin-top:22px!important}
+@media(max-width:1100px){
+  body:not(.document-mode) .topbar{padding:0 16px!important}
+  body:not(.document-mode) .topbar-actions{max-width:52%!important}
+  body:not(.document-mode) .topbar-actions #btnDownload,
+  body:not(.document-mode) .topbar-actions #btnDownloadPdf,
+  body:not(.document-mode) .topbar-actions #btnPrint{display:none!important}
+}
+@media(max-width:760px){
+  body:not(.document-mode){padding-left:0!important;padding-top:76px!important}
+  body:not(.document-mode) .sara-gos-sidebar{transform:translateX(-100%)!important}
+  body:not(.document-mode) .sara-gos-sidebar.open{transform:translateX(0)!important}
+  body:not(.document-mode) .topbar{left:0!important;height:76px!important;min-height:76px!important;padding:0 12px!important}
+  body:not(.document-mode) .topbar .brand h1{font-size:16px!important}
+  body:not(.document-mode) .topbar .brand .sub{font-size:9px!important}
+  body:not(.document-mode) .topbar-actions{max-width:45%!important}
+}
+@media(max-width:520px){
+  body:not(.document-mode){padding-top:110px!important}
+  body:not(.document-mode) .topbar{height:110px!important;min-height:110px!important;display:block!important;padding:10px!important;overflow:visible!important}
+  body:not(.document-mode) .topbar .brand{height:48px!important}
+  body:not(.document-mode) .topbar-actions{max-width:none!important;width:100%!important;margin-top:7px!important;overflow-x:auto!important;justify-content:flex-start!important}
+}
+</style>
 </head>
 <body>
 
 <aside class="sara-gos-sidebar" aria-label="Ishruq Garments OS navigation">
   <div class="gos-logo">
-    <div class="gos-logo-mark">S</div>
+    <div class="gos-logo-mark">I</div>
     <div><strong>Ishruq Garments OS</strong><span>Operations Platform</span></div>
   </div>
   <div class="gos-nav-label">CORE OPERATIONS</div>
@@ -3440,7 +3586,9 @@ function renderAestheticDashboard(){
   };
   document.querySelectorAll('[data-gos-action]').forEach(btn=>btn.addEventListener('click',()=>{
     const action=btn.dataset.gosAction;
+    if(action!=='materials' && window.garmentosMaterials) window.garmentosMaterials.hide();
     document.querySelectorAll('.gos-nav button').forEach(b=>b.classList.toggle('active',b===btn));
+    if(action==='materials' && window.garmentosMaterials){ window.garmentosMaterials.open(); return; }
     if(map[action]) map[action]();
     else {
       const labels={suppliers:'Supplier Database',materials:'Materials Tracking',production:'Production Tracking',qc:'QC / QA',costing:'Costing',samples:'Samples',shipment:'Shipment',reports:'Reports',ai:'AI Assistant'};
@@ -3456,6 +3604,164 @@ function renderAestheticDashboard(){
   }
 })();
 </script>
+
+<!-- Ishruq Garments OS: Materials Tracking module -->
+<style id="ishruq-materials-module-css">
+#gosMaterialsModule{display:none;position:fixed;inset:0 0 0 255px;z-index:99998;background:linear-gradient(180deg,#f6fbfc,#eef5f6);overflow:auto;padding:28px 32px 42px}
+#gosMaterialsModule.open{display:block}
+.gm-shell{max-width:1450px;margin:0 auto}
+.gm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}
+.gm-kicker{font-size:10px;font-weight:800;letter-spacing:.16em;color:#0f766e;text-transform:uppercase;margin-bottom:7px}
+.gm-head h2{margin:0;font-size:30px;line-height:1.1;color:#10243a;letter-spacing:-.03em}
+.gm-head p{margin:8px 0 0;color:#64748b;font-size:13px}
+.gm-actions{display:flex;gap:9px;flex-wrap:wrap}
+.gm-btn{border:1px solid #d6e3e7;background:#fff;color:#173047;border-radius:11px;padding:10px 14px;font-weight:800;font-size:11px;cursor:pointer;box-shadow:0 7px 18px rgba(8,21,37,.06)}
+.gm-btn.primary{background:linear-gradient(135deg,#0f766e,#14b8a6);border-color:#0f766e;color:#fff}
+.gm-btn:hover{transform:translateY(-1px)}
+.gm-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.gm-stat{background:rgba(255,255,255,.9);border:1px solid #dbe5e8;border-radius:16px;padding:16px 18px;box-shadow:0 10px 26px rgba(8,21,37,.06)}
+.gm-stat .n{font-size:25px;font-weight:900;color:#10243a}.gm-stat .l{font-size:10px;font-weight:800;color:#718096;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.gm-card{background:rgba(255,255,255,.96);border:1px solid #dbe5e8;border-radius:18px;box-shadow:0 14px 36px rgba(8,21,37,.07);overflow:hidden}
+.gm-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 18px;border-bottom:1px solid #e4ecef}.gm-search{max-width:360px;width:100%;border:1px solid #d5e1e5;border-radius:10px;padding:10px 12px;font-size:12px;outline:none}.gm-search:focus{border-color:#14b8a6;box-shadow:0 0 0 3px rgba(20,184,166,.1)}
+.gm-table-wrap{overflow:auto}.gm-table{width:100%;border-collapse:collapse;min-width:1050px}.gm-table th{background:#f7fafb;color:#718096;font-size:9px;text-transform:uppercase;letter-spacing:.09em;text-align:left;padding:12px 14px;border-bottom:1px solid #e1eaed}.gm-table td{padding:13px 14px;border-bottom:1px solid #edf2f4;color:#26384b;font-size:11px;vertical-align:middle}.gm-table tr:last-child td{border-bottom:0}.gm-wo{font-weight:900;color:#0f766e}.gm-supplier{font-weight:700}.gm-date{font-weight:800}.gm-status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:9px;font-weight:900;white-space:nowrap}.gm-status.green{background:#e8f8f3;color:#087a62}.gm-status.yellow{background:#fff7df;color:#9a6a00}.gm-status.red{background:#feeceb;color:#b42318}.gm-status.gray{background:#eef2f4;color:#687888}.gm-mini{border:1px solid #d7e3e7;background:#fff;border-radius:8px;padding:7px 9px;font-size:9px;font-weight:800;cursor:pointer}.gm-mini:hover{background:#f3f8f8}.gm-empty{padding:45px;text-align:center;color:#718096;font-size:12px}
+.gm-form{display:none;position:fixed;inset:0 0 0 255px;z-index:100000;background:rgba(7,18,31,.56);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:22px}.gm-form.open{display:flex}.gm-form-card{width:min(620px,100%);background:#fff;border-radius:20px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.25)}.gm-form-card h3{margin:0;color:#10243a;font-size:20px}.gm-form-card p{margin:6px 0 18px;color:#718096;font-size:11px}.gm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.gm-field label{display:block;font-size:9px;font-weight:900;color:#60758a;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.gm-field input,.gm-field select{width:100%;box-sizing:border-box;border:1px solid #d5e1e5;border-radius:10px;padding:11px 12px;font-size:12px;color:#152235;background:#fbfdfe}.gm-field.full{grid-column:1/-1}.gm-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.gm-note{margin-top:12px;background:#f3f8f8;border:1px solid #dcebea;border-radius:10px;padding:10px 12px;color:#526777;font-size:10px;line-height:1.5}
+@media(max-width:760px){#gosMaterialsModule{inset:0;padding:20px 14px 32px}.gm-head{align-items:flex-start;flex-direction:column}.gm-head h2{font-size:25px}.gm-stats{grid-template-columns:1fr 1fr}.gm-form{inset:0}.gm-grid{grid-template-columns:1fr}.gm-field.full{grid-column:auto}}
+</style>
+
+<section id="gosMaterialsModule" aria-label="Materials Tracking">
+  <div class="gm-shell">
+    <div class="gm-head">
+      <div>
+        <div class="gm-kicker">Material Readiness</div>
+        <h2>Materials Tracking</h2>
+        <p>Track only the expected in-house dates for fabric and accessories against each Work Order.</p>
+      </div>
+      <div class="gm-actions">
+        <button class="gm-btn" type="button" id="gmBackBtn">← Back</button>
+        <button class="gm-btn primary" type="button" id="gmNewBtn">＋ Add / Update</button>
+      </div>
+    </div>
+    <div class="gm-stats">
+      <div class="gm-stat"><div class="n" id="gmTotal">0</div><div class="l">Work Orders</div></div>
+      <div class="gm-stat"><div class="n" id="gmReady">0</div><div class="l">Both Dates Set</div></div>
+      <div class="gm-stat"><div class="n" id="gmAttention">0</div><div class="l">Attention</div></div>
+      <div class="gm-stat"><div class="n" id="gmReceived">0</div><div class="l">Fully Received</div></div>
+    </div>
+    <div class="gm-card">
+      <div class="gm-toolbar">
+        <strong style="font-size:13px;color:#10243a">Material In-house Schedule</strong>
+        <input id="gmSearch" class="gm-search" type="search" placeholder="Search Work Order or supplier…">
+      </div>
+      <div class="gm-table-wrap">
+        <table class="gm-table">
+          <thead><tr><th>Work Order</th><th>Supplier</th><th>Approx. Fabric In-house</th><th>Fabric Status</th><th>Approx. Accessories In-house</th><th>Accessories Status</th><th>Overall</th><th>Actions</th></tr></thead>
+          <tbody id="gmRows"><tr><td colspan="8" class="gm-empty">Loading materials schedule…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gm-form" id="gmForm">
+  <div class="gm-form-card">
+    <h3>Material In-house Plan</h3>
+    <p>Only enter the approximate expected dates. When material arrives, use “Mark Received” and the system records today's date automatically.</p>
+    <div class="gm-grid">
+      <div class="gm-field full"><label>Work Order</label><select id="gmWo"></select></div>
+      <div class="gm-field"><label>Approx. Fabric In-house</label><input id="gmFabricDate" type="date"></div>
+      <div class="gm-field"><label>Approx. Accessories In-house</label><input id="gmAccDate" type="date"></div>
+    </div>
+    <div class="gm-note">No quantity, stock, consumption, roll count or inventory entry is required in this module.</div>
+    <div class="gm-form-actions"><button class="gm-btn" type="button" id="gmCancelBtn">Cancel</button><button class="gm-btn primary" type="button" id="gmSaveBtn">Save Schedule</button></div>
+  </div>
+</div>
+
+<script id="ishruq-materials-module-js">
+(function(){
+  const module=document.getElementById('gosMaterialsModule');
+  if(!module) return;
+  const form=document.getElementById('gmForm');
+  const rowsEl=document.getElementById('gmRows');
+  const woEl=document.getElementById('gmWo');
+  const searchEl=document.getElementById('gmSearch');
+  let orders=[], records=[];
+  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const fmtDate=v=>{if(!v)return '—'; const d=new Date(v+'T00:00:00'); return isNaN(d)?v:d.toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'});};
+  const today=()=>new Date().toISOString().slice(0,10);
+  function days(v){if(!v)return null; return Math.ceil((new Date(v+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);}
+  function status(date,received){
+    if(received) return '<span class="gm-status green">● Received</span>';
+    if(!date) return '<span class="gm-status gray">● Not set</span>';
+    const d=days(date);
+    if(d<0) return '<span class="gm-status red">● Overdue</span>';
+    if(d<=2) return '<span class="gm-status yellow">● Due soon</span>';
+    return '<span class="gm-status green">● Upcoming</span>';
+  }
+  function recFor(key){return records.find(r=>r.record_key===key)?.data_json||null;}
+  function render(){
+    const q=(searchEl.value||'').toLowerCase().trim();
+    const list=orders.filter(o=>!q||[o.woNumber,o.company,o.supplierCompany].some(v=>String(v||'').toLowerCase().includes(q)));
+    let both=0,attention=0,received=0;
+    list.forEach(o=>{const r=recFor(o.key)||{}; if(r.fabricDate&&r.accessoriesDate)both++; if((r.fabricReceived||r.accessoriesReceived))attention++; if(r.fabricReceived&&r.accessoriesReceived)received++;});
+    document.getElementById('gmTotal').textContent=orders.length;
+    document.getElementById('gmReady').textContent=both;
+    document.getElementById('gmAttention').textContent=attention;
+    document.getElementById('gmReceived').textContent=received;
+    if(!list.length){rowsEl.innerHTML='<tr><td colspan="8" class="gm-empty">No Work Orders found.</td></tr>';return;}
+    rowsEl.innerHTML=list.map(o=>{
+      const r=recFor(o.key)||{};
+      const overall=r.fabricReceived&&r.accessoriesReceived?'green':((r.fabricDate&&days(r.fabricDate)<0&&!r.fabricReceived)||(r.accessoriesDate&&days(r.accessoriesDate)<0&&!r.accessoriesReceived)?'red':(r.fabricDate||r.accessoriesDate)?'yellow':'gray');
+      const label=overall==='green'?'Complete':overall==='red'?'Attention':overall==='yellow'?'Planned':'Not Set';
+      return `<tr><td><span class="gm-wo">${esc(o.woNumber||o.key)}</span></td><td><span class="gm-supplier">${esc(o.supplierCompany||o.company||'—')}</span></td><td class="gm-date">${fmtDate(r.fabricDate)}</td><td>${status(r.fabricDate,r.fabricReceived)}</td><td class="gm-date">${fmtDate(r.accessoriesDate)}</td><td>${status(r.accessoriesDate,r.accessoriesReceived)}</td><td><span class="gm-status ${overall}">● ${label}</span></td><td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="gm-mini" data-edit="${esc(o.key)}">Edit</button>${!r.fabricReceived&&r.fabricDate?`<button class="gm-mini" data-recv="fabric" data-key="${esc(o.key)}">Fabric ✓</button>`:''}${!r.accessoriesReceived&&r.accessoriesDate?`<button class="gm-mini" data-recv="accessories" data-key="${esc(o.key)}">Accessories ✓</button>`:''}</div></td></tr>`;
+    }).join('');
+    rowsEl.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openForm(b.dataset.edit)));
+    rowsEl.querySelectorAll('[data-recv]').forEach(b=>b.addEventListener('click',()=>markReceived(b.dataset.key,b.dataset.recv)));
+  }
+  async function load(){
+    try{
+      const [woRes,matRes]=await Promise.all([fetch('/api/work-orders'),fetch('/api/modules/materials')]);
+      if(!woRes.ok) throw new Error('Could not load Work Orders.');
+      const w=await woRes.json(); orders=Array.isArray(w.index)?w.index:[];
+      if(matRes.ok){const m=await matRes.json();records=Array.isArray(m.records)?m.records:[];} else records=[];
+      woEl.innerHTML=orders.map(o=>`<option value="${esc(o.key)}">${esc(o.woNumber||o.key)} — ${esc(o.supplierCompany||o.company||'')}</option>`).join('');
+      render();
+    }catch(e){rowsEl.innerHTML=`<tr><td colspan="8" class="gm-empty">${esc(e.message||'Unable to load materials data.')}</td></tr>`;}
+  }
+  function openForm(key){
+    if(!orders.length){if(window.showToast)showToast('No Work Orders are available yet.',true);return;}
+    woEl.value=key||orders[0].key;
+    const r=recFor(woEl.value)||{};
+    document.getElementById('gmFabricDate').value=r.fabricDate||'';
+    document.getElementById('gmAccDate').value=r.accessoriesDate||'';
+    form.classList.add('open');
+  }
+  function closeForm(){form.classList.remove('open');}
+  async function save(){
+    const key=woEl.value, fabric=document.getElementById('gmFabricDate').value, acc=document.getElementById('gmAccDate').value;
+    if(!key){if(window.showToast)showToast('Select a Work Order.',true);return;}
+    const old=recFor(key)||{};
+    const data={recordKey:key,data:{workOrderKey:key,fabricDate:fabric,accessoriesDate:acc,fabricReceived:!!old.fabricReceived,fabricReceivedDate:old.fabricReceivedDate||'',accessoriesReceived:!!old.accessoriesReceived,accessoriesReceivedDate:old.accessoriesReceivedDate||''}};
+    const btn=document.getElementById('gmSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
+    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Save failed.'); closeForm(); if(window.showToast)showToast('Material schedule saved.',false); await load();}
+    catch(e){if(window.showToast)showToast(e.message||'Could not save.',true);} finally{btn.disabled=false;btn.textContent='Save Schedule';}
+  }
+  async function markReceived(key,type){
+    const r=recFor(key)||{}; if(!r.fabricDate&&!r.accessoriesDate){if(window.showToast)showToast('Set the expected date first.',true);return;}
+    r.workOrderKey=key;
+    if(type==='fabric'){r.fabricReceived=true;r.fabricReceivedDate=today();}
+    if(type==='accessories'){r.accessoriesReceived=true;r.accessoriesReceivedDate=today();}
+    try{const res=await fetch('/api/modules/materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recordKey:key,data:r})}); const out=await res.json(); if(!res.ok)throw new Error(out.error||'Update failed.'); await load();}
+    catch(e){if(window.showToast)showToast(e.message||'Could not update receipt status.',true);}
+  }
+  document.getElementById('gmNewBtn').addEventListener('click',()=>openForm());
+  document.getElementById('gmCancelBtn').addEventListener('click',closeForm);
+  document.getElementById('gmSaveBtn').addEventListener('click',save);
+  document.getElementById('gmBackBtn').addEventListener('click',()=>{module.classList.remove('open'); if(window.saraSetView)window.saraSetView('overview');});
+  searchEl.addEventListener('input',render);
+  window.garmentosMaterials={open:function(){module.classList.add('open');load();},hide:function(){module.classList.remove('open');closeForm();},close:closeForm,refresh:load};
+})();
+</script>
+
 </body>
 
 <style id="sara-eye-catching-terms">
